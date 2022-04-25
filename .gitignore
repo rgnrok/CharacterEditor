@@ -58,3 +58,9 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+Packages/Character_Editor/Prefabs/*
+Packages/Character_Editor/Textures/*
+Packages/Character_Editor/Meshes/*
+Packages/Character_Editor/NewCharacter/*
+StreamingAssets/*
+AddressableAssetsData/*

@@ -1,0 +1,61 @@
+﻿#if UNITY_EDITOR
+using System;
+using UnityEditor;
+using System.Collections.Generic;
+
+namespace CharacterEditor
+{
+    namespace AssetDatabaseLoader
+    {
+        public abstract class DataLoader<T> : CommonLoader<T>, IDataLoader<T> where T: UnityEngine.Object, IData
+        {
+            protected abstract string ConfigsPath { get; }
+
+            private Dictionary<string, T> _guidCache;
+
+
+            private void PrepareGuidCache()
+            {
+                if (_guidCache?.Count != 0) return;
+
+                var stringType = typeof(T).Name;
+                var paths = AssetDatabase.FindAssets("t:" + stringType, new string[] { ConfigsPath });
+
+                _guidCache = new Dictionary<string, T>(paths.Length);
+                for (int i = 0; i < paths.Length; i++)
+                {
+                    var data = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(paths[i]));
+                    _guidCache[data.Guid] = data;
+                }
+            }
+
+            public void LoadData(Action<Dictionary<string, T>> callback)
+            {
+                PrepareGuidCache();
+                callback.Invoke(_guidCache);
+            }
+
+            public void LoadData(List<string> guids, Action<Dictionary<string, T>> callback)
+            {
+                PrepareGuidCache();
+                var dataItems = new Dictionary<string, T>(guids.Count);
+                foreach (var guid in guids)
+                {
+                    if (_guidCache.TryGetValue(guid, out var data))
+                        dataItems[data.Guid] = data;
+                }
+                callback.Invoke(dataItems);
+            }
+
+            public void LoadData(string guid, Action<T> callback)
+            {
+                PrepareGuidCache();
+                _guidCache.TryGetValue(guid, out var data);
+                callback.Invoke(data);
+            }
+
+         
+        }
+    }
+}
+#endif
