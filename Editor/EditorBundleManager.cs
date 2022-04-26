@@ -370,12 +370,14 @@ public class EditorBundleManager
                 {
                     var bundleTexture = new MapTexture();
 
+                    bundleTexture.colorPaths = new string[texturePath.Length];
+                    var i = 0;
                     foreach (var colorPath in texturePath)
                     {
                         ParsePathToBundle(colorPath.Substring(substringLength), out bundleName, out assetPath, 2);
                         AssetImporter.GetAtPath(colorPath).SetAssetBundleNameAndVariant(bundleName, "");
 
-                        bundleTexture.colorPaths.Add(assetPath);
+                        bundleTexture.colorPaths[i++] = assetPath;
                     }
 
                     bundleMesh.textures.Add(bundleTexture);
@@ -420,13 +422,15 @@ public class EditorBundleManager
             foreach (string[] texturePaths in paths)
             {
                 var texture = new MapTexture();
-                foreach (string colorPath in texturePaths)
+                texture.colorPaths = new string[texturePaths.Length];
+                int i = 0;
+                foreach (var colorPath in texturePaths)
                 {
                     var bundlePath = colorPath.Substring(TEXTURE_PATH_PREFIX.Length);
                     ParsePathToBundle(bundlePath, out var bundleName, out var assetPath);
                     AssetImporter.GetAtPath(colorPath).SetAssetBundleNameAndVariant(bundleName, "");
 
-                    texture.colorPaths.Add(assetPath);
+                    texture.colorPaths[i++] = assetPath;
                 }
                 textures.texturePaths.Add(texture);
             }

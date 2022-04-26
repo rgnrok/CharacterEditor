@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Assets.Game.Scripts.Loaders;
 using CharacterEditor.Services;
 using UnityEngine;
 using UnityEngine.U2D;
@@ -33,7 +34,7 @@ namespace CharacterEditor
         [SerializeField] private MaterialInfo[] materials;
         public MaterialInfo[] Materials { get { return materials; } }
 
-        public Dictionary<TextureType, AbstractTexture> CurrentCharacterTextures { get; private set; }
+        public Dictionary<TextureType, CharacterTexture> CurrentCharacterTextures { get; private set; }
         public Texture2D CharacterTexture { get; private set; }
         public Texture2D CloakTexture { get; private set; }
         public bool IsReady { get; private set; }
@@ -42,7 +43,7 @@ namespace CharacterEditor
 
         private List<SkinnedMeshRenderer> _modelRenderers;
         private List<SkinnedMeshRenderer> _cloakRenderers;
-        private Dictionary<string, Dictionary<TextureType, AbstractTexture>> _characterTextures;
+        private Dictionary<string, Dictionary<TextureType, CharacterTexture>> _characterTextures;
 
         private Dictionary<string, TwoWayArray<Sprite>> _characterPortraits;
         public Sprite CharacterPortrait { get { return _characterPortraits[_characterRace].Current; } }
@@ -53,6 +54,7 @@ namespace CharacterEditor
         private Coroutine _mergeCoroutine;
         private bool _isLock;
         private ITextureLoader _textureLoader;
+        private IDataManager _dataManager;
 
         public Action OnTexturesChanged;
         public Action OnTexturesLoaded;
@@ -66,7 +68,7 @@ namespace CharacterEditor
             Instance = this;
             IsReady = false;
 
-            _characterTextures = new Dictionary<string, Dictionary<TextureType, AbstractTexture>>();
+            _characterTextures = new Dictionary<string, Dictionary<TextureType, CharacterTexture>>();
             _modelRenderers = new List<SkinnedMeshRenderer>();
             _cloakRenderers = new List<SkinnedMeshRenderer>();
             CharacterShaders = new Dictionary<string, TextureShaderType>();
@@ -86,7 +88,9 @@ namespace CharacterEditor
 
         
             _characterPortraits = new Dictionary<string, TwoWayArray<Sprite>>();
-            _textureLoader = AllServices.Container.Single<ILoaderService>().TextureLoader;
+            var loaderService = AllServices.Container.Single<ILoaderService>();
+            _textureLoader = loaderService.TextureLoader;
+            _dataManager = loaderService.DataManager;
         }
 
 
@@ -103,11 +107,11 @@ namespace CharacterEditor
             _characterRace = config.folderName;
             if (!_characterTextures.ContainsKey(_characterRace))
             {
-                CurrentCharacterTextures = new Dictionary<TextureType, AbstractTexture>(EnumComparer.TextureType);
+                CurrentCharacterTextures = new Dictionary<TextureType, CharacterTexture>(EnumComparer.TextureType);
                 foreach (var texture in config.availableTextures)
                 {
                     if (Array.IndexOf(CanChangeTypes, texture) == -1) continue;
-                    CurrentCharacterTextures[texture] = TextureFactory.Create(texture, _textureLoader, _characterRace);
+                    CurrentCharacterTextures[texture] = TextureFactory.Create(texture, _textureLoader, _dataManager, _characterRace);
                 }
                 _characterTextures[_characterRace] = CurrentCharacterTextures;
             }
@@ -248,7 +252,7 @@ namespace CharacterEditor
         private IEnumerator UpdateCloakTexture()
         {
             CloakTexture = null;
-            AbstractTexture cloak;
+            CharacterTexture cloak;
             if (!CurrentCharacterTextures.TryGetValue(TextureType.Cloak, out cloak)) yield break;
 
             while (!cloak.IsReady) yield return null;
@@ -274,7 +278,7 @@ namespace CharacterEditor
         {
             if (!IsReady) return;
 
-            AbstractTexture mainTexture = null;
+            CharacterTexture mainTexture = null;
             foreach (var type in types)
             {
                 if (!CurrentCharacterTextures.ContainsKey(type))
@@ -299,7 +303,7 @@ namespace CharacterEditor
         {
             if (!IsReady) return;
 
-            AbstractTexture mainTexture = null;
+            CharacterTexture mainTexture = null;
             foreach (var type in types)
             {
                 if (!CurrentCharacterTextures.ContainsKey(type))
@@ -323,7 +327,7 @@ namespace CharacterEditor
         {
             if (!IsReady) return;
 
-            AbstractTexture mainTexture = null;
+            CharacterTexture mainTexture = null;
             foreach (var type in types)
             {
                 if (!CurrentCharacterTextures.ContainsKey(type))
@@ -348,7 +352,7 @@ namespace CharacterEditor
         {
             if (!IsReady) return;
 
-            AbstractTexture mainTexture = null;
+            CharacterTexture mainTexture = null;
             foreach (var type in types)
             {
                 if (!CurrentCharacterTextures.ContainsKey(type))

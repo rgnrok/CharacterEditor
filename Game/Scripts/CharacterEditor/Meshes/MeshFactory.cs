@@ -1,48 +1,68 @@
-﻿using CharacterEditor.Mesh;
+﻿using System;
+using Assets.Game.Scripts.Loaders;
+using CharacterEditor.Mesh;
 using UnityEngine;
 
 namespace CharacterEditor
 {
     public class MeshFactory
     {
-        public static AbstractMesh Create(IMeshLoader loader, MeshType meshType, Transform anchor, string characterRace)
+        public static CharacterMesh Create(IMeshLoader loader, IDataManager dataManager, MeshType meshType, Transform anchor, string characterRace)
         {
+            var meshTexturesPath = dataManager.ParseMeshes(characterRace, meshType);
+            var meshOrder = GetMeshMergeOrder(meshType);
             switch (meshType)
             {
                 case MeshType.Beard:
-                    return new Beard(loader, anchor, characterRace);
                 case MeshType.FaceFeature:
-                    return new FaceFeature(loader, anchor, characterRace);
                 case MeshType.Hair:
-                    return new Hair(loader, anchor, characterRace);
-                case MeshType.Helm:
-                    return new Helm(loader, anchor, characterRace);
-                case MeshType.Torso:
-                    return new Torso(loader, anchor, characterRace);
-                case MeshType.TorsoAdd:
-                    return new TorsoAdd(loader, anchor, characterRace);
-                case MeshType.LegLeft:
-                    return new Leg(loader, anchor, characterRace, MeshType.LegLeft);
-                case MeshType.LegRight:
-                    return new Leg(loader, anchor, characterRace, MeshType.LegRight);
-                case MeshType.ShoulderLeft:
-                    return new Shoulder(loader, anchor, characterRace, MeshType.ShoulderLeft);
-                case MeshType.ShoulderRight:
-                    return new Shoulder(loader, anchor, characterRace, MeshType.ShoulderRight);
-                case MeshType.ArmLeft:
-                    return new Arm(loader, anchor, characterRace, MeshType.ArmLeft);
-                case MeshType.ArmRight:
-                    return new Arm(loader, anchor, characterRace, MeshType.ArmRight);
-                case MeshType.Belt:
-                    return new Belt(loader, anchor, characterRace);
-                case MeshType.BeltAdd:
-                    return new BeltAdd(loader, anchor, characterRace);
-                case MeshType.HandLeft:
-                    return new Hand(loader, anchor, characterRace, MeshType.HandLeft);
-                case MeshType.HandRight:
-                    return new Hand(loader, anchor, characterRace, MeshType.HandRight);
+                    return new CharacterMesh(loader, anchor, meshTexturesPath, meshType, meshOrder, true);
                 default:
-                    return null;
+                    return new CharacterMesh(loader, anchor, meshTexturesPath, meshType, meshOrder, false);
+            }
+        }
+
+        public static int GetMeshMergeOrder(MeshType type)
+        {
+            switch (type)
+            {
+                //Face
+                case MeshType.Hair:
+                    return 0;
+                case MeshType.Beard:
+                    return 1;
+                case MeshType.FaceFeature:
+                    return 2;
+                
+                //Armor
+                case MeshType.HandLeft:
+                    return 0;
+                case MeshType.HandRight:
+                    return 1;
+                case MeshType.Torso:
+                    return 2;
+                case MeshType.TorsoAdd:
+                    return 3;
+                case MeshType.ShoulderRight:
+                    return 4;
+                case MeshType.ShoulderLeft:
+                    return 5;
+                case MeshType.ArmLeft:
+                    return 6;
+                case MeshType.ArmRight:
+                    return 7;
+                case MeshType.Helm:
+                    return 8;
+                case MeshType.Belt:
+                    return 9;
+                case MeshType.BeltAdd:
+                    return 10;
+                case MeshType.LegLeft:
+                    return 11;
+                case MeshType.LegRight:
+                    return 12;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
         }
     }

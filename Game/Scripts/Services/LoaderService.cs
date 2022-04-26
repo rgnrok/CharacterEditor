@@ -1,5 +1,6 @@
 ﻿
 using System.Threading.Tasks;
+using Assets.Game.Scripts.Loaders;
 using CharacterEditor.CharacterInventory;
 using Game;
 using UnityEngine;
@@ -9,8 +10,9 @@ namespace CharacterEditor.Services
     class LoaderService : ILoaderService
     {
         private readonly ICoroutineRunner _coroutineRunner;
-        private readonly ILoaderFactory _loaderFactory;
+        private ILoaderFactory _loaderFactory;
 
+        public IDataManager DataManager { get; private set; }
         public IMeshLoader MeshLoader { get; }
         public ITextureLoader TextureLoader { get; }
         public IConfigLoader ConfigLoader { get; }
@@ -24,7 +26,7 @@ namespace CharacterEditor.Services
         public LoaderService(IStaticDataService staticDataService, ICoroutineRunner coroutineRunner)
         {
             _coroutineRunner = coroutineRunner;
-            _loaderFactory = CreateFactory(staticDataService.LoaderType);
+            Initialize(staticDataService.LoaderType);
 
             MeshLoader = _loaderFactory.CreateMeshLoader(staticDataService.MeshAtlasType);
             TextureLoader = _loaderFactory.CreateTextureLoader();
@@ -37,18 +39,23 @@ namespace CharacterEditor.Services
             GameObjectLoader = _loaderFactory.CreateGameObjectLoader();
         }
 
-        private ILoaderFactory CreateFactory(LoaderType loaderType)
+        private void Initialize(LoaderType loaderType)
         {
             switch (loaderType)
             {
 #if UNITY_EDITOR
                 case LoaderType.AssetDatabase:
-                    return new AssetDatabaseLoader.AssetDatabaseLoaderFactory();
+                    _loaderFactory = new AssetDatabaseLoader.AssetDatabaseLoaderFactory();
+                    DataManager = new DataManager("assetBundleInfo");
+                    break;
 #endif
                 // case LoaderType.Addresable:
                 // _loaderFactory = new Addre
                 default:
-                    return new AssetBundleLoader.AssetBundleLoaderFactory(_coroutineRunner);
+                    _loaderFactory= new AssetBundleLoader.AssetBundleLoaderFactory(_coroutineRunner);
+                    DataManager = new DataManager("assetBundleInfo");
+
+                    break;
             }
         }
 

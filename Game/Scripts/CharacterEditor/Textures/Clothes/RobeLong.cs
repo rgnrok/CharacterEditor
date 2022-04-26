@@ -2,11 +2,11 @@
 {
     namespace Textures
     {
-        public class RobeLong : AbstractTexture
+        public class RobeLong : CharacterTexture
         {
 
-            public RobeLong(ITextureLoader loader, string characterRace) :
-                base(loader, characterRace, TextureType.RobeLong) {
+            public RobeLong(ITextureLoader loader, string[][] textures) :
+                base(loader, textures, TextureType.RobeLong) {
             }
 
             public override void MoveNext() {

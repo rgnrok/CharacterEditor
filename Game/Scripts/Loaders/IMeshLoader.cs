@@ -7,7 +7,6 @@ namespace CharacterEditor
 {
     public interface IMeshLoader : ICommonLoader<GameObject>
     {
-        Dictionary<string, string[][]> ParseMeshes(string characterRace, MeshType meshType);
 
         void LoadItemMesh(string meshPath, string texturePath, Action<GameObject, ItemTexture> callback);
 

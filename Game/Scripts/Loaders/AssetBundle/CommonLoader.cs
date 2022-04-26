@@ -12,7 +12,6 @@ namespace CharacterEditor
         public class CommonLoader<T> : ICommonLoader<T> where T : UnityEngine.Object
         {
             private readonly Dictionary<string, T> _cache = new Dictionary<string, T>();
-            private readonly Dictionary<string, int> _bundleUsageCounters = new Dictionary<string, int>();
             private readonly ICoroutineRunner _coroutineRunner;
 
             public CommonLoader(ICoroutineRunner coroutineRunner)
@@ -23,15 +22,11 @@ namespace CharacterEditor
             public void Unload(string path)
             {
                 var (assetBundleName, _) = ParseAssetName(path);
+                _cache.Remove(path);
 
-                if (_bundleUsageCounters.ContainsKey(assetBundleName))
-                {
-                    _bundleUsageCounters[assetBundleName]--;
-                    if (_bundleUsageCounters[assetBundleName] > 0) return;
-                }
+                if (!BundleUsageChecker.CheckUnload(assetBundleName)) return;
 
                 AssetBundleManager.UnloadAssetBundle(assetBundleName, true);
-                _cache.Remove(path);
                 Resources.UnloadUnusedAssets();
             }
 
@@ -61,7 +56,7 @@ namespace CharacterEditor
 
                 if (_cache.TryGetValue(path, out var asset))
                 {
-                    UpdateUsageCounter(assetBundleName);
+                    BundleUsageChecker.UpdateUsageCounter(assetBundleName);
                     callback?.Invoke(asset);
                     yield break;
                 }
@@ -78,18 +73,12 @@ namespace CharacterEditor
                 asset = request.GetAsset<T>();
 
                 _cache[path] = asset;
-                UpdateUsageCounter(assetBundleName);
+                BundleUsageChecker.UpdateUsageCounter(assetBundleName);
 
                 callback?.Invoke(asset);
             }
 
-            private void UpdateUsageCounter(string assetBundleName)
-            {
-                if (!_bundleUsageCounters.ContainsKey(assetBundleName))
-                    _bundleUsageCounters[assetBundleName] = 0;
-
-                _bundleUsageCounters[assetBundleName]++;
-            }
+            
 
             private static (string, string) ParseAssetName(string path)
             {

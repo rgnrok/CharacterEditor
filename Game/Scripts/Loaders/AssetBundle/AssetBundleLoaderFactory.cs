@@ -16,23 +16,19 @@ namespace CharacterEditor
         public class AssetBundleLoaderFactory : ILoaderFactory
         {
             private readonly ICoroutineRunner _coroutineRunner;
-            private readonly LoadedDataManager _dataManager;
+            private readonly DataManager _dataManager;
 
             public AssetBundleLoaderFactory(ICoroutineRunner coroutineRunner)
             {
                 _coroutineRunner = coroutineRunner;
-                var before = System.GC.GetTotalMemory(true);
-
-                _dataManager = new LoadedDataManager("assetBundleInfo");
-                var after = System.GC.GetTotalMemory(true);
-                Debug.LogError($"Memory usage after: {after- before}");
+                _dataManager = new DataManager("assetBundleInfo");
             }
 
             public IMeshLoader CreateMeshLoader(MeshAtlasType atlasType) => 
-                new MeshLoader(CreateTextureLoader(), _dataManager, _coroutineRunner);
+                new MeshLoader(CreateTextureLoader(), _coroutineRunner);
 
             public ITextureLoader CreateTextureLoader() => 
-                new TextureLoader(_dataManager, _coroutineRunner);
+                new TextureLoader(_coroutineRunner);
 
             public IConfigLoader CreateConfigLoader() => 
                 new ConfigLoader(_dataManager);

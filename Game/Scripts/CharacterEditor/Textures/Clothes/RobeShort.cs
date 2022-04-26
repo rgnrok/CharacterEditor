@@ -2,10 +2,10 @@
 {
     namespace Textures
     {
-        public class RobeShort : AbstractTexture
+        public class RobeShort : CharacterTexture
         {
-            public RobeShort(ITextureLoader loader, string characterRace) :
-                base(loader, characterRace, TextureType.RobeShort) {
+            public RobeShort(ITextureLoader loader, string[][] textures) :
+                base(loader, textures, TextureType.RobeShort) {
             }
 
             public override void MoveNext() {

@@ -2,8 +2,7 @@
 
 namespace CharacterEditor
 {
-    public interface ITextureLoader : ICommonLoader<Texture2D>, IService
+    public interface ITextureLoader : ICommonLoader<Texture2D>
     {
-        string[][] ParseCharacterTextures(string characterRace, TextureType type);
     }
 }

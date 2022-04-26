@@ -11,11 +11,11 @@ namespace CharacterEditor
     {
         public class ConfigLoader : IConfigLoader
         {
-            private readonly LoadedDataManager _dataManager;
+            private readonly DataManager _dataManager;
 
             private readonly Dictionary<string, CharacterConfig> _configCache = new Dictionary<string, CharacterConfig>();
 
-            public ConfigLoader(LoadedDataManager dataManager)
+            public ConfigLoader(DataManager dataManager)
             {
                 _dataManager = dataManager;
             }

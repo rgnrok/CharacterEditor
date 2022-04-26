@@ -67,7 +67,7 @@ namespace CharacterEditor
         [Serializable]
         public class MapTexture
         {
-            public List<string> colorPaths = new List<string>();
+            public string[] colorPaths;
         }
       
         #endregion

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Assets.Game.Scripts.Loaders;
 using CharacterEditor.Mesh;
 using CharacterEditor.Services;
 using UnityEngine;
@@ -28,12 +29,12 @@ namespace CharacterEditor
 
         public Texture2D ArmorTexture { get; private set; }
         public Texture2D FaceTexture { get; private set; }
-        public List<AbstractMesh> SelectedArmorMeshes { get; private set; }
-        public List<AbstractMesh> SelectedSkinMeshes { get; private set; }
+        public List<CharacterMesh> SelectedArmorMeshes { get; private set; }
+        public List<CharacterMesh> SelectedSkinMeshes { get; private set; }
         public bool IsReady { get; private set; }
 
-        private Dictionary<string, Dictionary<MeshType, AbstractMesh>> _characterMeshes;
-        private Dictionary<MeshType, AbstractMesh> _currentCharacterMeshes;
+        private Dictionary<string, Dictionary<MeshType, CharacterMesh>> _characterMeshes;
+        private Dictionary<MeshType, CharacterMesh> _currentCharacterMeshes;
 
         private string _characterRace;
         private bool _isLock;
@@ -44,6 +45,7 @@ namespace CharacterEditor
         public Action OnMeshesLoaded;
         private IMeshLoader _meshLoader;
         private IStaticDataService _staticDataService;
+        private IDataManager _dataManager;
 
         public static MeshManager Instance { get; private set; }
 
@@ -52,9 +54,9 @@ namespace CharacterEditor
             if (Instance != null) Destroy(gameObject);
             Instance = this;
 
-            _characterMeshes = new Dictionary<string, Dictionary<MeshType, AbstractMesh>>();
-            SelectedArmorMeshes = new List<AbstractMesh>();
-            SelectedSkinMeshes = new List<AbstractMesh>();
+            _characterMeshes = new Dictionary<string, Dictionary<MeshType, CharacterMesh>>();
+            SelectedArmorMeshes = new List<CharacterMesh>();
+            SelectedSkinMeshes = new List<CharacterMesh>();
 
             var list = new List<MeshType>();
             foreach (var enumValue in Enum.GetValues(typeof(MeshType)))
@@ -71,7 +73,9 @@ namespace CharacterEditor
                 _emptyPixels[i] = new Color32(0, 0, 0, 0);
 
             // @todo
-            _meshLoader = AllServices.Container.Single<ILoaderService>().MeshLoader;
+            var loaderService = AllServices.Container.Single<ILoaderService>();
+            _meshLoader = loaderService.MeshLoader;
+            _dataManager = loaderService.DataManager;
             _staticDataService = AllServices.Container.Single<IStaticDataService>();
         }
 
@@ -104,7 +108,7 @@ namespace CharacterEditor
         {
             if (!_characterMeshes.ContainsKey(characterKey))
             {
-                _currentCharacterMeshes = new Dictionary<MeshType, AbstractMesh>();
+                _currentCharacterMeshes = new Dictionary<MeshType, CharacterMesh>();
                 foreach (var meshBone in config.availableMeshes)
                 {
                     if (Array.IndexOf(CanChangeTypes, meshBone.mesh) == -1) continue;
@@ -112,7 +116,7 @@ namespace CharacterEditor
                     Transform bone;
                     if (!data.meshBones.TryGetValue(meshBone.mesh, out bone)) continue;
 
-                    _currentCharacterMeshes[meshBone.mesh] = MeshFactory.Create(_meshLoader, meshBone.mesh, bone, config.folderName);
+                    _currentCharacterMeshes[meshBone.mesh] = MeshFactory.Create(_meshLoader, _dataManager, meshBone.mesh, bone, config.folderName);
                 }
                 _characterMeshes[characterKey] = _currentCharacterMeshes;
 
@@ -239,10 +243,10 @@ namespace CharacterEditor
                 yield return null;
             }
             IsReady = true;
-            if (OnMeshesChanged != null) OnMeshesChanged();
+            OnMeshesChanged?.Invoke();
         }
 
-        private void CreateMeshAtlas(Texture2D atlas, List<AbstractMesh> meshes)
+        private void CreateMeshAtlas(Texture2D atlas, List<CharacterMesh> meshes)
         {
             Profiler.BeginSample("CreateMeshAtlas");
             var j = 0;

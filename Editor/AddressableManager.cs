@@ -186,10 +186,12 @@ public class AddressableManager
             foreach (string[] texturePaths in paths)
             {
                 var texture = new MapTexture();
+                texture.colorPaths = new string[texturePaths.Length];
+                var colorIndex = 0;
                 foreach (string colorPath in texturePaths)
                 {
                     var assetPath = SetupAddressable(colorPath, $"{TEXTURE_GROUP_NAME}_{raceName}_{textureType}");
-                    texture.colorPaths.Add(assetPath);
+                    texture.colorPaths[colorIndex++] = assetPath;
                 }
                 textures.texturePaths.Add(texture);
             }
@@ -230,11 +232,12 @@ public class AddressableManager
                 foreach (var texturePath in meshPathPair.Value)
                 {
                     var textures = new MapTexture();
-                
+                    textures.colorPaths = new string[texturePath.Length];
+                    var colorIndex = 0;
                     foreach (var colorPath in texturePath)
                     {
                         var textureAddressablePath = SetupAddressable(colorPath, $"{MESH_GROUP_NAME}_{raceName}_{meshType}");
-                        textures.colorPaths.Add(textureAddressablePath);
+                        textures.colorPaths[colorIndex++] = textureAddressablePath;
                     }
                 
                     mesh.textures.Add(textures);

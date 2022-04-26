@@ -12,12 +12,10 @@ namespace CharacterEditor
         public class MeshLoader : CommonLoader<GameObject>, IMeshLoader
         {
             private readonly ITextureLoader _textureLoader;
-            private readonly LoadedDataManager _dataManager;
 
-            public MeshLoader(ITextureLoader textureLoader, LoadedDataManager dataManager, ICoroutineRunner coroutineRunner) : base(coroutineRunner)
+            public MeshLoader(ITextureLoader textureLoader, ICoroutineRunner coroutineRunner) : base(coroutineRunner)
             {
                 _textureLoader = textureLoader;
-                _dataManager = dataManager;
             }
 
             public void LoadMesh(string meshPath, Action<string, GameObject> callback)
@@ -43,24 +41,6 @@ namespace CharacterEditor
             public MeshTexture CreateMeshTexture(string[][] textures)
             {
                 return new MeshTexture(_textureLoader, textures);
-            }
-
-            public Dictionary<string, string[][]> ParseMeshes(string characterRace, MeshType meshType)
-            {
-                if (!_dataManager.RaceMeshes.TryGetValue(characterRace, out var raceMeshesMap)) return null;
-                if (!raceMeshesMap.TryGetValue(meshType, out var meshesMap)) return null;
-
-                return meshesMap.meshPaths.ToDictionary(
-                    x => x.modelPath,
-                    x =>
-                    {
-                        var texturePaths = new string[x.textures.Count][];
-                        for (var i = 0; i < x.textures.Count; i++)
-                            texturePaths[i] = x.textures[i].colorPaths.ToArray();
-
-                        return texturePaths;
-                    }
-                );
             }
         }
     }

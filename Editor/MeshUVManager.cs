@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using CharacterEditor;
 using CharacterEditor.AssetDatabaseLoader;
+using CharacterEditor.CharacterInventory;
 using CharacterEditor.Mesh;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 public class MeshUVManager
 {
@@ -32,19 +35,19 @@ public class MeshUVManager
 
             var meshPaths = new SortedDictionary<int, string>()
             {
-                {Arm.GetMergeOrder(MeshType.ArmRight), armorMeshFolderPath + "Armor_Arm/ArmRight"},
-                {Arm.GetMergeOrder(MeshType.ArmLeft), armorMeshFolderPath + "Armor_Arm/ArmLeft"},
-                {Belt.GetMergeOrder(), armorMeshFolderPath + "Armor_Belt"},
-                {BeltAdd.GetMergeOrder(), armorMeshFolderPath + "Armor_BeltAdd"},
-                {Helm.GetMergeOrder(), armorMeshFolderPath + "Armor_Helm"},
-                {Leg.GetMergeOrder(MeshType.LegRight), armorMeshFolderPath + "Armor_Leg/LegRight"},
-                {Leg.GetMergeOrder(MeshType.LegLeft), armorMeshFolderPath + "Armor_Leg/LegLeft"},
-                {Shoulder.GetMergeOrder(MeshType.ShoulderRight), armorMeshFolderPath + "Armor_Shoulder/ShoulderRight"},
-                {Shoulder.GetMergeOrder(MeshType.ShoulderLeft), armorMeshFolderPath + "Armor_Shoulder/ShoulderLeft"},
-                {Torso.GetMergeOrder(), armorMeshFolderPath + "Armor_Torso"},
-                {TorsoAdd.GetMergeOrder(), armorMeshFolderPath + "Armor_TorsoAdd"},
-                {Hand.GetMergeOrder(MeshType.HandRight), weaponMeshFolderPath + "HandRight"},
-                {Hand.GetMergeOrder(MeshType.HandLeft), weaponMeshFolderPath + "HandLeft"}
+                {MeshFactory.GetMeshMergeOrder(MeshType.ArmRight), armorMeshFolderPath + "Armor_Arm/ArmRight"},
+                {MeshFactory.GetMeshMergeOrder(MeshType.ArmLeft), armorMeshFolderPath + "Armor_Arm/ArmLeft"},
+                {MeshFactory.GetMeshMergeOrder(MeshType.Belt), armorMeshFolderPath + "Armor_Belt"},
+                {MeshFactory.GetMeshMergeOrder(MeshType.BeltAdd), armorMeshFolderPath + "Armor_BeltAdd"},
+                {MeshFactory.GetMeshMergeOrder(MeshType.Helm), armorMeshFolderPath + "Armor_Helm"},
+                {MeshFactory.GetMeshMergeOrder(MeshType.LegRight), armorMeshFolderPath + "Armor_Leg/LegRight"},
+                {MeshFactory.GetMeshMergeOrder(MeshType.LegLeft), armorMeshFolderPath + "Armor_Leg/LegLeft"},
+                {MeshFactory.GetMeshMergeOrder(MeshType.ShoulderRight), armorMeshFolderPath + "Armor_Shoulder/ShoulderRight"},
+                {MeshFactory.GetMeshMergeOrder(MeshType.ShoulderLeft), armorMeshFolderPath + "Armor_Shoulder/ShoulderLeft"},
+                {MeshFactory.GetMeshMergeOrder(MeshType.Torso), armorMeshFolderPath + "Armor_Torso"},
+                {MeshFactory.GetMeshMergeOrder(MeshType.TorsoAdd), armorMeshFolderPath + "Armor_TorsoAdd"},
+                {MeshFactory.GetMeshMergeOrder(MeshType.HandRight), weaponMeshFolderPath + "HandRight"},
+                {MeshFactory.GetMeshMergeOrder(MeshType.HandLeft), weaponMeshFolderPath + "HandLeft"}
             };
 
             UpdatePathsUVs(config.folderName, meshPaths.Values, 4); // 2048/512 px
@@ -55,13 +58,10 @@ public class MeshUVManager
 
     private static void UpdatePathsUVs(string folderName, IEnumerable<string> meshPaths, int atlasSize)
     {
-        var list = new List<string>(meshPaths);
         float uvsStep = 1f / atlasSize;
-
-        for (int itemNum = 0; itemNum < list.Count; itemNum++)
+        int itemNum = 0;
+        foreach(var meshPath in meshPaths)
         {
-            var meshPath = list[itemNum];
-
             if (!AssetDatabase.IsValidFolder(meshPath)) continue;
 
             var meshGUIDs = AssetDatabase.FindAssets("t:GameObject", new string[] { meshPath });
@@ -95,6 +95,8 @@ public class MeshUVManager
                     }
                 }
             }
+
+            itemNum++;
         }
 
         var prefabsPath = $"{ AssetsConstants.CharacterEditorRootPath}/Prefabs/" + folderName;

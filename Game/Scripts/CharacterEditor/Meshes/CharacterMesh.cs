@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -6,19 +7,19 @@ namespace CharacterEditor
 {
     namespace Mesh
     {
-        public abstract class AbstractMesh
+        public class CharacterMesh
         {
             private readonly IMeshLoader _meshLoader;
             private readonly Transform _anchor;
 
 
-            public virtual bool IsFaceMesh => false;
             public readonly int MergeOrder; //Order in static atlas
             public readonly MeshType MeshType;
+            public readonly bool IsFaceMesh;
 
-            private readonly AbstractTexture[] _textures;
+            private readonly CharacterTexture[] _textures;
 
-            public AbstractTexture Texture => 
+            public CharacterTexture Texture => 
                 _textures[SelectedMesh != -1 ? SelectedMesh : 0];
 
 
@@ -32,7 +33,7 @@ namespace CharacterEditor
             private int MeshesCount => _meshPaths?.Length ?? 0;
 
             private string _prevMeshPath;
-            private AbstractTexture _prevMeshTexture;
+            private CharacterTexture _prevMeshTexture;
             private GameObject _prevMesh;
             public GameObject CurrentMesh { get; private set; }
 
@@ -59,7 +60,8 @@ namespace CharacterEditor
                     CurrentMesh = null;
 
                     _selectedMesh = value;
-                    if (_selectedMesh != -1) LoadMesh();
+                    if (_selectedMesh != -1)
+                        LoadMesh();
                 }
             }
 
@@ -71,20 +73,20 @@ namespace CharacterEditor
                 private set => _isReady = value;
             }
 
-            protected AbstractMesh(IMeshLoader loader, Transform anchor, string characterRace, MeshType type, int order)
+            public CharacterMesh(IMeshLoader loader, Transform anchor, Dictionary<string, string[][]> meshAndTexturesPaths, MeshType type, int order, bool isFace)
             {
                 _meshLoader = loader;
                 _anchor = anchor;
                 MeshType = type;
                 MergeOrder = order;
+                IsFaceMesh = isFace;
 
 
-                var meshAndTextures = _meshLoader.ParseMeshes(characterRace, type);
-                _meshPaths = new string[meshAndTextures.Count];
-                _textures = new AbstractTexture[meshAndTextures.Count];
+                _meshPaths = new string[meshAndTexturesPaths.Count];
+                _textures = new CharacterTexture[meshAndTexturesPaths.Count];
 
                 int i = 0;
-                foreach (var meshInfo in meshAndTextures)
+                foreach (var meshInfo in meshAndTexturesPaths)
                 {
                     _meshPaths[i] = meshInfo.Key;
                     _textures[i] = loader.CreateMeshTexture(meshInfo.Value);
@@ -136,8 +138,8 @@ namespace CharacterEditor
                 {
                     CurrentMesh.SetActive(false);
                     _meshLoader.Unload(MeshPath);
-                    Texture.UnloadTexture();
                     GameObject.Destroy(CurrentMesh);
+                    Texture.UnloadTexture();
                     CurrentMesh = null;
                 }
 
@@ -154,7 +156,6 @@ namespace CharacterEditor
                 {
                     var color = Texture.SelectedColor;
                     SelectedMesh++;
-                    //Show first texture for mesh
                     Texture.SetTextureAndColor(0, color);
                 }
 
@@ -171,8 +172,7 @@ namespace CharacterEditor
                 {
                     var color = Texture.SelectedColor;
                     SelectedMesh--;
-                    //Show last texture for mesh
-                    Texture.SetTextureAndColor(-1, color);
+                    Texture.SetTextureAndColor(0, color);
                 }
 
                 UpdateTextureListeners();
@@ -186,9 +186,12 @@ namespace CharacterEditor
             public void Shuffle(int color = -1)
             {
                 SelectedMesh = UnityEngine.Random.Range(-1, MeshesCount);
-       
-                if (color == -1) Texture.Shuffle();
-                else Texture.ShuffleWithColor(color);
+
+                if (SelectedMesh != -1)
+                {
+                    if (color == -1) Texture.Shuffle();
+                    else Texture.ShuffleWithColor(color);
+                }
 
                 UpdateTextureListeners();
             }

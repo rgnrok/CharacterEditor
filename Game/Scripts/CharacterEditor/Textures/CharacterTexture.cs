@@ -5,7 +5,7 @@ using Debug = UnityEngine.Debug;
 
 namespace CharacterEditor
 {
-    public abstract class AbstractTexture
+    public class CharacterTexture
     {
         public readonly TextureType Type;
 
@@ -36,25 +36,14 @@ namespace CharacterEditor
         private string _prevTexturePath;
         private string _lastLoadPath;
 
-        protected AbstractTexture(ITextureLoader loader, string[][] texturePaths, TextureType type = TextureType.Undefined)
+        public CharacterTexture(ITextureLoader loader, string[][] texturePaths, TextureType type = TextureType.Undefined)
         {
             _textureLoader = loader;
             _textures = texturePaths;
-            LoadTexture();
-        }
-
-        protected AbstractTexture(ITextureLoader loader, string characterRace, TextureType type) 
-        {
-            _textureLoader = loader;
             Type = type;
 
-            Process proc = Process.GetCurrentProcess();
-
-            // Debug.LogError($"Memory usage AbstractTexture before: {System.GC.GetTotalMemory(false)}");
-            _textures = loader.ParseCharacterTextures(characterRace, type);
-            // Debug.LogError($"Memory usage AbstractTexture after: {System.GC.GetTotalMemory(false)}");
-            LoadTexture();
-
+            if (type == TextureType.Undefined) IsReady = true;  //todo check
+            else LoadTexture();
         }
 
         public string GetShaderTextureName() => 
@@ -173,6 +162,7 @@ namespace CharacterEditor
 
         public Color32[] GetPixels32()
         {
+            Debug.LogWarning($"Get pixel _prevTexturePath: {_prevTexturePath}, _lastLoadPath: {_lastLoadPath}");
             return Current.GetPixels32();
         }
     }

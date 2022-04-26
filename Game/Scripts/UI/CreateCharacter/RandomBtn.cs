@@ -16,7 +16,7 @@ namespace CharacterEditor
 
     /*
      * Mixes the selected textures and meshes.
-     * Sets the same color and selected tmesha (hair, beard)
+     * Sets the same color and selected mesh (hair, beard)
      * Enables and disables random skin mesh
      */
     public class RandomBtn : MonoBehaviour, IPointerClickHandler
@@ -262,6 +262,7 @@ namespace CharacterEditor
 
         private void UpdateMeshesAndTextures()
         {
+            Debug.Log("UpdateMeshesAndTextures");
             TextureManager.Instance.LockUpdate(false);
             MeshManager.Instance.LockUpdate(false);
             _isProcess = false;

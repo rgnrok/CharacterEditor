@@ -155,7 +155,7 @@ namespace CharacterEditor
             SaveBoneData(folderName);
         }
 
-        private void SetMeshesMaterial(Material material, IEnumerable<AbstractMesh> meshes)
+        private void SetMeshesMaterial(Material material, IEnumerable<CharacterMesh> meshes)
         {
             foreach (var mesh in meshes)
             {

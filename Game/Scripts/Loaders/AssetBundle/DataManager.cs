@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Assets.Game.Scripts.Loaders;
 using CharacterEditor.JSONMap;
 using UnityEngine;
 
 namespace CharacterEditor
 {
-    public class LoadedDataManager
+    public class DataManager : IDataManager
     {
         public Dictionary<string, RaceMap> Races { get; private set; }
         public Dictionary<string, Dictionary<MeshType, MeshesMap>> RaceMeshes { get; private set; }
@@ -16,7 +17,7 @@ namespace CharacterEditor
         public Dictionary<string, GuidPathMap> Containers;
         public Dictionary<string, GuidPathMap> Enemies;
 
-        public LoadedDataManager(string mapConfigPath)
+        public DataManager(string mapConfigPath)
         {
             var targetFile = Resources.Load<TextAsset>(mapConfigPath);
 
@@ -36,6 +37,37 @@ namespace CharacterEditor
                 RaceTextures[raceMap.Key] = raceMap.Value.textures.ToDictionary(x => x.type, x => x);
             }
             Resources.UnloadAsset(targetFile);
+        }
+
+        public string[][] ParseTextures(string characterRace, TextureType textureType)
+        {
+            if (!RaceTextures.TryGetValue(characterRace, out var raceTexturesMaps)) return null;
+            if (!raceTexturesMaps.TryGetValue(textureType, out var texturesMap)) return null;
+
+            var texturePaths = texturesMap.texturePaths;
+            var textures = new string[texturePaths.Count][];
+            for (var i = 0; i < texturePaths.Count; i++)
+                textures[i] = texturePaths[i].colorPaths;
+
+            return textures;
+        }
+
+        public Dictionary<string, string[][]> ParseMeshes(string characterRace, MeshType meshType)
+        {
+            if (!RaceMeshes.TryGetValue(characterRace, out var raceMeshesMap)) return null;
+            if (!raceMeshesMap.TryGetValue(meshType, out var meshesMap)) return null;
+
+            return meshesMap.meshPaths.ToDictionary(
+                x => x.modelPath,
+                x =>
+                {
+                    var texturePaths = new string[x.textures.Count][];
+                    for (var i = 0; i < x.textures.Count; i++)
+                        texturePaths[i] = x.textures[i].colorPaths.ToArray();
+
+                    return texturePaths;
+                }
+            );
         }
     }
 }
