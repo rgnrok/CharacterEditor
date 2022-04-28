@@ -369,13 +369,7 @@ public class Preview : Editor
         previewUtility.BeginPreview(previewRect, background);
 
         Quaternion bodyRot;
-        Quaternion rootRot;
-        Vector3 rootPos;
         Vector3 bodyPos = m_PreviewInstance.transform.position;
-        Vector3 pivotPos;
-
-        rootRot = Quaternion.identity;
-        rootPos = Vector3.zero;
 
         bodyRot = Quaternion.identity;
         SetupPreviewLightingAndFx(probe);

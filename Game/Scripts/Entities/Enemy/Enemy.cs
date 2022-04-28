@@ -45,9 +45,10 @@ namespace EnemySystem
             Portrait = portrait;
         }
 
-        protected override void Init()
+        protected override void InternalInit()
         {
-            base.Init();
+            base.InternalInit();
+
             FSM = new EnemyFSM(this);
             FSM.Start();
             AttackManager = new EnemyAttackManager(this);

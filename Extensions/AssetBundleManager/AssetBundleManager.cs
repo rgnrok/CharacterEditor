@@ -5,6 +5,7 @@ using UnityEditor;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 using UnityEngine.Profiling;
 
 /*  The AssetBundle Manager provides a High-Level API for working with AssetBundles. 
@@ -44,8 +45,7 @@ namespace AssetBundles
         internal void OnUnload(bool unloadAllLoadedObjects)
         {
             m_AssetBundle.Unload(unloadAllLoadedObjects);
-            if (unload != null)
-                unload();
+            unload?.Invoke();
         }
 
         public LoadedAssetBundle(AssetBundle assetBundle)
@@ -137,13 +137,12 @@ namespace AssetBundles
 
         private static void Log(LogType logType, string text)
         {
-            // todo
-//            if (logType == LogType.Error)
-//                Debug.LogError("[AssetBundleManager] " + text);
-//            else if (m_LogMode == LogMode.All && logType == LogType.Warning)
-//                Debug.LogWarning("[AssetBundleManager] " + text);
-//            else if (m_LogMode == LogMode.All)
-//                Debug.Log("[AssetBundleManager] " + text);
+            if (logType == LogType.Error)
+                Debug.LogError("[AssetBundleManager] " + text);
+            else if (m_LogMode == LogMode.All && logType == LogType.Warning)
+                Debug.LogWarning("[AssetBundleManager] " + text);
+            else if (m_LogMode == LogMode.All)
+                Debug.Log("[AssetBundleManager] " + text);
         }
 
 #if UNITY_EDITOR
@@ -454,20 +453,18 @@ namespace AssetBundles
             }
             else
             {
-                WWW download = null;
+                 UnityWebRequest download;
 
-                if (!bundleBaseDownloadingURL.EndsWith("/"))
-                {
-                    bundleBaseDownloadingURL += "/";
-                }
-
+                if (!bundleBaseDownloadingURL.EndsWith("/")) bundleBaseDownloadingURL += "/";
                 string url = bundleBaseDownloadingURL + assetBundleName;
+
                 // For manifest assetbundle, always download it as we don't have hash for it.
                 if (isLoadingAssetBundleManifest)
-                    download = new WWW(url);
+                    download = UnityWebRequestAssetBundle.GetAssetBundle(url);
                 else
-                    download = WWW.LoadFromCacheOrDownload(url, m_AssetBundleManifest.GetAssetBundleHash(assetBundleName), 0);
+                    download = UnityWebRequestAssetBundle.GetAssetBundle(url, m_AssetBundleManifest.GetAssetBundleHash(assetBundleName), 0);
 
+                download.SendWebRequest();
                 m_InProgressOperations.Add(new AssetBundleDownloadFromWebOperation(assetBundleName, download));
             }
             m_DownloadingBundles.Add(assetBundleName);
@@ -649,5 +646,5 @@ namespace AssetBundles
 
             return operation;
         }
-    } // End of AssetBundleManager.
+    }
 }

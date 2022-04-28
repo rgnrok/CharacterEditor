@@ -12,12 +12,12 @@
             _character = fsm.Character;
         }
 
-        public void Enter()
+        public virtual void Enter()
         {
             GameManager.Instance.OnEnemyClick += OnEnemyClickHandler;
         }
 
-        public void Exit()
+        public virtual void Exit()
         {
             GameManager.Instance.OnEnemyClick -= OnEnemyClickHandler;
         }

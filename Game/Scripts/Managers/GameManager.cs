@@ -140,14 +140,12 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
         ItemManager.Instance.SetCharacter(CurrentCharacter);
         CurrentCharacter.GameObjectData.CharacterObject.SetActive(true);
 
-        if (CurrentCharacter.GameObjectData.CharacterObject.GetComponent<PlayerMoveComponent>() == null)
-            CurrentCharacter.GameObjectData.CharacterObject.AddComponent<PlayerMoveComponent>();
 
         Inventory.Init(CurrentCharacter);
 
         if (focus) _followCamera.SetFocus(CurrentCharacter.GameObjectData.CharacterObject.transform, true);
 
-        if (OnChangeCharacter != null) OnChangeCharacter(CurrentCharacter);
+        OnChangeCharacter?.Invoke(CurrentCharacter);
     }
     
 

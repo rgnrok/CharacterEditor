@@ -2,17 +2,17 @@
 using CharacterEditor;
 using UnityEngine;
 
-public class CharacterAttackState : CharacterBaseStateT<IAttacked>
+public class CharacterAttackState : CharacterBasePayloadState<IAttacked>
 {
     private IAttacked _targetEntity;
-    private CharacterAttackManager _attackManager;
+    private readonly CharacterAttackManager _attackManager;
 
     public CharacterAttackState(CharacterFSM fsm) : base(fsm)
     {
         _attackManager = _character.AttackManager;
     }
 
-    public new void Enter(IAttacked targetEntity)
+    public override void Enter(IAttacked targetEntity)
     {
         base.Enter(targetEntity);
 
@@ -23,11 +23,11 @@ public class CharacterAttackState : CharacterBaseStateT<IAttacked>
         AfterSwitching();
     }
 
-    public new void Exit()
+    public override void Exit()
     {
-        base.Exit();
         if (_character.MoveComponent != null)
             _character.MoveComponent.OnMoveCompleted -= MoveComponentHandler;
+        base.Exit();
     }
 
     private void AfterSwitching()

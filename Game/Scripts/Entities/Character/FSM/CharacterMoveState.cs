@@ -2,43 +2,39 @@
 using CharacterEditor;
 using UnityEngine;
 
-public class CharacterMoveState : CharacterBaseStateT<Vector3>
+public class CharacterMoveState : CharacterBasePayloadState<Vector3>
 {
-    private PlayerMoveComponent _moveComponent;
+    private readonly PlayerMoveComponent _moveComponent;
 
     private Vector3 _targetEntity;
-    private bool _isExit;
 
     public CharacterMoveState(CharacterFSM fsm) : base(fsm)
     {
         _moveComponent = _character.MoveComponent;
     }
 
-    public new void Enter(Vector3 targetEntity)
+    public override void Enter(Vector3 targetEntity)
     {
         base.Enter(targetEntity);
         _targetEntity = targetEntity;
-        _isExit = false;
+
         GameManager.Instance.PlayerMoveController.OnGroundClick += OnGroundClickHandler;
+
+        Move(_targetEntity);
     }
 
-    public new void Exit()
+    public override void Exit()
     {
         base.Exit();
-        _isExit = true;
 
         if (_moveComponent != null)
         {
-            _moveComponent.Stop(true);
             _moveComponent.OnMoveCompleted -= OnMoveCompletedHandler;
+            _moveComponent.Stop(true);
         }
+
         GameManager.Instance.PlayerMoveController.OnGroundClick -= OnGroundClickHandler;
 
-    }
-
-    private void AfterSwitching()
-    {
-        Move(_targetEntity);
     }
 
 
@@ -60,7 +56,7 @@ public class CharacterMoveState : CharacterBaseStateT<Vector3>
             _moveComponent.OnMoveCompleted -= OnMoveCompletedHandler;
         }
         GameManager.Instance.PlayerMoveController.HideCharacterPointer(_character);
-        if (!_isExit) _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Idle);
+        _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Idle);
     }
 
     protected override void OnEnemyClick(IAttacked attacked)

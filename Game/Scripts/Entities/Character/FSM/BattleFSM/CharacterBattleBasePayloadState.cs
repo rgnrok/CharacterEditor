@@ -13,12 +13,12 @@ public class CharacterBattleBasePayloadState<T> : IPayloadedState<T>
         _character = fsm.Character;
     }
 
-    public void Enter(T param)
+    public virtual void Enter(T param)
     {
         _moveComponent = _character.GameObjectData.CharacterObject.GetComponent<PlayerMoveComponent>();
     }
 
-    public void Exit()
+    public virtual void Exit()
     {
     }
 }

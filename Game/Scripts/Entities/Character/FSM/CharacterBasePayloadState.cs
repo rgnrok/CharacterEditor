@@ -1,24 +1,24 @@
 ﻿namespace CharacterEditor
 {
-    public class CharacterBaseStateT<T>: IPayloadedState<T>
+    public class CharacterBasePayloadState<T>: IPayloadedState<T>
     {
         protected Character _character;
         protected CharacterFSM _fsm;
 
         protected virtual void OnEnemyClick(IAttacked attacked) { }
 
-        public CharacterBaseStateT(CharacterFSM fsm)
+        protected CharacterBasePayloadState(CharacterFSM fsm)
         {
             _fsm = fsm;
             _character = fsm.Character;
         }
 
-        public void Enter(T param)
+        public virtual void Enter(T param)
         {
             GameManager.Instance.OnEnemyClick += OnEnemyClickHandler;
         }
 
-        public void Exit()
+        public virtual void Exit()
         {
             GameManager.Instance.OnEnemyClick -= OnEnemyClickHandler;
         }

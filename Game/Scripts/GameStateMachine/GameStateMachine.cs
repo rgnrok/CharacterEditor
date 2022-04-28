@@ -9,7 +9,7 @@ public class GameStateMachine : FSM
         LoadProgress,
 
         CreateGame,
-        CreateGameLoop,
+        CreateCharacterLoop,
 
         LoadGame,
         GameLoop,
@@ -39,11 +39,10 @@ public class GameStateMachine : FSM
             loadingCurtain, 
             services.Single<ILoaderService>(),
             services.Single<IGameFactory>(),
-            services.Single<IConfigManager>(),
             services.Single<ISaveLoadService>()
             ));
 
-        var createCharacterState = AddState(new CreateCharacterdState(this));
+        var createCharacterLoopState = AddState(new CreateCharacterLoopState(this));
         var worldState = AddState(new GameWorldState(this));
         var battleState = AddState(new BattleState(this));
 
@@ -51,8 +50,9 @@ public class GameStateMachine : FSM
         AddTransition((int) GameStateType.CreateGame, loadProgressState, createGameState);
         AddTransition((int) GameStateType.LoadGame, loadProgressState, loadGameState);
         AddTransition((int) GameStateType.LoadGame, createGameState, loadGameState);
+        AddTransition((int) GameStateType.LoadGame, createCharacterLoopState, loadGameState);
 
-        AddTransition((int) GameStateType.CreateGameLoop, createGameState, createCharacterState);
+        AddTransition((int) GameStateType.CreateCharacterLoop, createGameState, createCharacterLoopState);
         AddTransition((int) GameStateType.GameLoop, loadGameState, worldState);
         AddTransition((int) GameStateType.Battle, worldState, battleState);
     }

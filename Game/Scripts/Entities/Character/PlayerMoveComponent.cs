@@ -8,15 +8,15 @@ using UnityEngine.AI;
  */
 public class PlayerMoveComponent : MonoBehaviour
 {
-    private Animator _animator;
-    private NavMeshAgent _navMeshAgent;
-    private NavMeshObstacle _navMeshObstacle;
+    public Animator _animator;
+    public NavMeshAgent _navMeshAgent;
+    public NavMeshObstacle _navMeshObstacle;
 
     private bool _isMoved;
     private bool _isRotated;
     private Coroutine _agentSwitchCoroutine;
     private Quaternion _targetRotation;
-    private bool _disableNavmeshOnStop;
+    private bool _disableNavMeshOnStop;
 
     public Action OnMoveCompleted;
 
@@ -24,9 +24,9 @@ public class PlayerMoveComponent : MonoBehaviour
 
     private void Awake()
     {
-        _animator = GetComponent<Animator>();
-        _navMeshAgent = GetComponent<NavMeshAgent>();
-        _navMeshObstacle = GetComponent<NavMeshObstacle>();
+        if (!_animator) _animator = GetComponentInChildren<Animator>();
+        if (!_navMeshAgent) _navMeshAgent = GetComponent<NavMeshAgent>();
+        if (!_navMeshObstacle) _navMeshObstacle = GetComponent<NavMeshObstacle>();
     }
 
     private void OnEnable()
@@ -66,9 +66,9 @@ public class PlayerMoveComponent : MonoBehaviour
         if (_navMeshAgent == null) return;
         if (_navMeshAgent.enabled && _navMeshAgent.hasPath && _navMeshAgent.isOnNavMesh) _navMeshAgent.ResetPath();
 
-        forceDisable |= _disableNavmeshOnStop;
+        forceDisable |= _disableNavMeshOnStop;
         _isMoved = false;
-        _disableNavmeshOnStop = false;
+        _disableNavMeshOnStop = false;
 
         if (_agentSwitchCoroutine != null) StopCoroutine(_agentSwitchCoroutine);
         if (forceDisable) _agentSwitchCoroutine = StartCoroutine(DisableNavmeshCoroutine());
@@ -78,7 +78,7 @@ public class PlayerMoveComponent : MonoBehaviour
 
     public void MoveToPoint(Vector3 point, bool disableNavmeshOnStop)
     {
-        _disableNavmeshOnStop = disableNavmeshOnStop;
+        _disableNavMeshOnStop = disableNavmeshOnStop;
         if (_agentSwitchCoroutine != null) StopCoroutine(_agentSwitchCoroutine);
         _agentSwitchCoroutine = StartCoroutine(Move(point));
     }

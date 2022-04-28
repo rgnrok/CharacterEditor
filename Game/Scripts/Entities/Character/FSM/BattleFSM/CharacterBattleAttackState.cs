@@ -9,24 +9,22 @@ public class CharacterBattleAttackPayloadState : CharacterBattleBasePayloadState
     {
     }
 
-    public new void Enter(IAttacked targetEntity)
+    public override void Enter(IAttacked targetEntity)
     {
         base.Enter(targetEntity);
         _attackManager = _character.AttackManager;
         _attackManager.OnAttackComplete += OnAttackCompleteHandler;
         _targetEntity = targetEntity;
-    }
 
-    public new void Exit()
-    {
-        base.Exit();
-        if (_attackManager != null) _attackManager.OnAttackComplete -= OnAttackCompleteHandler;
-    }
-
-    private void AfterSwitching()
-    {
         TryAttack(_targetEntity);
     }
+
+    public override void Exit()
+    {
+        if (_attackManager != null) _attackManager.OnAttackComplete -= OnAttackCompleteHandler;
+        base.Exit();
+    }
+
 
     private void TryAttack(IAttacked battleEntity)
     {

@@ -224,7 +224,7 @@ namespace CharacterEditor
                 characterFaceMeshTexture.LoadImage(faceTextureData);
 
                 var characterLoad = false;
-                Logger.Log("LoadConfig " + characterData.configGuid);
+            
                 var config = await _loaderService.ConfigLoader.LoadConfig(characterData.configGuid);
               
                         Debug.Log("LoadConfig callback");
@@ -633,6 +633,8 @@ namespace CharacterEditor
 
             //Prepare items for load
             var character = new Character(characterData, gameobjectData, cTexture, fTexture, portraitIcon);
+            character.Init();
+
             var itemGuids = new List<string>();
             // Надетые айтемы
             foreach (var pair in characterData.equipItems)

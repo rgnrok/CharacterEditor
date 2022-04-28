@@ -6,8 +6,17 @@ public class EntityCanvas : MonoBehaviour
     public TextMeshProUGUI stateText;
 
     private Camera _camera;
-    private bool _inited;
+    private bool _initialized;
 
+
+    private void Update()
+    {
+        if (!_initialized) return;
+
+        var rotation = _camera.transform.rotation;
+        transform.LookAt(transform.position + rotation * Vector3.forward,
+            rotation * Vector3.up);
+    }
 
     public void Init(IBattleEntity entity)
     {
@@ -15,19 +24,11 @@ public class EntityCanvas : MonoBehaviour
         OnCurrentStateChangedHandler(entity.BaseFSM.CurrentState);
 
         _camera = Camera.main;
-        _inited = true;
+        _initialized = true;
     }
 
     private void OnCurrentStateChangedHandler(IExitableState state)
     {
-        // stateText.text = state.GetName();
-    }
-
-    private void Update()
-    {
-        if (!_inited) return;
-
-        transform.LookAt(transform.position + _camera.transform.rotation * Vector3.forward,
-            _camera.transform.rotation * Vector3.up);
+        stateText.text = state.ToString();
     }
 }

@@ -17,8 +17,8 @@ namespace CharacterEditor
         public Sprite Portrait { get; private set; }
         public CharacterFSM FSM { get; private set; }
 
-        public FSM BaseFSM { get; }
-        public GameObject EntityGameObject { get { return GameObjectData.Entity; } }
+        public FSM BaseFSM => FSM;
+        // public GameObject EntityGameObject { get { return GameObjectData.Entity; } }
         public CharacterAttackManager AttackManager { get; private set; }
         public PlayerMoveComponent MoveComponent { get; private set; }
 
@@ -56,9 +56,9 @@ namespace CharacterEditor
             FSM.SpawnEvent((int)CharacterFSM.CharacterStateType.Dead);
         }
 
-        protected override void Init()
+        protected override void InternalInit()
         {
-            base.Init();
+            base.InternalInit();
             AttackManager = new CharacterAttackManager(this);
             MoveComponent = EntityGameObject.GetComponent<PlayerMoveComponent>();
 

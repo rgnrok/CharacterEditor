@@ -8,7 +8,7 @@ public class CharacterBattleMovePayloadState : CharacterBattleBasePayloadState<V
     {
     }
 
-    public new void Enter(Vector3 targetEntity)
+    public override void Enter(Vector3 targetEntity)
     {
         base.Enter(targetEntity);
         _targetEntity = targetEntity;
@@ -16,13 +16,15 @@ public class CharacterBattleMovePayloadState : CharacterBattleBasePayloadState<V
         AfterSwitching();
     }
 
-    public new void Exit()
+    public override void Exit()
     {
-        base.Exit();
-        if (_moveComponent == null) return;
+        if (_moveComponent != null)
+        {
+            _moveComponent.OnMoveCompleted -= OnMoveCompletedHandler;
+            _moveComponent.Stop();
+        }
 
-        _moveComponent.Stop();
-        _moveComponent.OnMoveCompleted -= OnMoveCompletedHandler;
+        base.Exit();
     }
 
     private void AfterSwitching()

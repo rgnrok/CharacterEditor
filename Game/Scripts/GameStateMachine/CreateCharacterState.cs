@@ -1,6 +1,6 @@
-﻿public class CreateCharacterdState : IState
+﻿public class CreateCharacterLoopState : IState
 {
-    public CreateCharacterdState(FSM fsm)
+    public CreateCharacterLoopState(FSM fsm)
     {
     }
 

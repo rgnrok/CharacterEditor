@@ -7,13 +7,13 @@ public class CharacterIdleState : CharacterBaseState
     {
     }
 
-    public new void Enter()
+    public override void Enter()
     {
         base.Enter();
         GameManager.Instance.PlayerMoveController.OnGroundClick += OnGroundClickHandler;
     }
 
-    public new void Exit()
+    public override void Exit()
     {
         base.Exit();
         GameManager.Instance.PlayerMoveController.OnGroundClick -= OnGroundClickHandler;

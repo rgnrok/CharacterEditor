@@ -256,8 +256,6 @@ namespace CharacterEditor
         {
             UpdateCursor(true);
         }
-
-
     }
 }
 //Invalid texture used for cursor - check importer settings or texture creation.Texture must be RGBA32, readable, have alphaIsTransparency enabled and have no mip chain.

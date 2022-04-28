@@ -25,9 +25,10 @@ namespace Game
             _configManager = configManager;
         }
 
-        public void Enter()
+        public async void Enter()
         {
             _loadingCurtain.SetLoading(0);
+            await _loaderService.Initialize();
             _sceneLoader.Load(CREATE_CHARACTER_SCENE, OnSceneLoaded);
         }
 
@@ -37,7 +38,6 @@ namespace Game
 
         private async void OnSceneLoaded()
         {
-            await _loaderService.Initialize();
             _loadingCurtain.SetLoading(10);
 
             var configs = await _loaderService.ConfigLoader.LoadConfigs();
@@ -46,7 +46,7 @@ namespace Game
 
 
             await SetupServices();
-            _fsm.SpawnEvent((int)GameStateMachine.GameStateType.CreateGameLoop);
+            _fsm.SpawnEvent((int)GameStateMachine.GameStateType.CreateCharacterLoop);
         }
 
         private async Task ParseConfigs(CharacterConfig[] configs)

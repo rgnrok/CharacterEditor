@@ -9,6 +9,8 @@ namespace CharacterEditor
 {
     public abstract class Entity<TGoData, TConfig> : IHover where TGoData : EntityGameObjectData<TConfig> where TConfig: EntityConfig
     {
+        private bool _initialized;
+
         public Texture2D Texture { get; private set; }
 //        public EntityConfig Config { get; private set; }
 //        public TData Data { get; protected set; }
@@ -60,7 +62,15 @@ namespace CharacterEditor
             StatCollection = new DefaultStatCollection();
         }
 
-        protected virtual void Init()
+        public void Init()
+        {
+            if (_initialized) return;
+
+            InternalInit();
+            _initialized = true;
+        }
+
+        protected virtual void InternalInit()
         {
             Health.OnCurrentValueChange += HealthChanged;
         }
