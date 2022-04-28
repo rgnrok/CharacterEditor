@@ -1,32 +1,64 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using CharacterEditor;
-using CharacterEditor.CharacterInventory;
 using CharacterEditor.Services;
-using UnityEngine;
 
 namespace Game
 {
-    public class LoadGameState : LoadState
+    public class LoadGameState : IPayloadedState<string>
     {
-        private readonly IGameFactory _gameFactory;
-        private readonly ConfigManager _configManager;
+        private const string PLAY_CHARACTER_SCENE = "Play_Character_Scene";
 
-        public LoadGameState(FSM fsm, SceneLoader sceneLoader, LoadingCurtain loadingCurtain, ILoaderService loaderService, IGameFactory gameFactory, ConfigManager configManager) : base(fsm, sceneLoader, loadingCurtain, loaderService)
+        private readonly FSM _fsm;
+        private readonly ILoaderService _loaderService;
+        private readonly SceneLoader _sceneLoader;
+        private readonly LoadingCurtain _loadingCurtain;
+        private readonly IGameFactory _gameFactory;
+        private readonly IConfigManager _configManager;
+        private readonly ISaveLoadService _saveLoadService;
+        private string _saveName;
+
+
+        public LoadGameState(FSM fsm, SceneLoader sceneLoader, LoadingCurtain loadingCurtain, ILoaderService loaderService, IGameFactory gameFactory, IConfigManager configManager, ISaveLoadService saveLoadService) 
         {
+            _fsm = fsm;
+            _sceneLoader = sceneLoader;
+            _loadingCurtain = loadingCurtain;
+            _loaderService = loaderService;
             _gameFactory = gameFactory;
             _configManager = configManager;
+            _saveLoadService = saveLoadService;
         }
 
-        protected override async void OnLoaded()
+        public void Enter(string saveName)
         {
+            _saveName = saveName;
+            _loadingCurtain.SetLoading(0);
+            _sceneLoader.Load(PLAY_CHARACTER_SCENE, OnSceneLoaded);
+        }
+
+        public void Exit()
+        {
+        }
+
+        private async void OnSceneLoaded()
+        {
+            await _loaderService.Initialize();
+            _loadingCurtain.SetLoading(10);
+            
             var configs = await _loaderService.ConfigLoader.LoadConfigs();
             await ParseConfigs(configs);
-            _loadingCurtain.SetLoading(50);
+            _loadingCurtain.SetLoading(20);
 
+            var successLoad = await _saveLoadService.Load(_saveName, (loadPercent) =>
+            {
+                _loadingCurtain.SetLoading(20 + loadPercent / 2.5f); //20-60%
 
-            await LoadingCoroutine();
-            _fsm.SpawnEvent((int)GameStateMachine.GameStateType.CreateCharacter);
+            });
+            if (!successLoad)
+                _fsm.SpawnEvent((int)GameStateMachine.GameStateType.CreateGame);
+            else
+                _fsm.SpawnEvent((int) GameStateMachine.GameStateType.GameLoop);
         }
 
         private async Task ParseConfigs(CharacterConfig[] configs)
@@ -42,62 +74,6 @@ namespace Game
             }
 
             await _configManager.Init(data.ToArray());
-        }
-
-
-        private async Task LoadingBaseComponentsHandlerCompleted()
-        {
-            var saveName = PlayerPrefs.GetString(SaveManager.LOADED_SAVE_KEY);
-            if (saveName == null)
-            {
-
-                var saves = SaveManager.Instance.GetSaves();
-                if (saves.Length == 0)
-                {
-                    _fsm.SpawnEvent((int) GameStateMachine.GameStateType.PlayLoop);
-                    return;
-                }
-
-                saveName = saves[0];
-            }
-
-            await SaveManager.Instance.Load(saveName, progress =>
-            {
-                _loadingCurtain.SetLoading(progress);
-            });
-        }
-
-        private async Task LoadingCoroutine()
-        {
-            _loadingCurtain.SetLoading(10);
-           
-
-            if (TextureManager.Instance != null)
-            {
-                while (!TextureManager.Instance.IsReady)
-                    await Task.Yield();
-                _loadingCurtain.SetLoading(30);
-            }
-
-            if (MeshManager.Instance != null)
-            {
-                while (!MeshManager.Instance.IsReady)
-                    await Task.Yield();
-                _loadingCurtain.SetLoading(70);
-            }
-
-
-            if (ItemManager.Instance != null)
-            {
-                //                while (!ItemManager.Instance.IsReady)
-                //                    yield return null;
-                _loadingCurtain.SetLoading(90);
-                await LoadingBaseComponentsHandlerCompleted();
-            }
-            else
-            {
-                _loadingCurtain.SetLoading(100);
-            }
         }
     }
 }

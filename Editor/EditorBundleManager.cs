@@ -7,6 +7,7 @@ using CharacterEditor.AssetDatabaseLoader;
 using CharacterEditor.CharacterInventory;
 using CharacterEditor.JSONMap;
 using UnityEditor;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 
@@ -22,7 +23,18 @@ public class EditorBundleManager
     {
         var loader = new ConfigLoader();
         var configs = loader.LoadConfigs().Result;
-        UpdateBundles(configs);
+        try
+        {
+            UpdateBundles(configs);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error: {e.Message}\n {e.StackTrace}");
+        }
+        finally
+        {
+            EditorUtility.ClearProgressBar();
+        }
     }
 
     private static void UpdateBundles(CharacterConfig[] configs)
@@ -57,8 +69,6 @@ public class EditorBundleManager
         }
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-
-        EditorUtility.ClearProgressBar();
     }
 
     private static List<RaceMap> ParseConfigs(CharacterConfig[] configs)

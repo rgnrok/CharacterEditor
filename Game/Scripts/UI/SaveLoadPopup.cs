@@ -12,36 +12,42 @@ public class SaveLoadPopup : Popup
         Load
     }
 
-    [SerializeField] private SaveCharacterBtn saveControll;
-    [SerializeField] private LoadCharacterBtn loadControll;
-    [SerializeField] private InputField input;
-    [SerializeField] private GameObject saveItem;
-    [SerializeField] private ScrollRect scrollView;
-    private List<SaveItem> _list = new List<SaveItem>();
-    private SaveLoadPopupMode _mode;
+    [SerializeField] private SaveCharacterBtn _saveControll;
+    [SerializeField] private LoadCharacterBtn _loadControll;
+    [SerializeField] private InputField _input;
+    [SerializeField] private GameObject _saveItem;
+    [SerializeField] private ScrollRect _scrollView;
 
+    private readonly List<SaveItem> _list = new List<SaveItem>();
+    private SaveLoadPopupMode _mode;
+    private SaveManager _saveManager;
+
+    private void Awake()
+    {
+        _saveManager = SaveManager.Instance;
+    }
+
+    private void Start()
+    {
+        _saveControll.OnClick = OnSaveHandler;
+        _loadControll.OnClick = OnLoadHandler;
+    }
 
     public void SetMode(SaveLoadPopupMode mode)
     {
-        saveControll.gameObject.SetActive(mode == SaveLoadPopupMode.Save);
-        loadControll.gameObject.SetActive(mode == SaveLoadPopupMode.Load);
-        input.readOnly = mode == SaveLoadPopupMode.Load;
+        _saveControll.gameObject.SetActive(mode == SaveLoadPopupMode.Save);
+        _loadControll.gameObject.SetActive(mode == SaveLoadPopupMode.Load);
+        _input.readOnly = mode == SaveLoadPopupMode.Load;
         _mode = mode;
     }
 
-
-    void Start()
+    private void OnSaveHandler()
     {
-        saveControll.OnClick = SaveSelected;
-        loadControll.OnClick = LoadSelected;
-    }
+        var saveName = _input.text.Trim();
+        if (string.IsNullOrEmpty(saveName)) return;
 
-    private void SaveSelected()
-    {
-        var saveName = input.text.Trim();
-        if (saveName == "") return;
+        _saveManager.Save(saveName);
 
-        SaveManager.Instance.OnSaveClick(saveName);
         var isExistSave = false;
         foreach (var saveItem in _list)
         {
@@ -54,65 +60,63 @@ public class SaveLoadPopup : Popup
         if (!isExistSave)
             AddSaveItem(saveName);
 
-        PlayerPrefs.SetString(SaveManager.LOADED_SAVE_KEY, saveName);
     }
 
-    private void LoadSelected()
+    private void OnLoadHandler()
     {
-        PlayerPrefs.SetString(SaveManager.LOADED_SAVE_KEY, input.text.Trim());
-        SceneManager.LoadScene("Play_Character_Scene");
+        var saveName = _input.text.Trim();
+        if (string.IsNullOrEmpty(saveName)) return;
+
+        _saveManager.Load(saveName);
     }
 
-    void OnEnable()
+    protected override void OnEnable()
     {
+        base.OnEnable();
         UpdateSaveList();
     }
 
     void UpdateSaveList()
     {
-        var currentScrollCount = scrollView.content.childCount;
-        var saves = SaveManager.Instance.GetSaves();
-        //Hide old
+        var currentScrollCount = _scrollView.content.childCount;
+        var saves = _saveManager.GetSaves();
+        
         for (var i = saves.Length; i < currentScrollCount; i++)
-        {
             _list[i].gameObject.SetActive(false);
-        }
-        //Create new
+        
         for (var i = currentScrollCount; i < saves.Length; i++)
-        {
             AddSaveItem(saves[i]);
-        }
 
-        //Set texts
         for (var i = 0; i < saves.Length; i++)
         {
             _list[i].Text = saves[i];
+            _list[i].gameObject.SetActive(true);
         }
     }
 
     private void AddSaveItem(string saveName)
     {
-        var listItem = Instantiate(saveItem, scrollView.content.transform).GetComponent<SaveItem>();
-        if (listItem != null)
-        {
-            listItem.Text = saveName;
-            listItem.ClickHandler += OnItemClick;
-            listItem.DoubleClickHandler += OnDoubleItemClick;
-            _list.Add(listItem);
-        }
+        var listItem = Instantiate(_saveItem, _scrollView.content.transform).GetComponent<SaveItem>();
+        if (listItem == null) return;
+
+        listItem.Text = saveName;
+        listItem.ClickHandler += OnItemClick;
+        listItem.DoubleClickHandler += OnDoubleItemClick;
+        _list.Add(listItem);
     }
 
-    void OnItemClick(string text)
+    private void OnItemClick(string text)
     {
-        input.text = text;
+        _input.text = text;
     }
-    void OnDoubleItemClick()
+
+    private void OnDoubleItemClick()
     {
-        if (_mode == SaveLoadPopupMode.Save)
-            SaveSelected();
-        else
-            LoadSelected();
-        
         Toggle();
+
+        if (_mode == SaveLoadPopupMode.Save)
+            OnSaveHandler();
+        else
+            OnLoadHandler();
     }
 }

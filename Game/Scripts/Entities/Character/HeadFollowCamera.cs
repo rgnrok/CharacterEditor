@@ -6,11 +6,11 @@ namespace CharacterEditor
     {
         public Vector3 offset;
         private Transform target;
-        private ConfigManager _configManager;
+        private IConfigManager _configManager;
 
         void Awake()
         {
-            _configManager = AllServices.Container.Single<ConfigManager>();
+            _configManager = AllServices.Container.Single<IConfigManager>();
         }
 
         private void Start()

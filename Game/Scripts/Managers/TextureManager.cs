@@ -107,13 +107,12 @@ namespace CharacterEditor
             _characterRace = config.folderName;
             if (!_characterTextures.ContainsKey(_characterRace))
             {
-                CurrentCharacterTextures = new Dictionary<TextureType, CharacterTexture>(EnumComparer.TextureType);
+                _characterTextures[_characterRace] = new Dictionary<TextureType, CharacterTexture>(EnumComparer.TextureType);
                 foreach (var texture in config.availableTextures)
                 {
                     if (Array.IndexOf(CanChangeTypes, texture) == -1) continue;
-                    CurrentCharacterTextures[texture] = TextureFactory.Create(texture, _textureLoader, _dataManager, _characterRace);
+                    _characterTextures[_characterRace][texture] = TextureFactory.Create(texture, _textureLoader, _dataManager, _characterRace);
                 }
-                _characterTextures[_characterRace] = CurrentCharacterTextures;
             }
 
             CurrentCharacterTextures = _characterTextures[_characterRace];
@@ -122,7 +121,6 @@ namespace CharacterEditor
 
             _mergeCoroutine = StartCoroutine(UpdateTextures());
             while (!IsReady) await Task.Yield();
-            // yield return _mergeCoroutine;
            
             if (!CharacterShaders.ContainsKey(_characterRace) ||
                 CharacterShaders[_characterRace] != CurrentCharacterShader)
@@ -228,7 +226,7 @@ namespace CharacterEditor
 
             RenderTexture.active = renderSkinTexture;
             CharacterTexture.ReadPixels(new Rect(0, 0, renderSkinTexture.width, renderSkinTexture.height), 0, 0);
-            CharacterTexture.Apply();
+            // CharacterTexture.Apply();
             UpdateModelTextures();
 
             IsReady = true;
@@ -241,7 +239,7 @@ namespace CharacterEditor
         private void UpdateModelTextures()
         {
             if (_isLock) return;
-
+            CharacterTexture.Apply();
             foreach (var render in _modelRenderers)
                 render.material.mainTexture = CharacterTexture;
 

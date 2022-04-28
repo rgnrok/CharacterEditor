@@ -35,7 +35,7 @@ namespace CharacterEditor
 
             public async Task<CharacterConfig> LoadConfig(string guid)
             {
-                Debug.Log("Start Load Config");
+                Logger.Log("Start Load Config");
                 if (_configCache.TryGetValue(guid, out var config))
                     return config;
 
@@ -50,17 +50,14 @@ namespace CharacterEditor
 
             private async Task<CharacterConfig> LoadConfigData(string configPath)
             {
-                Debug.Log("configPath " + configPath);
-                //Load Config
                 var pathParts = configPath.Split('/');
                 var assetBundleName = pathParts[0].ToLower();
                 var assetName = pathParts[pathParts.Length - 1];
 
-                Debug.Log("request " + assetBundleName + " " + assetName);
                 var request = AssetBundleManager.LoadAssetAsync(assetBundleName, assetName, typeof(CharacterConfig));
                 if (request == null)
                 {
-                    Debug.LogError("Failed AssetBundleLoadAssetOperation on " + assetName + " from the AssetBundle " + assetBundleName + ".");
+                    Logger.LogError("Failed AssetBundleLoadAssetOperation on " + assetName + " from the AssetBundle " + assetBundleName + ".");
                     return null;
                 }
 

@@ -7,7 +7,7 @@ namespace CharacterEditor
         public class EnemyLoader : DataLoader<EnemyConfig>
         {
             protected override string ConfigsPath =>
-                $"{AssetsConstants.CharacterStaticDataPath}/Enemies";
+                $"{AssetsConstants.GameStaticDataPath}/Enemies";
         }
     }
 }

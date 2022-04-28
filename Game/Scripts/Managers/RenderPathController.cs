@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using Logger = CharacterEditor.Logger;
 
 public class RenderPathController : MonoBehaviour
 {
@@ -163,7 +164,7 @@ public class RenderPathController : MonoBehaviour
         var corners = path.corners;
         if (corners.Length < 2)
         {
-            Debug.LogWarning("Invalid path");
+            Logger.LogWarning("Invalid path");
             UpdateMovePointer(-1, -1);
             return;
         }

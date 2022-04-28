@@ -10,7 +10,7 @@ public class CharacterRotateController : MonoBehaviour, IPointerDownHandler, IPo
     private bool _startMouseRotate;
     private Vector3 _prevMousePosition;
     private Transform _character;
-    private ConfigManager _configManager;
+    private IConfigManager _configManager;
 
     private Transform Character
     {
@@ -29,7 +29,7 @@ public class CharacterRotateController : MonoBehaviour, IPointerDownHandler, IPo
 
     void Awake()
     {
-        _configManager = AllServices.Container.Single<ConfigManager>();
+        _configManager = AllServices.Container.Single<IConfigManager>();
     }
 
     public void OnPointerDown(PointerEventData eventData)

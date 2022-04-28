@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
+using CharacterEditor;
 
-    public abstract class FSM
-    {
+public abstract class FSM : IFSM
+{
         private readonly Dictionary<Type, IExitableState> _states = new Dictionary<Type, IExitableState>();
 
-
         public event Action<IExitableState> OnCurrentStateChanged;
-
 
         private IUpdatableState _currentUpdatableState;
         private IExitableState _currentState;
@@ -44,7 +42,7 @@ using UnityEngine;
                 return;
             }
 
-            Debug.LogWarning("Unit FSM: Event " + transitionId + " not handled");
+            Logger.LogWarning("Unit FSM: Event " + transitionId + " not handled");
         }
 
         public void SpawnEvent(int transitionId)
@@ -59,7 +57,7 @@ using UnityEngine;
                 return;
             }
 
-            Debug.LogWarning("Unit FSM: Event " + transitionId + " not handled");
+            Logger.LogWarning("Unit FSM: Event " + transitionId + " not handled");
         }
     
         public void Update()

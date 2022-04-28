@@ -1,41 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
-
-public class TestEditor : EditorWindow
-{
-    Preview p;
-
-    // Add menu named "My Window" to the Window menu
-    [MenuItem("Window/My Window")]
-    static void Init()
-    {
-        // Get existing open window or if none, make a new one:
-        var window = (TestEditor)EditorWindow.GetWindow(typeof(TestEditor));
-        window.Show();
-
-    }
-//    private void OnSelectionChange()
-//    {
-//        if (Selection.activeGameObject == null) return;
-//        p.InitInstance(Selection.activeGameObject);
-//
-//    }
-
-    Rect prect = new Rect();
-    void OnGUI()
-    {
-        if (p == null) p = new Preview();
-
-        prect.height = position.height;
-        prect.width = position.width;
-
-        p.OnPreviewGUI(prect, null);
-    }
-}
-
 
 public class Preview : Editor
 {
@@ -322,18 +287,7 @@ public class Preview : Editor
         evt.Use();
     }
 
-    public void DoAvatarPreviewPan(Event evt)
-    {
-        Camera cam = previewUtility.camera;
-        Vector3 screenPos = cam.WorldToScreenPoint(bodyPosition + m_PivotPositionOffset);
-        Vector3 delta = new Vector3(-evt.delta.x, evt.delta.y, 0);
-        // delta panning is scale with the zoom factor to allow fine tuning when user is zooming closely.
-        screenPos += delta * Mathf.Lerp(0.25f, 2.0f, m_ZoomFactor * 0.5f);
-        Vector3 worldDelta = cam.ScreenToWorldPoint(screenPos) - (bodyPosition + m_PivotPositionOffset);
-        m_PivotPositionOffset += worldDelta;
-
-        evt.Use();
-    }
+   
 
     public void DoAvatarPreviewZoom(Event evt, float delta)
     {
@@ -343,26 +297,7 @@ public class Preview : Editor
         m_ZoomFactor = Mathf.Max(m_ZoomFactor, m_AvatarScale / 10.0f);
         evt.Use();
     }
-    public void DoAvatarPreviewDrag(EventType type)
 
-    {
-        //if (type == EventType.DragUpdated)
-        //{
-        //    DragAndDrop.visualMode = DragAndDropVisualMode.Link;
-        //}
-        //else if (type == EventType.DragPerform)
-        //{
-        //    DragAndDrop.visualMode = DragAndDropVisualMode.Link;
-        //    GameObject newPreviewObject = DragAndDrop.objectReferences[0] as GameObject;
-        //    if (newPreviewObject)
-        //    {
-        //        DragAndDrop.AcceptDrag();
-        //        SetPreview(newPreviewObject);
-        //    }
-
-        //}
-
-    }
     public void DoAvatarPreviewFrame(Event evt, EventType type, Rect previewRect)
     {
         if (type == EventType.KeyDown && evt.keyCode == KeyCode.F)
@@ -373,16 +308,6 @@ public class Preview : Editor
         }
     }
 
-    protected Vector3 GetCurrentMouseWorldPosition(Event evt, Rect previewRect)
-    {
-        Camera cam = previewUtility.camera;
-        float scaleFactor = previewUtility.GetScaleFactor(previewRect.width, previewRect.height);
-        Vector3 mouseLocal = new Vector3((evt.mousePosition.x - previewRect.x) * scaleFactor, (previewRect.height - (evt.mousePosition.y - previewRect.y)) * scaleFactor, 0);
-        mouseLocal.z = Vector3.Distance(bodyPosition, cam.transform.position);
-
-        return cam.ScreenToWorldPoint(mouseLocal);
-
-    }
 
     public void ResetPreviewFocus()
     {
@@ -403,8 +328,6 @@ public class Preview : Editor
     {
         DoAvatarPreview(r, background);
     }
-
-
 
     const string s_PreviewStr = "Preview";
     int m_PreviewHint = s_PreviewStr.GetHashCode();
@@ -431,8 +354,6 @@ public class Preview : Editor
 
         type = evt.GetTypeForControl(previewSceneID);
 
-
-        DoAvatarPreviewDrag(type);
         HandleViewTool(evt, type, previewSceneID, previewRect);
         DoAvatarPreviewFrame(evt, type, previewRect);
 
@@ -448,76 +369,32 @@ public class Preview : Editor
         previewUtility.BeginPreview(previewRect, background);
 
         Quaternion bodyRot;
-
         Quaternion rootRot;
-
         Vector3 rootPos;
-
         Vector3 bodyPos = m_PreviewInstance.transform.position;
-
         Vector3 pivotPos;
 
-
-
         rootRot = Quaternion.identity;
-
         rootPos = Vector3.zero;
 
-
-
         bodyRot = Quaternion.identity;
-
-
-
-        pivotPos = Vector3.zero;
-
-
         SetupPreviewLightingAndFx(probe);
 
-
-
         Vector3 direction = bodyRot * Vector3.forward;
-
         direction[1] = 0;
 
-        Quaternion directionRot = Quaternion.LookRotation(direction);
-
-        Vector3 directionPos = rootPos;
-
-
-
-        Quaternion pivotRot = rootRot;
-
-
-
-        // Scale all Preview Objects to fit avatar size.
-
-        // PositionPreviewObjects(pivotRot, pivotPos, bodyRot, bodyPosition, directionRot, rootRot, rootPos, directionPos, m_AvatarScale);
-
-
-
         previewUtility.camera.nearClipPlane = 0.5f * m_ZoomFactor;
-
         previewUtility.camera.farClipPlane = 100.0f * m_AvatarScale;
 
         Quaternion camRot = Quaternion.Euler(-m_PreviewDir.y, -m_PreviewDir.x, 0);
 
-
-
         // Add panning offset
-
         Vector3 camPos = camRot * (Vector3.forward * -5.5f * m_ZoomFactor) + bodyPos + m_PivotPositionOffset;
-
         previewUtility.camera.transform.position = camPos;
-
         previewUtility.camera.transform.rotation = camRot;
-
-
         previewUtility.Render(false);
-
-
-
     }
+
     private void SetupPreviewLightingAndFx(SphericalHarmonicsL2 probe)
     {
         previewUtility.lights[0].intensity = 1.4f;
@@ -526,7 +403,6 @@ public class Preview : Editor
         RenderSettings.ambientMode = AmbientMode.Custom;
         RenderSettings.ambientLight = new Color(0.1f, 0.1f, 0.1f, 1.0f);
         RenderSettings.ambientProbe = probe;
-
     }
 
     public void OnDisable()

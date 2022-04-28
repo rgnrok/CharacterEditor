@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using CharacterEditor;
 using StatSystem;
-using UnityEngine;
 
 [Serializable]
 public abstract class EntitySaveData : ISerializable
@@ -20,10 +18,9 @@ public abstract class EntitySaveData : ISerializable
 
 
 
-    public void UpdateStats(StatCollection entityStats)
+    public void UpdateStats(StatCollection statCollection)
     {
         stats = new Dictionary<StatType, int>();
-        var statCollection = entityStats;
         foreach (StatType statType in Enum.GetValues(typeof(StatType)))
         {
             if (!statCollection.ContainStat(statType)) continue;

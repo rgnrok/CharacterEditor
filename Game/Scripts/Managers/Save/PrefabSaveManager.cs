@@ -12,12 +12,12 @@ namespace CharacterEditor
     public class PrefabSaveManager
     {
         private readonly IStaticDataService _staticDataService;
-        private readonly ConfigManager _configManager;
+        private readonly IConfigManager _configManager;
 
         public PrefabSaveManager() //todo move as parameter
         {
             _staticDataService = AllServices.Container.Single<IStaticDataService>();
-            _configManager = AllServices.Container.Single<ConfigManager>();
+            _configManager = AllServices.Container.Single<IConfigManager>();
         }
 
         /*

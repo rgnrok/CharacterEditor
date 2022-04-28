@@ -15,13 +15,13 @@ namespace CharacterEditor
         protected TextureType[] clearTypes;
 
         private Button button;
-        protected ConfigManager _configManager;
+        protected IConfigManager _configManager;
 
         protected abstract void OnClick();
 
         void Awake()
         {
-            _configManager = AllServices.Container.Single<ConfigManager>();
+            _configManager = AllServices.Container.Single<IConfigManager>();
         }
 
         public virtual void Start()

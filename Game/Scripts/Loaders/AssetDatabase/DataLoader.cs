@@ -16,15 +16,15 @@ namespace CharacterEditor
 
             private void PrepareGuidCache()
             {
-                if (_guidCache?.Count != 0) return;
+                if (_guidCache != null && _guidCache.Count != 0) return;
 
                 var stringType = typeof(T).Name;
                 var paths = AssetDatabase.FindAssets("t:" + stringType, new string[] { ConfigsPath });
 
                 _guidCache = new Dictionary<string, T>(paths.Length);
-                for (int i = 0; i < paths.Length; i++)
+                foreach (var path in paths)
                 {
-                    var data = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(paths[i]));
+                    var data = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(path));
                     _guidCache[data.Guid] = data;
                 }
             }

@@ -14,11 +14,11 @@ namespace CharacterEditor
         protected abstract CharacterChangeType _type { get; }
 
         private bool _isProcess;
-        private ConfigManager _configManager; //todo ?
+        private IConfigManager _configManager; //todo ?
 
         void Awake()
         {
-            _configManager = AllServices.Container.Single<ConfigManager>();
+            _configManager = AllServices.Container.Single<IConfigManager>();
         }
 
         void Start()

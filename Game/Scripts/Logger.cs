@@ -5,11 +5,15 @@ namespace CharacterEditor
 {
     public static class Logger
     {
-        public static void Log(string str) => 
+        public static void Log(string str)
+        {
             Debug.Log(PrepareMessage(str));
+        }
 
-        public static void LogWarning(string str) => 
+        public static void LogWarning(string str)
+        {
             Debug.LogWarning(PrepareMessage(str));
+        }
 
         public static void LogError(string str) => 
             Debug.LogError(PrepareMessage(str));

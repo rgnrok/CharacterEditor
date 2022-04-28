@@ -7,26 +7,26 @@ namespace CharacterEditor
 {
     namespace AssetBundleLoader
     {
-        public class IconLoader : CommonLoader<SpriteAtlas>, IIconLoader
+        public class Sprite : CommonLoader<SpriteAtlas>, IIconLoader
         {
             protected const string ITEM_ICON_ATLAS_BUNDLE_NAME = "item_icons/ItemIcons";
             protected const string PORTRAIT_ICON_ATLAS_BUNDLE_NAME = "portraits/Portraits";
 
-            public IconLoader(ICoroutineRunner coroutineRunner) : base(coroutineRunner)
+            public Sprite(ICoroutineRunner coroutineRunner) : base(coroutineRunner)
             {
             }
 
-            public void LoadItemIcon(string iconName, Action<Sprite> callback)
+            public void LoadItemIcon(string iconName, Action<UnityEngine.Sprite> callback)
             {
                 LoadIcon(ITEM_ICON_ATLAS_BUNDLE_NAME, iconName, callback);
             }
 
-            public void LoadPortrait(string portraitName, Action<Sprite> callback)
+            public void LoadPortrait(string portraitName, Action<UnityEngine.Sprite> callback)
             {
                 LoadIcon(PORTRAIT_ICON_ATLAS_BUNDLE_NAME, portraitName, callback);
             }
             
-            private void LoadIcon(string atlasPath, string iconName, Action<Sprite> callback)
+            private void LoadIcon(string atlasPath, string iconName, Action<UnityEngine.Sprite> callback)
             {
                 LoadByPath(atlasPath, (path, loadedAtlas) =>
                 {

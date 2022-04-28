@@ -34,28 +34,14 @@ namespace CharacterEditor
         public event Action<IBattleEntity> OnDied;
 
 
-        public static Character Create(CharacterSaveData data, CharacterGameObjectData gameObjectData, Texture2D texture, Texture2D faceMeshTexture, Sprite portrait)
-        {
-            var character = new Character(data, gameObjectData, texture, faceMeshTexture, portrait);
-            character.Init();
-            return character;
-        }
-
-        public static Character Create(string guid, CharacterGameObjectData gameObjectData, Texture2D texture, Texture2D faceMeshTexture, Sprite portrait)
-        {
-            var character = new Character(guid, gameObjectData, texture, faceMeshTexture, portrait);
-            character.Init();
-            return character;
-        }
-
-        private Character(CharacterSaveData data, CharacterGameObjectData gameObjectData, Texture2D texture, Texture2D faceMeshTexture, Sprite portrait) : base(data, gameObjectData, texture)
+        public Character(CharacterSaveData data, CharacterGameObjectData gameObjectData, Texture2D texture, Texture2D faceMeshTexture, Sprite portrait) : base(data, gameObjectData, texture)
         {
             FaceMeshTexture = faceMeshTexture;
-            inventoryCeils = data.inventoryCeils;
             Portrait = portrait;
+            inventoryCeils = data.inventoryCells;
         }
 
-        private Character(string guid, CharacterGameObjectData gameObjectData, Texture2D texture, Texture2D faceMeshTexture, Sprite portrait) : base(guid, gameObjectData, texture)
+        public Character(string guid, CharacterGameObjectData gameObjectData, Texture2D texture, Texture2D faceMeshTexture, Sprite portrait) : base(guid, gameObjectData, texture)
         {
             FaceMeshTexture = faceMeshTexture;
             Portrait = portrait;
@@ -64,7 +50,7 @@ namespace CharacterEditor
         protected override void Die()
         {
             base.Die();
-            if (OnDied != null) OnDied(this);
+            OnDied?.Invoke(this);
 
 
             FSM.SpawnEvent((int)CharacterFSM.CharacterStateType.Dead);

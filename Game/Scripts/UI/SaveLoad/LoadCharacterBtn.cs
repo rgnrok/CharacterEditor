@@ -8,6 +8,6 @@ public class LoadCharacterBtn : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (OnClick != null) OnClick();
+        OnClick?.Invoke();
     }
 }

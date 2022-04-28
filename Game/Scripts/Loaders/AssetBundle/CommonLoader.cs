@@ -64,7 +64,7 @@ namespace CharacterEditor
                 var request = AssetBundleManager.LoadAssetAsync(assetBundleName, assetName, typeof(T));
                 if (request == null)
                 {
-                    Debug.LogError("Failed AssetBundleLoadAssetOperation on " + assetName + " from the AssetBundle " + assetBundleName + ".");
+                    Logger.LogError("Failed AssetBundleLoadAssetOperation on " + assetName + " from the AssetBundle " + assetBundleName + ".");
                     callback?.Invoke(null);
                     yield break;
                 }

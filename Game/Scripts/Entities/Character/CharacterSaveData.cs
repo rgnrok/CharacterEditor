@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Runtime.Serialization;
 using StatSystem;
-using UnityEngine;
-
 
 namespace CharacterEditor
 {
@@ -63,21 +62,33 @@ namespace CharacterEditor
             public string portrait;
 
             public List<string> inventoryItems; 
-            public Dictionary<int, CharacterItemData> inventoryCeils; // items in inventory ceils, can be null values
+            public Dictionary<int, CharacterItemData> inventoryCells;
 
 
             public CharacterSaveData()
             {
                 equipItems = new Dictionary<EquipItemSlot, CharacterItemData>();
                 faceMeshItems = new Dictionary<MeshType, string>();
-                inventoryCeils = new Dictionary<int, CharacterItemData>();
+                inventoryCells = new Dictionary<int, CharacterItemData>();
                 inventoryItems = new List<string>();
             }
 
-            public CharacterSaveData(Character character, Dictionary<int, CharacterItemData> ceils = null, List<string> items = null) : this()
+            public CharacterSaveData(string mGuid, string mConfigGuid, string mPortrait) : this()
             {
-                inventoryCeils = ceils ?? new Dictionary<int, CharacterItemData>();
-                inventoryItems = items ?? new List<string>();
+                UpdateStats(new DefaultStatCollection());
+
+                guid = mGuid;
+                configGuid = mConfigGuid;
+                position = new SerializableVector3();
+                rotation = new SerializableQuaternion();
+                portrait = mPortrait;
+            }
+
+            public CharacterSaveData(Character character, Dictionary<int, CharacterItemData> cells = null, List<string> items = null) : this()
+            {
+                if (cells != null) inventoryCells = cells;
+                if (items != null) inventoryItems = items;
+
                 SetUpItems(character.EquipItems, character.FaceMeshItems);
                 UpdateStats(character.StatCollection);
 
@@ -93,7 +104,7 @@ namespace CharacterEditor
                 equipItems = (Dictionary<EquipItemSlot, CharacterItemData>)info.GetValue("equipItems", typeof(Dictionary<EquipItemSlot, CharacterItemData>));
                 faceMeshItems = (Dictionary<MeshType, string>)info.GetValue("faceMeshItems", typeof(Dictionary<MeshType, string>));
                 inventoryItems = (List<string>)info.GetValue("inventoryItems", typeof(List<string>));
-                inventoryCeils = (Dictionary<int, CharacterItemData>)info.GetValue("inventoryCeils", typeof(Dictionary<int, CharacterItemData>));
+                inventoryCells = (Dictionary<int, CharacterItemData>)info.GetValue("inventoryCeils", typeof(Dictionary<int, CharacterItemData>));
                 portrait = info.GetString("portrait");
             }
 
@@ -117,7 +128,7 @@ namespace CharacterEditor
                 info.AddValue("equipItems", equipItems);
                 info.AddValue("faceMeshItems", faceMeshItems);
                 info.AddValue("inventoryItems", inventoryItems);
-                info.AddValue("inventoryCeils", inventoryCeils);
+                info.AddValue("inventoryCeils", inventoryCells);
                 info.AddValue("portrait", portrait);
             }
         }

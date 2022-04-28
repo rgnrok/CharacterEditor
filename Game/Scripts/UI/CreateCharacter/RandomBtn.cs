@@ -6,12 +6,10 @@ using UnityEngine.EventSystems;
 
 namespace CharacterEditor
 {
-
     [Serializable]
     public class TypeMask
     {
         [EnumFlag] public MeshType types;
-
     }
 
     /*
@@ -21,253 +19,219 @@ namespace CharacterEditor
      */
     public class RandomBtn : MonoBehaviour, IPointerClickHandler
     {
-        [Header("Skinned Mesh settings")] [EnumFlag]
+        [Header("Skinned Mesh settings")]
+        [EnumFlag]
         public SkinMeshType skinMeshTypeMask;
 
-        private SkinnedMeshRenderer[] longRobeMeshes;
-        private SkinnedMeshRenderer[] shortRobeMeshes;
-        private SkinnedMeshRenderer[] cloakMeshes;
+        private SkinnedMeshRenderer[] _longRobeMeshes;
+        private SkinnedMeshRenderer[] _shortRobeMeshes;
+        private SkinnedMeshRenderer[] _cloakMeshes;
 
-        [Header("Mesh settings")] [EnumFlag] public MeshType meshTypeMask;
+        [Header("Mesh settings")]
+        [EnumFlag]
+        public MeshType meshTypeMask;
         public TypeMask[] sameMeshes;
 
-        private MeshType[] randomMesheTypes;
-        private MeshType[][] sameMesheTypes;
+        private MeshType[] _randomMeshTypes;
+        private MeshType[][] _sameMesheTypes;
 
-        [Header("Texture settings")] [EnumFlag]
+        [Header("Texture settings")]
+        [EnumFlag]
         public TextureType textureTypeMask;
 
-        private TextureType[] randomTextureTypes;
-        private TextureType[] ignoreTextureTypes;
+        private TextureType[] _randomTextureTypes;
+        private TextureType[] _ignoreTextureTypes;
 
-        [Header("Color settings")] [EnumFlag] public MeshType colorMeshTypeMask;
-        [EnumFlag] public TextureType colorTextureTypeMask;
+        [Header("Color settings")]
+        [EnumFlag]
+        public MeshType colorMeshTypeMask;
+
+        [EnumFlag]
+        public TextureType colorTextureTypeMask;
 
         private MeshType[] sameMeshColorTypes;
         private TextureType[] sameTextureColorTypes;
 
-        private Action visibleCalback;
+        private Action _robeCloakVisibleCallback;
 
         private bool _isWaitingTextures;
         private bool _isWaitingMeshes;
         private bool _isProcess;
-        private ConfigManager _configManager;
 
-        void Awake()
+        private IConfigManager _configManager;
+        private MeshManager _meshManager;
+        private TextureManager _textureManager;
+
+        public RandomBtn(MeshType[] randomMeshTypes)
         {
-            _configManager = AllServices.Container.Single<ConfigManager>();
+            _randomMeshTypes = randomMeshTypes;
+        }
+
+        public void Awake()
+        {
+            _configManager = AllServices.Container.Single<IConfigManager>();
+            _textureManager = TextureManager.Instance;
+            _meshManager = MeshManager.Instance;
         }
 
         public void Start()
         {
-            PrepareTextureTypes();
-            PrepareMeshTypes();
-            PrepareSameColorTypes();
-
+            PrepareMaskTypes();
             if (_configManager != null) _configManager.OnChangeCharacter += PrepareSkinMeshTypes;
         }
 
-
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (_isProcess || TextureManager.Instance == null || MeshManager.Instance == null) return;
+            if (_isProcess || _textureManager == null || _meshManager == null) return;
             _isProcess = true;
 
-            TextureManager.Instance.OnTexturesLoaded -= TexturesChangedHandler;
-            MeshManager.Instance.OnMeshesLoaded -= MeshesChangedHandler;
+            _textureManager.OnTexturesLoaded -= TexturesChangedHandler;
+            _meshManager.OnMeshesLoaded -= MeshesChangedHandler;
+
+            RandomizeTextures();
+            RandomizeMeshes();
+        }
+
+        private void RandomizeMeshes()
+        {
             _isWaitingMeshes = false;
+            if (_randomMeshTypes.Length == 0) return;
+
+            _isWaitingMeshes = true;
+            _meshManager.LockUpdate(true);
+            _meshManager.OnMeshesChanged += MeshesChangedHandler;
+
+            var sameColor = sameTextureColorTypes.Length > 0
+                ? _textureManager.CurrentCharacterTextures[sameTextureColorTypes[0]].SelectedColor
+                : 0;
+
+            _meshManager.OnRandom(_randomMeshTypes, _sameMesheTypes, sameMeshColorTypes, sameColor);
+        }
+
+        private void RandomizeTextures()
+        {
             _isWaitingTextures = false;
+            if (_randomTextureTypes.Length == 0) return;
 
-            if (randomTextureTypes.Length != 0)
-            {
-                _isWaitingTextures = true;
-                TextureManager.Instance.LockUpdate(true);
-                TextureManager.Instance.OnTexturesChanged += TexturesChangedHandler;
+            _isWaitingTextures = true;
+            _textureManager.LockUpdate(true);
+            _textureManager.OnTexturesChanged += TexturesChangedHandler;
 
-                ShuffleSkinendMesh();
-                TextureManager.Instance.OnRandom(randomTextureTypes, sameTextureColorTypes, ignoreTextureTypes);
-            }
-
-            if (randomMesheTypes.Length != 0)
-            {
-                _isWaitingMeshes = true;
-                MeshManager.Instance.LockUpdate(true);
-                MeshManager.Instance.OnMeshesChanged += MeshesChangedHandler;
-
-                var sameColor = sameTextureColorTypes.Length > 0
-                    ? TextureManager.Instance.CurrentCharacterTextures[sameTextureColorTypes[0]].SelectedColor
-                    : 0;
-
-                MeshManager.Instance.OnRandom(randomMesheTypes, sameMesheTypes, sameMeshColorTypes, sameColor);
-            }
+            ShuffleSkinMeshes();
+            _textureManager.OnRandom(_randomTextureTypes, sameTextureColorTypes, _ignoreTextureTypes);
         }
 
-        private void PrepareTextureTypes()
+        private void PrepareTypeMask<T>(int mask, out T[] randomType)
         {
-            var list = new List<TextureType>();
-            foreach (var enumValue in System.Enum.GetValues(typeof(TextureType)))
+            var list = new List<T>();
+            foreach (var enumValue in Enum.GetValues(typeof(T)))
             {
-                var checkBit = (int) textureTypeMask & (int) enumValue;
+                var checkBit = mask & (int)enumValue;
                 if (checkBit != 0)
-                    list.Add((TextureType) enumValue);
+                    list.Add((T)enumValue);
             }
-            randomTextureTypes = list.ToArray();
+            randomType = list.ToArray();
         }
 
-        private void PrepareSameColorTypes()
+        private void PrepareMaskTypes()
         {
-            var meshList = new List<MeshType>();
-            foreach (var enumValue in Enum.GetValues(typeof(MeshType)))
-            {
-                var checkBit = (int) colorMeshTypeMask & (int) enumValue;
-                if (checkBit != 0)
-                    meshList.Add((MeshType) enumValue);
-            }
-            sameMeshColorTypes = meshList.ToArray();
+            // Textures
+            PrepareTypeMask((int)textureTypeMask, out _randomTextureTypes);
 
-            var textureList = new List<TextureType>();
-            foreach (var enumValue in Enum.GetValues(typeof(TextureType)))
-            {
-                var checkBit = (int) colorTextureTypeMask & (int) enumValue;
-                if (checkBit != 0)
-                    textureList.Add((TextureType) enumValue);
-            }
+            //Meshes
+            PrepareTypeMask((int)meshTypeMask, out _randomMeshTypes);
+            _sameMesheTypes = new MeshType[sameMeshes.Length][];
+            for (var i = 0; i < sameMeshes.Length; i++)
+                PrepareTypeMask((int) sameMeshes[i].types, out _sameMesheTypes[i]);
 
-            sameTextureColorTypes = textureList.ToArray();
-        }
-
-        private void PrepareMeshTypes()
-        {
-            var list = new List<MeshType>();
-            foreach (var enumValue in Enum.GetValues(typeof(MeshType)))
-            {
-                int checkBit = (int) meshTypeMask & (int) enumValue;
-                if (checkBit != 0)
-                    list.Add((MeshType) enumValue);
-            }
-
-            randomMesheTypes = list.ToArray();
-
-            var sameList = new List<MeshType>();
-            sameMesheTypes = new MeshType[sameMeshes.Length][];
-            for (int i = 0; i < sameMeshes.Length; i++)
-            {
-                sameList.Clear();
-                foreach (var enumValue in Enum.GetValues(typeof(MeshType)))
-                {
-                    int checkBit = (int) sameMeshes[i].types & (int) enumValue;
-                    if (checkBit != 0)
-                        sameList.Add((MeshType) enumValue);
-                }
-
-                sameMesheTypes[i] = sameList.ToArray();
-            }
+            //Colors
+            PrepareTypeMask((int)colorMeshTypeMask, out sameMeshColorTypes);
+            PrepareTypeMask((int)colorTextureTypeMask, out sameTextureColorTypes);
         }
 
         private void PrepareSkinMeshTypes()
         {
             var configData = _configManager.ConfigData;
-            foreach (var enumValue in Enum.GetValues(typeof(SkinMeshType)))
-            {
-                int checkBit = (int) skinMeshTypeMask & (int) enumValue;
-                if (checkBit != 0)
-                {
-                    switch ((SkinMeshType) enumValue)
-                    {
-                        case SkinMeshType.RobeLong:
-                            longRobeMeshes = configData.LongRobeMeshes;
-                            break;
-                        case SkinMeshType.RobeShort:
-                            shortRobeMeshes = configData.ShortRobeMeshes;
-                            break;
-                        case SkinMeshType.Cloak:
-                            cloakMeshes = configData.CloakMeshes;
-                            break;
-                    }
-                }
-            }
+
+            if (((int)skinMeshTypeMask & (int)SkinMeshType.RobeLong) != 0)
+                _longRobeMeshes = configData.LongRobeMeshes;
+
+            if (((int)skinMeshTypeMask & (int)SkinMeshType.RobeShort) != 0)
+                _shortRobeMeshes = configData.ShortRobeMeshes;
+
+            if (((int)skinMeshTypeMask & (int)SkinMeshType.Cloak) != 0)
+                _cloakMeshes = configData.CloakMeshes;
         }
 
-        private void ShuffleSkinendMesh()
+        private void ShuffleSkinMeshes()
         {
-            ignoreTextureTypes = null;
+            _ignoreTextureTypes = null;
+            var showLongRobe = false;
+            var showShortRobe = false;
 
-            bool showCloak = randomTextureTypes.Contains(TextureType.Cloak) && (UnityEngine.Random.Range(0, 2) == 1);
+            var showCloak = _randomTextureTypes.Contains(TextureType.Cloak) && (UnityEngine.Random.Range(0, 2) == 1);
 
-            if (randomTextureTypes.Contains(TextureType.Pants))
+            if (_randomTextureTypes.Contains(TextureType.RobeShort) && _randomTextureTypes.Contains(TextureType.RobeShort))
             {
-                int rand = UnityEngine.Random.Range(0, 3);
+                var rand = UnityEngine.Random.Range(0, 3);
                 switch (rand)
                 {
                     case 0:
-                        visibleCalback = () =>
-                        {
-                            SetVisible(cloakMeshes, showCloak);
-                            SetVisible(longRobeMeshes, true);
-                            SetVisible(shortRobeMeshes, false);
-                        };
-                        ignoreTextureTypes = new TextureType[1] {TextureType.RobeShort};
+                        showLongRobe = true;
+                        _ignoreTextureTypes = new[] { TextureType.RobeShort, TextureType.Pants};
                         break;
                     case 1:
-                        visibleCalback = () =>
-                        {
-                            SetVisible(cloakMeshes, showCloak);
-                            SetVisible(longRobeMeshes, false);
-                            SetVisible(shortRobeMeshes, true);
-                        };
-                        ignoreTextureTypes = new TextureType[1] {TextureType.RobeLong};
-
+                        showShortRobe = true;
+                        _ignoreTextureTypes = new[] { TextureType.RobeLong, TextureType.Pants };
                         break;
                     default:
-                        visibleCalback = () =>
-                        {
-                            SetVisible(cloakMeshes, showCloak);
-                            SetVisible(longRobeMeshes, false);
-                            SetVisible(shortRobeMeshes, false);
-                        };
-                        ignoreTextureTypes = new TextureType[2] {TextureType.RobeLong, TextureType.RobeShort};
+                        _ignoreTextureTypes = new[] { TextureType.RobeLong, TextureType.RobeShort };
                         break;
                 }
             }
+
+            _robeCloakVisibleCallback = () =>
+            {
+                SetVisible(_cloakMeshes, showCloak);
+                SetVisible(_longRobeMeshes, showLongRobe);
+                SetVisible(_shortRobeMeshes, showShortRobe);
+            };
         }
+
 
         private void SetVisible(SkinnedMeshRenderer[] meshes, bool visible)
         {
-            if (meshes == null)
-                return;
-
-            for (int i = 0; i < meshes.Length; i++)
-            {
-                meshes[i].gameObject.SetActive(visible);
-            }
+            if (meshes == null) return;
+            foreach (var mesh in meshes) mesh.gameObject.SetActive(visible);
         }
 
         private void TexturesChangedHandler()
         {
-            if (TextureManager.Instance == null) return;
+            if (_textureManager == null) return;
 
-            TextureManager.Instance.OnTexturesChanged -= TexturesChangedHandler;
+            _textureManager.OnTexturesChanged -= TexturesChangedHandler;
             _isWaitingTextures = false;
-            if (!_isWaitingMeshes) UpdateMeshesAndTextures();
+            UpdateMeshesAndTextures();
         }
 
         private void MeshesChangedHandler()
         {
-            if (MeshManager.Instance == null) return;
+            if (_meshManager == null) return;
 
-            MeshManager.Instance.OnMeshesChanged -= MeshesChangedHandler;
+            _meshManager.OnMeshesChanged -= MeshesChangedHandler;
             _isWaitingMeshes = false;
-            if (!_isWaitingTextures) UpdateMeshesAndTextures();
+            UpdateMeshesAndTextures();
         }
 
         private void UpdateMeshesAndTextures()
         {
-            Debug.Log("UpdateMeshesAndTextures");
-            TextureManager.Instance.LockUpdate(false);
-            MeshManager.Instance.LockUpdate(false);
+            if (_isWaitingMeshes || _isWaitingTextures) return;
+            
+            _textureManager.LockUpdate(false);
+            _meshManager.LockUpdate(false);
             _isProcess = false;
 
-            if (visibleCalback != null) visibleCalback.Invoke();
+            if (_robeCloakVisibleCallback != null) _robeCloakVisibleCallback.Invoke();
         }
     }
 }

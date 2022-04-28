@@ -7,7 +7,7 @@ namespace CharacterEditor
         public class ContainerLoader : DataLoader<ContainerConfig>
         {
             protected override string ConfigsPath =>
-                $"{AssetsConstants.CharacterStaticDataPath}/Containers";
+                $"{AssetsConstants.GameStaticDataPath}/Containers";
         }
     }
 }

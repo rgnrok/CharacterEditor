@@ -7,14 +7,16 @@ using UnityEngine;
 namespace CharacterEditor
 {
     /*
-     * Preservation of characters and characters in runtime
+     * Preservation of characters  in runtime
      */
     public class SaveManager : MonoBehaviour
     {
-        public static string LOADED_SAVE_KEY = "loadedSaveKey" ;
         public GameObject saveLoadPopup;
-        private SaveLoadPopup saveLoadPopupInstance;
-        private GameSaveManager gameSaveManager;
+        private SaveLoadPopup _saveLoadPopupInstance;
+
+        private ISaveLoadService _saveLoadService;
+        private IConfigManager _configManager;
+        private IFSM _gameStateMachine;
 
         public static SaveManager Instance { get; private set; }
       
@@ -23,28 +25,32 @@ namespace CharacterEditor
         {
             if (Instance != null) Destroy(gameObject);
             Instance = this;
-            gameSaveManager = new GameSaveManager(AllServices.Container.Single<ILoaderService>(), AllServices.Container.Single<ICoroutineRunner>());
+            _saveLoadService = AllServices.Container.Single<ISaveLoadService>();
+            _configManager = AllServices.Container.Single<IConfigManager>();
+            _gameStateMachine = AllServices.Container.Single<IFSM>();
         }
 
         public void TogglePopup(SaveLoadPopup.SaveLoadPopupMode mode)
         {
-            if (saveLoadPopupInstance == null)
+            if (_saveLoadPopupInstance == null)
             {
-                saveLoadPopupInstance = Instantiate(saveLoadPopup, GameObject.Find("Canvas").transform)
-                    .GetComponent<SaveLoadPopup>();
-
-                if (saveLoadPopupInstance == null) return;
-                saveLoadPopupInstance.SetMode(mode);
+                CreateSaveLoadPopup(mode);
                 return;
             }
-            saveLoadPopupInstance.SetMode(mode);
-            saveLoadPopupInstance.Toggle();
+
+            _saveLoadPopupInstance.SetMode(mode);
+            _saveLoadPopupInstance.Toggle();
         }
 
-        public void OnSaveClick(string fileName = "")
+        private void CreateSaveLoadPopup(SaveLoadPopup.SaveLoadPopupMode mode)
         {
-            Save(fileName);
+            _saveLoadPopupInstance = Instantiate(saveLoadPopup, GameObject.Find("Canvas").transform)
+                .GetComponent<SaveLoadPopup>();
+
+            _saveLoadPopupInstance.SetMode(mode);
         }
+
+    
 
         public void OnSavePrefabClick()
         {
@@ -54,31 +60,27 @@ namespace CharacterEditor
 #endif
         }
 
-       
-
         public string[] GetSaves()
         {
-            return gameSaveManager.GetSaves();
+            return _saveLoadService.GetSaves();
         }
 
 
-        public void OnLoadClick(string fileName)
+        public void Load(string fileName)
         {
-            // gameSaveManager.Load(fileName, (l) => {});
+            _gameStateMachine.SpawnEvent((int) GameStateMachine.GameStateType.LoadGame, fileName);
         }
 
 
-        /*
-         * Save in runtime
-         */
-        private void Save(string saveName)
+        public void Save(string saveName)
         {
-            gameSaveManager.Save(saveName);
+
+            _saveLoadService.Save(saveName, _configManager.ConfigData);
         }
 
         public async Task Load(string saveName, Action<int> loadProcessAction)
         {
-            await gameSaveManager.Load(saveName, loadProcessAction);
+            await _saveLoadService.Load(saveName, loadProcessAction);
         }
     }
 }

@@ -7,22 +7,22 @@ namespace CharacterEditor
     public class SaveBtn : MonoBehaviour, IPointerClickHandler
     {
         [SerializeField]
-        private InputField input;
+        private InputField _input;
 
-        private Popup popup;
+        private Popup _popup;
 
-        void Awake() {
-            popup = GetComponentInParent<Popup>();
+        void Awake()
+        {
+            _popup = GetComponentInParent<Popup>();
         }
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            var saveName = input.text.Trim();
-            if (!saveName.Equals(""))
-            {
-                SaveManager.Instance.OnSaveClick(saveName);
-                popup.Close();
-            }
+            var saveName = _input.text.Trim();
+            if (string.IsNullOrEmpty(saveName)) return;
+
+            SaveManager.Instance.Save(saveName);
+            _popup.Close();
         }
 
     }

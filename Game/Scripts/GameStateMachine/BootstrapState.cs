@@ -5,11 +5,11 @@ namespace Game
 {
     public class BootstrapState : IState
     {
-        private readonly FSM _fsm;
+        private readonly IFSM _fsm;
         private readonly ICoroutineRunner _coroutineRunner;
         private readonly AllServices _services;
 
-        public BootstrapState(FSM fsm, ICoroutineRunner coroutineRunner, AllServices services)
+        public BootstrapState(IFSM fsm, ICoroutineRunner coroutineRunner, AllServices services)
         {
             _fsm = fsm;
             _coroutineRunner = coroutineRunner;
@@ -20,7 +20,7 @@ namespace Game
 
         public void Enter()
         {
-            _fsm.SpawnEvent((int) GameStateMachine.GameStateType.Load, "Create_Character_Scene");
+            _fsm.SpawnEvent((int) GameStateMachine.GameStateType.LoadProgress);
         }
 
         public void Exit()
@@ -32,11 +32,13 @@ namespace Game
             RegisterStaticDataService();
             RegisterAssetProvider();
 
+            _services.RegisterSingle<IFSM>(_fsm);
             _services.RegisterSingle<ICoroutineRunner>(_coroutineRunner);
             _services.RegisterSingle<ILoaderService>(new LoaderService(_services.Single<IStaticDataService>(), _coroutineRunner));
             _services.RegisterSingle<IGameFactory>(new GameFactory(_services.Single<IAssets>()));
 
-            _services.RegisterSingle<ConfigManager>(new ConfigManager());
+            _services.RegisterSingle<IConfigManager>(new ConfigManager());
+            _services.RegisterSingle<ISaveLoadService>(new SaveLoadService(_services.Single<ILoaderService>(), _services.Single<ICoroutineRunner>()));
         }
 
         private void RegisterStaticDataService()

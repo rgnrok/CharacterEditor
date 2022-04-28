@@ -4,14 +4,8 @@ using System.Threading.Tasks;
 
 namespace CharacterEditor
 {
-    public class ConfigManager : IService
+    public class ConfigManager : IConfigManager
     {
-        public CharacterConfig Config => 
-            ConfigData.Config;
-
-        public CharacterGameObjectData ConfigData => 
-            _charactersGameObjectData[CurrentConfigIndex];
-
         private int _currentConfigIndex;
         private int CurrentConfigIndex
         {
@@ -28,9 +22,15 @@ namespace CharacterEditor
             }
         }
 
-        private CharacterGameObjectData[] _charactersGameObjectData;
+        public CharacterConfig Config =>
+            ConfigData.Config;
 
-        public Action OnChangeCharacter;
+        public CharacterGameObjectData ConfigData =>
+            _charactersGameObjectData[CurrentConfigIndex];
+
+        public event Action OnChangeCharacter;
+
+        private CharacterGameObjectData[] _charactersGameObjectData;
 
 
         public async Task Init(CharacterGameObjectData[] configData)
@@ -65,8 +65,6 @@ namespace CharacterEditor
         {
             await TextureManager.Instance.ApplyConfig(Config, ConfigData);
             await MeshManager.Instance.ApplyConfig(Config, ConfigData);
-
-           
 
             ConfigData.CharacterObject.SetActive(true);
 

@@ -8,5 +8,8 @@
         public static readonly string ClothePathTemplate = $"{CharacterEditorRootPath}/Textures/Character/{{0}}/Clothes/{{1}}";
 
         public static readonly string CharacterStaticDataPath = $"{CharacterEditorRootPath}/Data";
+
+        public const string GameRootPath = "Assets/Game";
+        public static readonly string GameStaticDataPath = $"{GameRootPath}/Data";
     }
 }

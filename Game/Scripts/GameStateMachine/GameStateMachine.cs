@@ -6,9 +6,14 @@ public class GameStateMachine : FSM
 {
     public enum GameStateType
     {
-        Load,
-        CreateCharacter,
-        PlayLoop,
+        LoadProgress,
+
+        CreateGame,
+        CreateGameLoop,
+
+        LoadGame,
+        GameLoop,
+
         Battle
     }
 
@@ -17,20 +22,38 @@ public class GameStateMachine : FSM
     public GameStateMachine(SceneLoader sceneLoader, LoadingCurtain loadingCurtain, ICoroutineRunner coroutineRunner, AllServices services)
     {
         _bootstrapState = AddState(new BootstrapState(this, coroutineRunner, services));
-        var loadState = AddState(new LoadCreateCharacterState(this, 
+
+        var loadProgressState = AddState(new LoadProgressState(this, services.Single<ISaveLoadService>()));
+
+
+        var createGameState = AddState(new CreateGameState(this, 
             sceneLoader, 
             loadingCurtain, 
             services.Single<ILoaderService>(),
             services.Single<IGameFactory>(),
-            services.Single<ConfigManager>()
+            services.Single<IConfigManager>()
             ));
+
+        var loadGameState = AddState(new LoadGameState(this, 
+            sceneLoader, 
+            loadingCurtain, 
+            services.Single<ILoaderService>(),
+            services.Single<IGameFactory>(),
+            services.Single<IConfigManager>(),
+            services.Single<ISaveLoadService>()
+            ));
+
         var createCharacterState = AddState(new CreateCharacterdState(this));
         var worldState = AddState(new GameWorldState(this));
         var battleState = AddState(new BattleState(this));
 
-        AddTransition((int) GameStateType.Load, _bootstrapState, loadState);
-        AddTransition((int) GameStateType.CreateCharacter, loadState, createCharacterState);
-        AddTransition((int) GameStateType.PlayLoop, loadState, worldState);
+        AddTransition((int) GameStateType.LoadProgress, _bootstrapState, loadProgressState);
+        AddTransition((int) GameStateType.CreateGame, loadProgressState, createGameState);
+        AddTransition((int) GameStateType.LoadGame, loadProgressState, loadGameState);
+        AddTransition((int) GameStateType.LoadGame, createGameState, loadGameState);
+
+        AddTransition((int) GameStateType.CreateGameLoop, createGameState, createCharacterState);
+        AddTransition((int) GameStateType.GameLoop, loadGameState, worldState);
         AddTransition((int) GameStateType.Battle, worldState, battleState);
     }
 

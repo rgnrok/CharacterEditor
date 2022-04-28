@@ -18,11 +18,11 @@ namespace CharacterEditor
         private TextureType[] textures;
         private MeshType[] meshes;
         private SkinnedMeshRenderer[] skinMeshes;
-        private ConfigManager _configManager;
+        private IConfigManager _configManager;
 
         void Awake()
         {
-            _configManager = AllServices.Container.Single<ConfigManager>();
+            _configManager = AllServices.Container.Single<IConfigManager>();
         }
 
         public void Start()

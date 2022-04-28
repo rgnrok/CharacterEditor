@@ -14,13 +14,13 @@ namespace CharacterEditor
         protected MeshType[] types;
 
         private Button button;
-        private ConfigManager _configManager;
+        private IConfigManager _configManager;
 
         protected abstract void OnClick();
 
         void Awake()
         {
-            _configManager = AllServices.Container.Single<ConfigManager>();
+            _configManager = AllServices.Container.Single<IConfigManager>();
         }
 
         public void Start()

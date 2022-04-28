@@ -34,7 +34,7 @@ namespace CharacterEditor
                 new ConfigLoader(_dataManager);
 
             public IIconLoader CreateIconLoader() => 
-                new IconLoader(_coroutineRunner);
+                new Sprite(_coroutineRunner);
 
             public IDataLoader<ItemData> CreateItemLoader() => 
                 new DataLoader<ItemData>(_dataManager.Items, _coroutineRunner);

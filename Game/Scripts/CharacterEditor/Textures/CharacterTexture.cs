@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace CharacterEditor
 {
@@ -162,7 +160,6 @@ namespace CharacterEditor
 
         public Color32[] GetPixels32()
         {
-            Debug.LogWarning($"Get pixel _prevTexturePath: {_prevTexturePath}, _lastLoadPath: {_lastLoadPath}");
             return Current.GetPixels32();
         }
     }
