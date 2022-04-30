@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using AssetBundles;
 using Game;
 using UnityEngine;
@@ -33,6 +34,19 @@ namespace CharacterEditor
             public void LoadByPath(string path, Action<string, T> callback)
             {
                 _coroutineRunner.StartCoroutine(LoadByPathCoroutine(path, (asset) => callback?.Invoke(path, asset)));
+            }
+
+            public async Task<T> LoadByPath(string path)
+            {
+                T result = null;
+                var isComplete = false;
+                var c = _coroutineRunner.StartCoroutine(LoadByPathCoroutine(path, (asset) =>
+                {
+                    result = asset;
+                    isComplete = true;
+                }));
+                while (!isComplete) await Task.Yield();
+                return result;
             }
 
             public void LoadByPath(List<string> paths, Action<Dictionary<string, T>> callback)

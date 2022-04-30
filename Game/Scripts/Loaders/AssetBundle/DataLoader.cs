@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using CharacterEditor.JSONMap;
 using Game;
 
@@ -40,6 +41,16 @@ namespace CharacterEditor
                 }
 
                 _commonLoader.LoadByPath(pathMap.path, (path, entity) => callback(entity));
+            }
+
+            public async Task<T> LoadData(string guid)
+            {
+                if (!_guids.TryGetValue(guid, out var pathMap))
+                {
+                    return null;
+                }
+
+                return await _commonLoader.LoadByPath(pathMap.path);
             }
         }
     }

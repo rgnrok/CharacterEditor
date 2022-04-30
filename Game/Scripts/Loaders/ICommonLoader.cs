@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CharacterEditor
 {
@@ -9,5 +10,6 @@ namespace CharacterEditor
         void LoadByPath(List<string> paths, Action<Dictionary<string, T>> callback);
 
         void Unload(string path);
+        Task<T> LoadByPath(string path);
     }
 }

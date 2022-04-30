@@ -2,6 +2,7 @@
 using System;
 using UnityEditor;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CharacterEditor
 {
@@ -35,6 +36,20 @@ namespace CharacterEditor
                 callback.Invoke(_guidCache);
             }
 
+            public async Task<T> LoadData(string guid)
+            {
+                PrepareGuidCache();
+                _guidCache.TryGetValue(guid, out var data);
+                return data;
+            }
+
+            public void LoadData(string guid, Action<T> callback)
+            {
+                PrepareGuidCache();
+                _guidCache.TryGetValue(guid, out var data);
+                callback.Invoke(data);
+            }
+
             public void LoadData(List<string> guids, Action<Dictionary<string, T>> callback)
             {
                 PrepareGuidCache();
@@ -46,15 +61,6 @@ namespace CharacterEditor
                 }
                 callback.Invoke(dataItems);
             }
-
-            public void LoadData(string guid, Action<T> callback)
-            {
-                PrepareGuidCache();
-                _guidCache.TryGetValue(guid, out var data);
-                callback.Invoke(data);
-            }
-
-         
         }
     }
 }

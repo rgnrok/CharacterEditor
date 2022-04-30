@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,18 +14,14 @@ namespace CharacterEditor
         {
             private readonly Dictionary<string, T> _cache = new Dictionary<string, T>();
 
+            public async Task<T> LoadByPath(string path)
+            {
+                return InnerLoadByPath(path);
+            }
 
             public void LoadByPath(string path, Action<string, T> callback)
             {
-                if (_cache.TryGetValue(path, out var asset))
-                {
-                    callback?.Invoke(path, asset);
-                    return;
-                }
-
-                asset = AssetDatabase.LoadAssetAtPath(path, typeof(T)) as T;
-                _cache[path] = asset;
-                callback?.Invoke(path, asset);
+                callback?.Invoke(path, InnerLoadByPath(path));
             }
 
             public void LoadByPath(List<string> paths, Action<Dictionary<string, T>> callback)
@@ -50,6 +47,16 @@ namespace CharacterEditor
             public void Unload(string path)
             {
                 Resources.UnloadUnusedAssets();
+            }
+
+            private T InnerLoadByPath(string path)
+            {
+                if (_cache.TryGetValue(path, out var asset))
+                    return asset;
+
+                asset = AssetDatabase.LoadAssetAtPath(path, typeof(T)) as T;
+                _cache[path] = asset;
+                return asset;
             }
         }
     }

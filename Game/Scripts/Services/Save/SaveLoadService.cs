@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
 using System.Threading.Tasks;
 using CharacterEditor.AssetBundleLoader;
 using CharacterEditor.CharacterInventory;
@@ -21,15 +22,17 @@ namespace CharacterEditor
         private const string CHARACTER_SKIN_TEXTURE_NAME = "Character_texture.png";
         private const string CHARACTER_FACE_TEXTURE_NAME = "Character_face_texture.png";
         private const string SAVE_FILE_NAME = "FileName.dat";
-
         private const string LOADED_SAVE_KEY = "loadedSaveKey";
+
+        private readonly string SAVES_FOLDER = Application.persistentDataPath + "/Saves/";
 
 
         private SaveData _saveData;
         private readonly ILoaderService _loaderService;
         private readonly ICoroutineRunner _coroutineRunner;
 
-        private readonly string _savePath = Application.persistentDataPath + "/Saves/";
+        private List<Task<bool>> _loadTasks;
+
 
         public SaveLoadService(ILoaderService loaderService, ICoroutineRunner coroutineRunner)
         {
@@ -39,13 +42,9 @@ namespace CharacterEditor
 
         public string[] GetSaves()
         {
-            if (!Directory.Exists(_savePath))
-            {
-                Directory.CreateDirectory(_savePath);
-                return new string[0];
-            }
+            CreateSaveDirectoryIfNotExist();
 
-            var folders = Directory.GetDirectories(_savePath);
+            var folders = Directory.GetDirectories(SAVES_FOLDER);
             var saveNames = new string[folders.Length];
             for (var i = 0; i < saveNames.Length; i++)
             {
@@ -60,29 +59,34 @@ namespace CharacterEditor
             if (GameManager.Instance != null)
                 SaveGame(saveName);
             else
-                CreateGame(
-                    saveName, data, 
+                CreateGame(saveName, data, 
                     TextureManager.Instance.CharacterTexture, TextureManager.Instance.CharacterPortrait,
                     MeshManager.Instance.SelectedSkinMeshes, MeshManager.Instance.FaceTexture);
 
+            KeepLastSaveName(saveName);
+        }
+
+        private static void KeepLastSaveName(string saveName)
+        {
             PlayerPrefs.SetString(LOADED_SAVE_KEY, saveName);
         }
 
         public string GetLastSave()
         {
             var saveName = PlayerPrefs.GetString(LOADED_SAVE_KEY);
-            var saveFilePath = $"{_savePath}{saveName}/{SAVE_FILE_NAME}";
-            if (!File.Exists(saveFilePath))
-                return null;
+            if (string.IsNullOrEmpty(saveName)) return null;
+
+            var saveFilePath = SaveFilePath(saveName);
+            if (!File.Exists(saveFilePath)) return null;
 
             return saveName;
         }
 
         public async Task<bool> Load(string saveName, Action<int> loadProcessAction)
         {
-            PlayerPrefs.SetString(LOADED_SAVE_KEY, saveName);
+            KeepLastSaveName(saveName);
 
-            var saveFilePath = $"{_savePath}{saveName}/{SAVE_FILE_NAME}";
+            var saveFilePath = SaveFilePath(saveName);
             if (!File.Exists(saveFilePath))
                 return false;
 
@@ -94,33 +98,45 @@ namespace CharacterEditor
             _saveData = (SaveData)bf.Deserialize(file);
             file.Close();
 
-            loadProcessAction(10);
+            if (_saveData == null) return false;
             return await LoadData(loadProcessAction);
         }
+
+        private void CreateSaveDirectoryIfNotExist()
+        {
+            if (Directory.Exists(SAVES_FOLDER)) return;
+            Directory.CreateDirectory(SAVES_FOLDER);
+        }
+
+        private string SaveFolderPath(string saveName) => 
+            $"{SAVES_FOLDER}{saveName}";
+
+        private string SaveFilePath(string saveName) => 
+            $"{SaveFolderPath(saveName)}/{SAVE_FILE_NAME}";
 
         private void CreateGame(string saveName, CharacterGameObjectData configData,
             Texture2D characterTexture, Sprite portrait,
             List<CharacterMesh> faceMeshes, Texture2D faceMeshTexture)
         {
-            var saveFilePath = _savePath + saveName;
-            Directory.CreateDirectory(saveFilePath);
+            var saveFolderPath = SaveFolderPath(saveName);
+            Directory.CreateDirectory(saveFolderPath);
 
             var guid = Guid.NewGuid() + configData.Config.guid;
             var portraitName = portrait.name.Replace("(Clone)", "").Trim();
             var characterData = new CharacterSaveData(guid, configData.Config.guid, portraitName);
 
-            File.WriteAllBytes($"{saveFilePath}/{characterData.guid}_{CHARACTER_SKIN_TEXTURE_NAME}", characterTexture.EncodeToPNG());
+            File.WriteAllBytes($"{saveFolderPath}/{characterData.guid}_{CHARACTER_SKIN_TEXTURE_NAME}", characterTexture.EncodeToPNG());
 
             if (faceMeshes != null)
             {
                 foreach (var mesh in faceMeshes)
                     characterData.faceMeshItems[mesh.MeshType] = mesh.MeshPath;
 
-                File.WriteAllBytes($"{saveFilePath}/{characterData.guid}_{CHARACTER_FACE_TEXTURE_NAME}", faceMeshTexture.EncodeToPNG());
+                File.WriteAllBytes($"{saveFolderPath}/{characterData.guid}_{CHARACTER_FACE_TEXTURE_NAME}", faceMeshTexture.EncodeToPNG());
             }
 
             var bf = new BinaryFormatter();
-            var file = File.Open($"{saveFilePath}/{SAVE_FILE_NAME}", FileMode.Create);
+            var file = File.Open($"{SaveFilePath(saveName)}", FileMode.Create);
             var saveData = new SaveData(saveName, characterData);
 
             bf.Serialize(file, saveData);
@@ -131,7 +147,7 @@ namespace CharacterEditor
         {
             if (GameManager.Instance == null) return;
 
-            var saveFilePath = _savePath + saveName;
+            var saveFilePath = SAVES_FOLDER + saveName;
             if (!Directory.Exists(saveFilePath))
                 Directory.CreateDirectory(saveFilePath);
 
@@ -170,13 +186,50 @@ namespace CharacterEditor
         }
 
 
-        private IEnumerator LoadNpc(Action callbackAction)
+        private async Task<bool> LoadData(Action<int> loadProcessAction)
         {
-            if (_saveData == null)
+            _loadTasks = new List<Task<bool>>
             {
-                callbackAction.Invoke();
-                yield break;
+                LoadCharacters(),
+                LoadNpc()
+            };
+
+            var completedTasks = 0;
+            var totalCount = _loadTasks.Count;
+
+            var result = true;
+            while (_loadTasks.Count != 0)
+            {
+                await Task.Yield();
+                foreach (var taskData in _loadTasks)
+                {
+                    if (!taskData.IsCompleted) break;
+
+                    result &= taskData.Result;
+                    if (!result) return false;
+
+                    _loadTasks.Remove(taskData);
+                    completedTasks++;
+
+                    UpdateLoadProcess(loadProcessAction, completedTasks, totalCount);
+                    break;
+                }
             }
+
+            // var totalCount = 4;
+            // await LoadCharacters(() => UpdateLoadProcess(loadProcessAction, 1, 1));
+
+            // _coroutineRunner.StartCoroutine(LoadNpc(() => UpdateLoadProcess(loadProcessAction, ++current, totalCount)));
+            // await LoadCharacters(() => UpdateLoadProcess(loadProcessAction, ++current, totalCount));
+            // _coroutineRunner.StartCoroutine(LoadEnemies(() => UpdateLoadProcess(loadProcessAction, ++current, totalCount)));
+            // _coroutineRunner.StartCoroutine(LoadContainers(() => UpdateLoadProcess(loadProcessAction, ++current, totalCount)));
+
+            return true;
+        }
+
+        private async Task<bool> LoadNpc()
+        {
+            if (_saveData == null) return false;
 
             foreach (var point in GameManager.Instance.PlayerCharacterSpawnPoints)
             {
@@ -191,28 +244,19 @@ namespace CharacterEditor
                 }
                 if (!needLoad) continue;
 
-                var loadPlayer = false;
-                _loaderService.PlayerCharacterLoader.LoadData(point.CharacterConfigGuid, (config) => LoadPlayerCharacterCallback(config, point.transform.position,
-                    playerNpcCharacter =>
-                    {
-                        GameManager.Instance.SetNpcPlayerCharacter(playerNpcCharacter);
-                        loadPlayer = true;
-                    }));
-
-                while (!loadPlayer) yield return null;
+                var config = await _loaderService.PlayerCharacterLoader.LoadData(point.CharacterConfigGuid);
+                var playerNpcCharacter = await LoadNpcPlayerCharacterCallback(config, point.transform.position);
+                GameManager.Instance.SetNpcPlayerCharacter(playerNpcCharacter);
             }
-            callbackAction.Invoke();
+
+            return true;
         }
 
-        private async Task LoadCharacters(Action callbackAction)
+        private async Task<bool> LoadCharacters()
         {
-            if (_saveData == null)
-            {
-                callbackAction.Invoke();
-                return;
-            }
+            if (_saveData == null) return false;
 
-            var saveFilePath = _savePath + _saveData.saveName;
+            var saveFilePath = SaveFolderPath(_saveData.saveName);
             foreach (var characterData in _saveData.characters)
             {
                 var textureData = File.ReadAllBytes($"{saveFilePath}/{characterData.guid}_{CHARACTER_SKIN_TEXTURE_NAME}");
@@ -224,17 +268,17 @@ namespace CharacterEditor
                 characterFaceMeshTexture.LoadImage(faceTextureData);
 
                 var characterLoad = false;
-            
                 var config = await _loaderService.ConfigLoader.LoadConfig(characterData.configGuid);
-              
-                        Debug.Log("LoadConfig callback");
-                        _coroutineRunner.StartCoroutine(LoadConfigCallback(characterData, config, characterTexture, characterFaceMeshTexture, character =>
-                        {
-                            GameManager.Instance.AddCharacter(character);
-                            characterLoad = true;
-                        }));
-                    
-                
+
+                Debug.Log("LoadConfig callback");
+                _coroutineRunner.StartCoroutine(LoadConfigCallback(characterData, config, characterTexture,
+                    characterFaceMeshTexture, character =>
+                    {
+                        GameManager.Instance.AddCharacter(character);
+                        characterLoad = true;
+                    }));
+
+
                 while (!characterLoad) await Task.Yield();
             }
 
@@ -243,10 +287,10 @@ namespace CharacterEditor
             fc.SetFocus(GameManager.Instance.CurrentCharacter.GameObjectData.CharacterObject.transform, true, true);
 
 
-            callbackAction.Invoke();
+            return true;
         }
 
-        private IEnumerator LoadEnemies(Action callbackAction)
+        private async Task<bool> LoadEnemies()
         {
             for (var i = 0; i < GameManager.Instance.EnemySpawnPoints.Length; i++)
             {
@@ -273,20 +317,16 @@ namespace CharacterEditor
                     });
 
 
-                while (!loadEnemy) yield return null;
+                while (!loadEnemy) await Task.Yield();
                 Debug.Log("End Load Enemy ");
             }
 
-            callbackAction.Invoke();
+            return true;
         }
 
-        private IEnumerator LoadContainers(Action callbackAction)
+        private async Task<bool> LoadContainers()
         {
-            if (_saveData == null)
-            {
-                callbackAction.Invoke();
-                yield break;
-            }
+            if (_saveData == null) return false;
 
             foreach (var point in GameManager.Instance.ContainerSpawnPoints)
             {
@@ -330,23 +370,9 @@ namespace CharacterEditor
 
                         loadContainer = true;
                     }));
-                while (!loadContainer) yield return null;
+                while (!loadContainer) await Task.Yield();
                 Debug.Log("End Load Containers ");
             }
-            callbackAction.Invoke();
-        }
-
-        private async Task<bool> LoadData(Action<int> loadProcessAction)
-        {
-            if (_saveData == null) return false;
-            var totalCount = 4;
-            var current = 0;
-            await LoadCharacters(() => UpdateLoadProcess(loadProcessAction, 1, 1));
-
-            // _coroutineRunner.StartCoroutine(LoadNpc(() => UpdateLoadProcess(loadProcessAction, ++current, totalCount)));
-            // await LoadCharacters(() => UpdateLoadProcess(loadProcessAction, ++current, totalCount));
-            // _coroutineRunner.StartCoroutine(LoadEnemies(() => UpdateLoadProcess(loadProcessAction, ++current, totalCount)));
-            // _coroutineRunner.StartCoroutine(LoadContainers(() => UpdateLoadProcess(loadProcessAction, ++current, totalCount)));
 
             return true;
         }
@@ -523,18 +549,19 @@ namespace CharacterEditor
             callback.Invoke(container, config);
         }
 
-
-        private async Task LoadPlayerCharacterCallback(PlayerCharacterConfig config, Vector3 position, Action<Character> callback)
+        // todo Magic? Check replace raceConfig
+        private async Task<Character> LoadNpcPlayerCharacterCallback(PlayerCharacterConfig config, Vector3 position)
         {
             //Need reload character config for correct load main and preview prefabs
             var raceConfig = await _loaderService.ConfigLoader.LoadConfig(config.characterConfig.guid);
-                config.characterConfig = raceConfig;
-                _coroutineRunner.StartCoroutine(LoadPlayerCharacterCallbackCoroutine(config, position, callback));
+
+            config.characterConfig = raceConfig;
+            return await LoadNpcPlayerCharacterCallbackCoroutine(config, position);
 
         }
 
 
-        private IEnumerator LoadPlayerCharacterCallbackCoroutine(PlayerCharacterConfig config, Vector3 position, Action<Character> callback)
+        private async Task<Character> LoadNpcPlayerCharacterCallbackCoroutine(PlayerCharacterConfig config, Vector3 position)
         {
             var loadTexture = false;
             var loadFaceTexture = false;
@@ -561,7 +588,7 @@ namespace CharacterEditor
 
             while (!loadTexture || !loadFaceTexture || !loadPortraitIcon)
             {
-                yield return null;
+                await Task.Yield();
             }
 
 
@@ -597,10 +624,14 @@ namespace CharacterEditor
             foreach (var faceMesh in config.faceMeshs)
                 faceMeshItems[faceMesh.meshType] = new FaceMesh(_loaderService.MeshLoader, faceMesh.meshType, faceMesh.meshBundlePath);
 
-            var eiCoroutine = _coroutineRunner.StartCoroutine(EquipItems(character, equipItems, faceMeshItems));
+            var equipComplete = false;
+            _coroutineRunner.StartCoroutine(EquipItems(character, equipItems, faceMeshItems, ()=> equipComplete = true));
 
-            yield return eiCoroutine;
-            callback.Invoke(character);
+            while (!equipComplete)
+            {
+                await Task.Yield();
+            }
+            return character;
 
         }
 
@@ -685,7 +716,7 @@ namespace CharacterEditor
             loadCharacterCallback.Invoke(character);
         }
 
-        private IEnumerator EquipItems(Character character, Dictionary<EquipItemSlot, EquipItem> equipItems, Dictionary<MeshType, FaceMesh> faceMeshItems)
+        private IEnumerator EquipItems(Character character, Dictionary<EquipItemSlot, EquipItem> equipItems, Dictionary<MeshType, FaceMesh> faceMeshItems, Action callback = null)
         {
 
             //            Inventory.Init(character); // todo need?
@@ -701,6 +732,7 @@ namespace CharacterEditor
             ItemManager.Instance.SetCharacter(character);
             ItemManager.Instance.EquipItems(equipItems);
             while (!ItemManager.Instance.IsReady) yield return null;
+            callback?.Invoke();
         }
     }
 }

@@ -246,13 +246,9 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
 
     private void Update()
     {
-        
-        
-        Profiler.BeginSample("GM Update");
         InputManager.Update();
         BattleManager.Update();
         // _gameStateMachine.Update();
-        Profiler.EndSample();
     }
 
     private void ConvertToCharacter(Character character)
