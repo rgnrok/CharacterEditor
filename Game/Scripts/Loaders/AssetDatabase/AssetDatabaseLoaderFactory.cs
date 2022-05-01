@@ -25,9 +25,9 @@ namespace CharacterEditor
                 return new ConfigLoader();
             }
 
-            public IIconLoader CreateIconLoader()
+            public ISpriteLoader CreateIconLoader()
             {
-                return new IconLoader();
+                return new SpriteLoader();
             }
 
             public IDataLoader<ItemData> CreateItemLoader()

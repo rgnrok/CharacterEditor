@@ -20,17 +20,6 @@ namespace CharacterEditor
                 _coroutineRunner = coroutineRunner;
             }
 
-            public void Unload(string path)
-            {
-                var (assetBundleName, _) = ParseAssetName(path);
-                _cache.Remove(path);
-
-                if (!BundleUsageChecker.CheckUnload(assetBundleName)) return;
-
-                AssetBundleManager.UnloadAssetBundle(assetBundleName, true);
-                Resources.UnloadUnusedAssets();
-            }
-
             public void LoadByPath(string path, Action<string, T> callback)
             {
                 _coroutineRunner.StartCoroutine(LoadByPathCoroutine(path, (asset) => callback?.Invoke(path, asset)));
@@ -49,22 +38,49 @@ namespace CharacterEditor
                 return result;
             }
 
+            public async Task<Dictionary<string, T>> LoadByPath(List<string> paths)
+            {
+                var totalCount = paths.Count;
+                var result = new Dictionary<string, T>(totalCount);
+                var completeCount = 0;
+                foreach (var path in paths)
+                {
+                    _coroutineRunner.StartCoroutine(LoadByPathCoroutine(path, (asset) =>
+                    {
+                        result[path] = asset;
+                        completeCount++;
+                    }));
+                }
+                while (completeCount != totalCount) await Task.Yield();
+                return result;
+            }
+
             public void LoadByPath(List<string> paths, Action<Dictionary<string, T>> callback)
             {
                 _coroutineRunner.StartCoroutine(LoadByPathCoroutine(paths, callback));
+            }
+
+            public void Unload(string path)
+            {
+                var (assetBundleName, _) = ParseAssetName(path);
+                _cache.Remove(path);
+
+                if (!BundleUsageChecker.CheckUnload(assetBundleName)) return;
+
+                AssetBundleManager.UnloadAssetBundle(assetBundleName, true);
+                Resources.UnloadUnusedAssets();
             }
 
             private IEnumerator LoadByPathCoroutine(List<string> paths, Action<Dictionary<string, T>> callback)
             {
                 var dataItems = new Dictionary<string, T>();
                 foreach (var path in paths)
-                {
                     yield return LoadByPathCoroutine(path, datItem => { dataItems[path] = datItem; });
-                }
+
                 callback.Invoke(dataItems);
             }
 
-            protected IEnumerator LoadByPathCoroutine(string path, Action<T> callback)
+            private IEnumerator LoadByPathCoroutine(string path, Action<T> callback)
             {
                 var (assetBundleName, assetName) = ParseAssetName(path);
 
@@ -91,8 +107,6 @@ namespace CharacterEditor
 
                 callback?.Invoke(asset);
             }
-
-            
 
             private static (string, string) ParseAssetName(string path)
             {

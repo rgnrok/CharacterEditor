@@ -33,20 +33,20 @@ namespace CharacterEditor
             public IConfigLoader CreateConfigLoader() => 
                 new ConfigLoader(_dataManager);
 
-            public IIconLoader CreateIconLoader() => 
-                new Sprite(_coroutineRunner);
+            public ISpriteLoader CreateIconLoader() => 
+                new SpriteLoader(_coroutineRunner);
 
             public IDataLoader<ItemData> CreateItemLoader() => 
-                new DataLoader<ItemData>(_dataManager.Items, _coroutineRunner);
+                new DataLoader<ItemData>(_dataManager.Items, new CommonLoader<ItemData>(_coroutineRunner));
 
             public IDataLoader<PlayerCharacterConfig> CreatePlayerCharacterLoader() => 
-                new DataLoader<PlayerCharacterConfig>(_dataManager.PlayerCharacters, _coroutineRunner);
+                new DataLoader<PlayerCharacterConfig>(_dataManager.PlayerCharacters, new CommonLoader<PlayerCharacterConfig>(_coroutineRunner));
 
             public IDataLoader<EnemyConfig> CreateEnemyLoader() => 
-                new DataLoader<EnemyConfig>(_dataManager.Enemies, _coroutineRunner);
+                new DataLoader<EnemyConfig>(_dataManager.Enemies, new CommonLoader<EnemyConfig>(_coroutineRunner));
 
             public IDataLoader<ContainerConfig> CreateContainerLoader() => 
-                new DataLoader<ContainerConfig>(_dataManager.Containers, _coroutineRunner);
+                new DataLoader<ContainerConfig>(_dataManager.Containers, new CommonLoader<ContainerConfig>(_coroutineRunner));
 
             public ICommonLoader<GameObject> CreateGameObjectLoader() => 
                 new CommonLoader<GameObject>(_coroutineRunner);

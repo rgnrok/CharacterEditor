@@ -29,14 +29,16 @@ namespace CharacterEditor
 
         private SaveData _saveData;
         private readonly ILoaderService _loaderService;
+        private readonly IGameFactory _gameFactory;
         private readonly ICoroutineRunner _coroutineRunner;
 
         private List<Task<bool>> _loadTasks;
 
 
-        public SaveLoadService(ILoaderService loaderService, ICoroutineRunner coroutineRunner)
+        public SaveLoadService(ILoaderService loaderService, IGameFactory gameFactory, ICoroutineRunner coroutineRunner)
         {
             _loaderService = loaderService;
+            _gameFactory = gameFactory;
             _coroutineRunner = coroutineRunner;
         }
 
@@ -245,7 +247,7 @@ namespace CharacterEditor
                 if (!needLoad) continue;
 
                 var config = await _loaderService.PlayerCharacterLoader.LoadData(point.CharacterConfigGuid);
-                var playerNpcCharacter = await LoadNpcPlayerCharacterCallback(config, point.transform.position);
+                var playerNpcCharacter = await LoadNpcPlayerCharacterCallbackCoroutine(config, point.transform.position);
                 GameManager.Instance.SetNpcPlayerCharacter(playerNpcCharacter);
             }
 
@@ -267,19 +269,10 @@ namespace CharacterEditor
                 var characterFaceMeshTexture = new Texture2D(Constants.SKIN_MESHES_ATLAS_SIZE, Constants.SKIN_MESHES_ATLAS_SIZE);
                 characterFaceMeshTexture.LoadImage(faceTextureData);
 
-                var characterLoad = false;
                 var config = await _loaderService.ConfigLoader.LoadConfig(characterData.configGuid);
 
-                Debug.Log("LoadConfig callback");
-                _coroutineRunner.StartCoroutine(LoadConfigCallback(characterData, config, characterTexture,
-                    characterFaceMeshTexture, character =>
-                    {
-                        GameManager.Instance.AddCharacter(character);
-                        characterLoad = true;
-                    }));
-
-
-                while (!characterLoad) await Task.Yield();
+                var character = await _gameFactory.SpawnGameCharacter(characterData, config, characterTexture, characterFaceMeshTexture);
+                GameManager.Instance.AddCharacter(character);
             }
 
             //todo
@@ -423,7 +416,7 @@ namespace CharacterEditor
                 loadArmorTexture = true;
                 armorTexture = texture;
             });
-            _loaderService.IconLoader.LoadPortrait(config.portraitIconName, (portrait) =>
+            _loaderService.SpriteLoader.LoadPortrait(config.portraitIconName, (portrait) =>
             {
                 loadPortraitIcon = true;
                 portraitIcon = portrait;
@@ -549,17 +542,6 @@ namespace CharacterEditor
             callback.Invoke(container, config);
         }
 
-        // todo Magic? Check replace raceConfig
-        private async Task<Character> LoadNpcPlayerCharacterCallback(PlayerCharacterConfig config, Vector3 position)
-        {
-            //Need reload character config for correct load main and preview prefabs
-            var raceConfig = await _loaderService.ConfigLoader.LoadConfig(config.characterConfig.guid);
-
-            config.characterConfig = raceConfig;
-            return await LoadNpcPlayerCharacterCallbackCoroutine(config, position);
-
-        }
-
 
         private async Task<Character> LoadNpcPlayerCharacterCallbackCoroutine(PlayerCharacterConfig config, Vector3 position)
         {
@@ -580,7 +562,7 @@ namespace CharacterEditor
                 loadFaceTexture = true;
                 faceTexture = texture;
             });
-            _loaderService.IconLoader.LoadPortrait(config.portraitIconName, (portrait) =>
+            _loaderService.SpriteLoader.LoadPortrait(config.portraitIconName, (portrait) =>
             {
                 loadPortraitIcon = true;
                 portraitIcon = portrait;
@@ -632,89 +614,8 @@ namespace CharacterEditor
                 await Task.Yield();
             }
             return character;
-
         }
 
-
-        private IEnumerator LoadConfigCallback(CharacterSaveData characterData, CharacterConfig config, Texture2D cTexture, Texture2D fTexture, Action<Character> loadCharacterCallback)
-        {
-            Debug.Log("LoadConfigCallback");
-            if (config == null) yield break;
-
-            var loadPortraitIcon = false;
-            Sprite portraitIcon = null;
-            _loaderService.IconLoader.LoadPortrait(characterData.portrait, (portrait) =>
-            {
-                loadPortraitIcon = true;
-                portraitIcon = portrait;
-            });
-
-            while (!loadPortraitIcon) yield return null;
-
-            //Setup config
-            var previewPrefab = GameObject.Instantiate(config.PreviewPrefab);
-            previewPrefab.transform.position = Vector3.zero;
-            previewPrefab.SetActive(false);
-
-            var characterObject = GameObject.Instantiate(config.Prefab, characterData.position, characterData.rotation);
-            characterObject.SetActive(false);
-
-
-            var gameobjectData = new CharacterGameObjectData(config, characterObject, previewPrefab);
-
-            //Prepare items for load
-            var character = new Character(characterData, gameobjectData, cTexture, fTexture, portraitIcon);
-            character.Init();
-
-            var itemGuids = new List<string>();
-            // Надетые айтемы
-            foreach (var pair in characterData.equipItems)
-                itemGuids.Add(pair.Value.dataGuid);
-            // Айтемы в инвентаре
-            foreach (var item in characterData.inventoryCells.Values)
-                itemGuids.Add(item.dataGuid);
-
-
-            Coroutine eiCoroutine = null;
-            _loaderService.ItemLoader.LoadData(itemGuids, (Dictionary<string, ItemData> items) =>
-            {
-                // Load item textures and meshes
-                var equipItems = new Dictionary<EquipItemSlot, EquipItem>();
-                var faceMeshItems = new Dictionary<MeshType, FaceMesh>();
-
-                //todo only equipItems
-                foreach (var ceilPair in characterData.inventoryCells)
-                {
-                    var itemData = ceilPair.Value;
-
-                    ItemData data;
-                    if (!items.TryGetValue(itemData.dataGuid, out data)) continue;
-
-                    var eiMesh = new EquipItemMesh((EquipItemData)data, _loaderService.TextureLoader, _loaderService.MeshLoader);
-                    GameManager.Instance.Inventory.SetItemToInvetory(characterData.guid, new EquipItem(itemData.guid, data, eiMesh, itemData.stats), ceilPair.Key);
-                }
-
-                // Equip items from inventory
-                foreach (var pair in characterData.equipItems)
-                {
-                    ItemData data;
-                    if (!items.TryGetValue(pair.Value.dataGuid, out data)) continue;
-                    //todo use ready created item?
-                    var eiMesh = new EquipItemMesh((EquipItemData)data, _loaderService.TextureLoader, _loaderService.MeshLoader);
-                    equipItems[pair.Key] = new EquipItem(pair.Value.guid, data, eiMesh, pair.Value.stats);
-                }
-
-                foreach (var pair in characterData.faceMeshItems)
-                    faceMeshItems[pair.Key] = new FaceMesh(_loaderService.MeshLoader, pair.Key, pair.Value);
-
-                eiCoroutine = SaveManager.Instance.StartCoroutine(EquipItems(character, equipItems, faceMeshItems));
-            });
-
-            while (eiCoroutine == null) yield return null;
-            yield return eiCoroutine;
-
-            loadCharacterCallback.Invoke(character);
-        }
 
         private IEnumerator EquipItems(Character character, Dictionary<EquipItemSlot, EquipItem> equipItems, Dictionary<MeshType, FaceMesh> faceMeshItems, Action callback = null)
         {

@@ -12,7 +12,7 @@ namespace CharacterEditor.Services
         IMeshLoader MeshLoader { get; }
         ITextureLoader TextureLoader { get; }
         IConfigLoader ConfigLoader { get; }
-        IIconLoader IconLoader { get; }
+        ISpriteLoader SpriteLoader { get; }
         IDataLoader<ItemData> ItemLoader { get; }
         IDataLoader<PlayerCharacterConfig> PlayerCharacterLoader { get; }
         IDataLoader<EnemyConfig> EnemyLoader { get; }

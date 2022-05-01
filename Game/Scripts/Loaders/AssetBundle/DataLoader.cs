@@ -13,10 +13,21 @@ namespace CharacterEditor
             private readonly Dictionary<string, GuidPathMap> _guids;
             private readonly ICommonLoader<T> _commonLoader;
 
-            public DataLoader(Dictionary<string, GuidPathMap> guids, ICoroutineRunner coroutineRunner)
+            public DataLoader(Dictionary<string, GuidPathMap> guids, ICommonLoader<T> commonLoader)
             {
                 _guids = guids;
-                _commonLoader = new CommonLoader<T>(coroutineRunner);
+                _commonLoader = commonLoader;
+            }
+
+            public void LoadData(string guid, Action<T> callback)
+            {
+                if (!_guids.TryGetValue(guid, out var pathMap))
+                {
+                    callback.Invoke(null);
+                    return;
+                }
+
+                _commonLoader.LoadByPath(pathMap.path, (path, entity) => callback(entity));
             }
 
             public void LoadData(List<string> guids, Action<Dictionary<string, T>> callback)
@@ -32,25 +43,24 @@ namespace CharacterEditor
                 _commonLoader.LoadByPath(paths, callback);
             }
 
-            public void LoadData(string guid, Action<T> callback)
-            {
-                if (!_guids.TryGetValue(guid, out var pathMap))
-                {
-                    callback.Invoke(null);
-                    return;
-                }
-
-                _commonLoader.LoadByPath(pathMap.path, (path, entity) => callback(entity));
-            }
-
             public async Task<T> LoadData(string guid)
             {
                 if (!_guids.TryGetValue(guid, out var pathMap))
-                {
                     return null;
-                }
 
                 return await _commonLoader.LoadByPath(pathMap.path);
+            }
+
+            public async Task<Dictionary<string, T>> LoadData(List<string> guids)
+            {
+                var paths = new List<string>(guids.Capacity);
+                foreach (var guid in guids)
+                {
+                    if (!_guids.TryGetValue(guid, out var pathMap)) continue;
+                    paths.Add(pathMap.path);
+                }
+
+                return await _commonLoader.LoadByPath(paths);
             }
         }
     }

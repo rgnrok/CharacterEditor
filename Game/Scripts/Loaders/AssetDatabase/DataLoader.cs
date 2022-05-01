@@ -52,6 +52,16 @@ namespace CharacterEditor
 
             public void LoadData(List<string> guids, Action<Dictionary<string, T>> callback)
             {
+                callback.Invoke(InnerLoadData(guids));
+            }
+
+            public async Task<Dictionary<string, T>> LoadData(List<string> guids)
+            {
+                return InnerLoadData(guids);
+            }
+
+            private Dictionary<string, T> InnerLoadData(List<string> guids)
+            {
                 PrepareGuidCache();
                 var dataItems = new Dictionary<string, T>(guids.Count);
                 foreach (var guid in guids)
@@ -59,7 +69,8 @@ namespace CharacterEditor
                     if (_guidCache.TryGetValue(guid, out var data))
                         dataItems[data.Guid] = data;
                 }
-                callback.Invoke(dataItems);
+
+                return dataItems;
             }
         }
     }

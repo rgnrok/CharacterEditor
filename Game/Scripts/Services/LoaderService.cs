@@ -16,7 +16,7 @@ namespace CharacterEditor.Services
         public IMeshLoader MeshLoader { get; }
         public ITextureLoader TextureLoader { get; }
         public IConfigLoader ConfigLoader { get; }
-        public IIconLoader IconLoader { get; }
+        public ISpriteLoader SpriteLoader { get; }
         public IDataLoader<ItemData> ItemLoader { get; }
         public IDataLoader<PlayerCharacterConfig> PlayerCharacterLoader { get; }
         public IDataLoader<EnemyConfig> EnemyLoader { get; }
@@ -31,7 +31,7 @@ namespace CharacterEditor.Services
             MeshLoader = _loaderFactory.CreateMeshLoader(staticDataService.MeshAtlasType);
             TextureLoader = _loaderFactory.CreateTextureLoader();
             ConfigLoader = _loaderFactory.CreateConfigLoader();
-            IconLoader = _loaderFactory.CreateIconLoader();
+            SpriteLoader = _loaderFactory.CreateIconLoader();
             ItemLoader = _loaderFactory.CreateItemLoader();
             PlayerCharacterLoader = _loaderFactory.CreatePlayerCharacterLoader();
             EnemyLoader = _loaderFactory.CreateEnemyLoader();

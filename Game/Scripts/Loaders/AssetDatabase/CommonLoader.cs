@@ -19,6 +19,11 @@ namespace CharacterEditor
                 return InnerLoadByPath(path);
             }
 
+            public async Task<Dictionary<string, T>> LoadByPath(List<string> paths)
+            {
+                return InnerLoadByPath(paths);
+            }
+
             public void LoadByPath(string path, Action<string, T> callback)
             {
                 callback?.Invoke(path, InnerLoadByPath(path));
@@ -26,21 +31,7 @@ namespace CharacterEditor
 
             public void LoadByPath(List<string> paths, Action<Dictionary<string, T>> callback)
             {
-                var dataItems = new Dictionary<string, T>();
-                foreach (var path in paths)
-                {
-                    if (_cache.TryGetValue(path, out var meshObject))
-                    {
-                        dataItems[path] = meshObject;
-                        continue;
-                    }
-
-                    var asset = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(path));
-                    if (asset == null) continue;
-
-                    _cache[path] = asset;
-                    dataItems[path] = asset;
-                }
+                var dataItems = InnerLoadByPath(paths);
                 callback.Invoke(dataItems);
             }
 
@@ -54,9 +45,23 @@ namespace CharacterEditor
                 if (_cache.TryGetValue(path, out var asset))
                     return asset;
 
-                asset = AssetDatabase.LoadAssetAtPath(path, typeof(T)) as T;
+                asset = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(path));
                 _cache[path] = asset;
                 return asset;
+            }
+
+            private Dictionary<string, T> InnerLoadByPath(List<string> paths)
+            {
+                var dataItems = new Dictionary<string, T>();
+                foreach (var path in paths)
+                {
+                    var asset = InnerLoadByPath(path);
+                    if (asset == null) continue;
+
+                    dataItems[path] = asset;
+                }
+
+                return dataItems;
             }
         }
     }

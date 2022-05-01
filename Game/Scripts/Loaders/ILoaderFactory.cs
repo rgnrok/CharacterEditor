@@ -9,7 +9,7 @@ namespace CharacterEditor.Services
         ITextureLoader CreateTextureLoader();
         IMeshLoader CreateMeshLoader(MeshAtlasType atlasType);
         IConfigLoader CreateConfigLoader();
-        IIconLoader CreateIconLoader();
+        ISpriteLoader CreateIconLoader();
         IDataLoader<ItemData> CreateItemLoader();
         IDataLoader<PlayerCharacterConfig> CreatePlayerCharacterLoader();
         IDataLoader<EnemyConfig> CreateEnemyLoader();
