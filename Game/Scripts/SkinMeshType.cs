@@ -1,5 +1,8 @@
-﻿namespace CharacterEditor
+﻿using System;
+
+namespace CharacterEditor
 {
+    [Flags]
     public enum SkinMeshType
     {
         RobeShort = 1,

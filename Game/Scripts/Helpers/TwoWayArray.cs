@@ -2,7 +2,7 @@
 
 public class TwoWayArray<T>
 {
-    private T[] _data;
+    private readonly T[] _data;
     private int _currentIndex;
 
     public T Current

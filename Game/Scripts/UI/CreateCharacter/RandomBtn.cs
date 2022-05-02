@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CharacterEditor.Helpers;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -49,8 +50,8 @@ namespace CharacterEditor
         [EnumFlag]
         public TextureType colorTextureTypeMask;
 
-        private MeshType[] sameMeshColorTypes;
-        private TextureType[] sameTextureColorTypes;
+        private MeshType[] _sameMeshColorTypes;
+        private TextureType[] _sameTextureColorTypes;
 
         private Action _robeCloakVisibleCallback;
 
@@ -101,11 +102,11 @@ namespace CharacterEditor
             _meshManager.LockUpdate(true);
             _meshManager.OnMeshesChanged += MeshesChangedHandler;
 
-            var sameColor = sameTextureColorTypes.Length > 0
-                ? _textureManager.CurrentCharacterTextures[sameTextureColorTypes[0]].SelectedColor
+            var sameColor = _sameTextureColorTypes.Length > 0
+                ? _textureManager.CurrentCharacterTextures[_sameTextureColorTypes[0]].SelectedColor
                 : 0;
 
-            _meshManager.OnRandom(_randomMeshTypes, _sameMesheTypes, sameMeshColorTypes, sameColor);
+            _meshManager.OnRandom(_randomMeshTypes, _sameMesheTypes, _sameMeshColorTypes, sameColor);
         }
 
         private void RandomizeTextures()
@@ -118,35 +119,24 @@ namespace CharacterEditor
             _textureManager.OnTexturesChanged += TexturesChangedHandler;
 
             ShuffleSkinMeshes();
-            _textureManager.OnRandom(_randomTextureTypes, sameTextureColorTypes, _ignoreTextureTypes);
+            _textureManager.OnRandom(_randomTextureTypes, _sameTextureColorTypes, _ignoreTextureTypes);
         }
 
-        private void PrepareTypeMask<T>(int mask, out T[] randomType)
-        {
-            var list = new List<T>();
-            foreach (var enumValue in Enum.GetValues(typeof(T)))
-            {
-                var checkBit = mask & (int)enumValue;
-                if (checkBit != 0)
-                    list.Add((T)enumValue);
-            }
-            randomType = list.ToArray();
-        }
 
         private void PrepareMaskTypes()
         {
             // Textures
-            PrepareTypeMask((int)textureTypeMask, out _randomTextureTypes);
+            _randomTextureTypes = textureTypeMask.FlagToArray<TextureType>();
 
             //Meshes
-            PrepareTypeMask((int)meshTypeMask, out _randomMeshTypes);
+            _randomMeshTypes = meshTypeMask.FlagToArray<MeshType>();
             _sameMesheTypes = new MeshType[sameMeshes.Length][];
             for (var i = 0; i < sameMeshes.Length; i++)
-                PrepareTypeMask((int) sameMeshes[i].types, out _sameMesheTypes[i]);
+                _sameMesheTypes[i] = sameMeshes[i].types.FlagToArray<MeshType>();
 
             //Colors
-            PrepareTypeMask((int)colorMeshTypeMask, out sameMeshColorTypes);
-            PrepareTypeMask((int)colorTextureTypeMask, out sameTextureColorTypes);
+            _sameMeshColorTypes = colorMeshTypeMask.FlagToArray<MeshType>();
+            _sameTextureColorTypes = colorTextureTypeMask.FlagToArray<TextureType>();
         }
 
         private void PrepareSkinMeshTypes()

@@ -153,10 +153,10 @@ public static class Helper
         return GameManager.Instance.StartCoroutine(enumerator);
     }
 
-    public static int GetActualIndex(int index, int arraySize)
+    public static int GetActualIndex(int index, int arraySize, int defaultIndex = 0)
     {
-        if (index >= arraySize) return 0;
-        if (index < 0) return arraySize - 1;
+        if (index >= arraySize) return defaultIndex;
+        if (index < defaultIndex) return arraySize - 1;
         return index;
     }
 }

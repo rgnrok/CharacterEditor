@@ -1,23 +1,26 @@
-﻿namespace CharacterEditor
+﻿using System;
+
+namespace CharacterEditor
 {
+    [Flags]
     public enum MeshType
     {
-        Undefined = 0,
-        Hair = 1,
-        Beard = 2,
-        FaceFeature = 4,
-        Helm = 8,
-        Torso = 16,
-        Belt = 32,
-        ShoulderRight = 64,
-        ShoulderLeft = 128,
-        ArmRight = 256,
-        ArmLeft = 512,
-        LegRight = 1024,
-        LegLeft = 2048,
-        HandRight = 4096,
-        HandLeft = 8192,
-        TorsoAdd = 16384,
-        BeltAdd = 32768,
+        Undefined = 0x0000,
+        Hair = 0x0001,
+        Beard = 0x0002,
+        FaceFeature = 0x0004,
+        Helm = 0x0008,
+        Torso = 0x0010,
+        Belt = 0x0020,
+        ShoulderRight = 0x0040,
+        ShoulderLeft = 0x0080,
+        ArmRight = 0x0100,
+        ArmLeft = 0x0200,
+        LegRight = 0x0400,
+        LegLeft = 0x0800,
+        HandRight = 0x1000,
+        HandLeft = 0x2000,
+        TorsoAdd = 0x4000,
+        BeltAdd = 0x8000,
     }
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Assets.Game.Scripts.Loaders;
+using CharacterEditor.Helpers;
 using CharacterEditor.Services;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -31,7 +32,7 @@ namespace CharacterEditor
         [SerializeField] private SpriteAtlas portraits;
 
         [EnumFlag] public TextureType canChangeMask;
-        [HideInInspector] public TextureType[] CanChangeTypes;
+        private TextureType[] _canChangeTypes;
 
         [SerializeField] private MaterialInfo[] materials;
         public MaterialInfo[] Materials { get { return materials; } }
@@ -65,29 +66,24 @@ namespace CharacterEditor
         void Awake()
         {
             if (Instance != null) Destroy(gameObject);
+            Instance = this;
+
+            IsReady = false;
 
             _mergeTextureService = new MergeTextureService();
-
-            Instance = this;
-            IsReady = false;
 
             _characterTextures = new Dictionary<string, Dictionary<TextureType, CharacterTexture>>();
             _modelRenderers = new List<SkinnedMeshRenderer>();
             _cloakRenderers = new List<SkinnedMeshRenderer>();
             CharacterShaders = new Dictionary<string, TextureShaderType>();
 
-            CharacterTexture = new Texture2D(Constants.SKIN_TEXTURE_ATLAS_SIZE, Constants.SKIN_TEXTURE_ATLAS_SIZE);
+            CharacterTexture = new Texture2D(Constants.SKIN_TEXTURE_ATLAS_SIZE, Constants.SKIN_TEXTURE_ATLAS_SIZE, TextureFormat.RGB24, false);
 
 
-            var list = new List<TextureType>();
-            foreach (var enumValue in Enum.GetValues(typeof(TextureType)))
-            {
-                var checkBit = (int)canChangeMask & (int)enumValue;
-                if (checkBit != 0) list.Add((TextureType)enumValue);
-            }
-            CanChangeTypes = list.ToArray();
+            _canChangeTypes = canChangeMask.FlagToArray<TextureType>();
 
-        
+
+
             _characterPortraits = new Dictionary<string, TwoWayArray<Sprite>>();
             var loaderService = AllServices.Container.Single<ILoaderService>();
             _textureLoader = loaderService.TextureLoader;
@@ -108,10 +104,10 @@ namespace CharacterEditor
             _characterRace = config.folderName;
             if (!_characterTextures.ContainsKey(_characterRace))
             {
-                _characterTextures[_characterRace] = new Dictionary<TextureType, CharacterTexture>(EnumComparer.TextureType);
+                _characterTextures[_characterRace] = new Dictionary<TextureType, CharacterTexture>(config.availableTextures.Length, EnumComparer.TextureType);
                 foreach (var texture in config.availableTextures)
                 {
-                    if (Array.IndexOf(CanChangeTypes, texture) == -1) continue;
+                    if (Array.IndexOf(_canChangeTypes, texture) == -1) continue;
                     _characterTextures[_characterRace][texture] = TextureFactory.Create(texture, _textureLoader, _dataManager, _characterRace);
                 }
             }
@@ -203,10 +199,15 @@ namespace CharacterEditor
             renderSkinTexture = await _mergeTextureService.MergeTextures(skinRenderShaderMaterial, renderSkinTexture, CurrentCharacterTextures, _ignoreTypes);
 
             RenderTexture.active = renderSkinTexture;
-
             Profiler.BeginSample("===== CharacterTexture.ReadPixels");
+
+
+            // Graphics.CopyTexture(renderSkinTexture, 0, 0, 0, 0, renderSkinTexture.width, renderSkinTexture.height, CharacterTexture, 0,0, 0, 0);
+            // Graphics.CopyTexture(renderSkinTexture,  CharacterTexture);
+
+
             CharacterTexture.ReadPixels(new Rect(0, 0, renderSkinTexture.width, renderSkinTexture.height), 0, 0);
-            CharacterTexture.Apply();
+            // CharacterTexture.Apply();
             Profiler.EndSample();
             UpdateModelTextures();
 
@@ -220,9 +221,9 @@ namespace CharacterEditor
         {
             if (_isLock) return;
             CharacterTexture.Apply();
-            foreach (var render in _modelRenderers)
-                render.material.mainTexture = CharacterTexture;
-
+            // foreach (var render in _modelRenderers)
+            //     render.material.mainTexture = CharacterTexture;
+            
             if (skinRawImage != null)
                 skinRawImage.texture = CharacterTexture;
         }
