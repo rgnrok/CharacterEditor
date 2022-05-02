@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Assets.Game.Scripts.Loaders;
 using CharacterEditor.Services;
 using UnityEngine;
+using UnityEngine.Profiling;
+using UnityEngine.Rendering;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 
@@ -50,21 +52,22 @@ namespace CharacterEditor
 
         private string _characterRace;
         private TextureType[] _ignoreTypes;
-        private Texture2D _emptyAlphaTexture;
-        private Coroutine _mergeCoroutine;
         private bool _isLock;
         private ITextureLoader _textureLoader;
         private IDataManager _dataManager;
 
         public Action OnTexturesChanged;
         public Action OnTexturesLoaded;
+        private MergeTextureService _mergeTextureService;
 
         public static TextureManager Instance { get; private set; }
 
         void Awake()
         {
             if (Instance != null) Destroy(gameObject);
-            
+
+            _mergeTextureService = new MergeTextureService();
+
             Instance = this;
             IsReady = false;
 
@@ -74,9 +77,7 @@ namespace CharacterEditor
             CharacterShaders = new Dictionary<string, TextureShaderType>();
 
             CharacterTexture = new Texture2D(Constants.SKIN_TEXTURE_ATLAS_SIZE, Constants.SKIN_TEXTURE_ATLAS_SIZE);
-            _emptyAlphaTexture = new Texture2D(1, 1);
-            _emptyAlphaTexture.SetPixel(0, 0, Color.clear);
-            _emptyAlphaTexture.Apply();
+
 
             var list = new List<TextureType>();
             foreach (var enumValue in Enum.GetValues(typeof(TextureType)))
@@ -119,7 +120,7 @@ namespace CharacterEditor
             _cloakRenderers.Clear();
             _cloakRenderers.AddRange(data.CloakMeshes);
 
-            _mergeCoroutine = StartCoroutine(UpdateTextures());
+            await UpdateTextures();
             while (!IsReady) await Task.Yield();
            
             if (!CharacterShaders.ContainsKey(_characterRace) ||
@@ -181,58 +182,37 @@ namespace CharacterEditor
             UpdateModelTextures();
         }
 
-        private IEnumerator UpdateTextures()
+        private async Task UpdateTextures()
         {
             IsReady = false;
             foreach (var texture in CurrentCharacterTextures.Values)
-                while (!texture.IsReady) yield return null;
+                while (!texture.IsReady) await Task.Yield();
 
             if (OnTexturesLoaded != null) OnTexturesLoaded();
-            yield return StartCoroutine(MergeTextures());
-            yield return StartCoroutine(UpdateCloakTexture());
+            await MergeTextures();
+            // yield return StartCoroutine(UpdateCloakTexture());
         }
 
    
         /*
          * Combining the texture of the character
          */
-        private IEnumerator MergeTextures()
+        private async Task MergeTextures()
         {
             IsReady = false;
-
-            // Clear uniquie textures for each character
-            skinRenderShaderMaterial.SetTexture("_BeardTex", _emptyAlphaTexture);
-            skinRenderShaderMaterial.SetTexture("_FaceFeatureTex", _emptyAlphaTexture);
-
-            foreach (var texture in CurrentCharacterTextures.Values)
-            {
-                if (texture.Type == TextureType.Cloak) continue;
-                while (!texture.IsReady) yield return null;
-
-                var textureName = texture.GetShaderTextureName();
-                if (textureName == null) continue;
-
-                if (_ignoreTypes != null && Array.IndexOf(_ignoreTypes, texture.Type) != -1)
-                {
-                    skinRenderShaderMaterial.SetTexture(textureName, _emptyAlphaTexture);
-                    continue;
-                }
-                skinRenderShaderMaterial.SetTexture(textureName, texture.Current);
-            }
-            Graphics.Blit(Texture2D.whiteTexture, renderSkinTexture);
-            Graphics.Blit(CurrentCharacterTextures[TextureType.Skin].Current, renderSkinTexture, skinRenderShaderMaterial);
-
-            yield return null;
+            renderSkinTexture = await _mergeTextureService.MergeTextures(skinRenderShaderMaterial, renderSkinTexture, CurrentCharacterTextures, _ignoreTypes);
 
             RenderTexture.active = renderSkinTexture;
+
+            Profiler.BeginSample("===== CharacterTexture.ReadPixels");
             CharacterTexture.ReadPixels(new Rect(0, 0, renderSkinTexture.width, renderSkinTexture.height), 0, 0);
-            // CharacterTexture.Apply();
+            CharacterTexture.Apply();
+            Profiler.EndSample();
             UpdateModelTextures();
 
             IsReady = true;
             _ignoreTypes = null;
-            _mergeCoroutine = null;
-            if (OnTexturesChanged != null) OnTexturesChanged();
+            OnTexturesChanged?.Invoke();
         }
 
 
@@ -457,7 +437,7 @@ namespace CharacterEditor
         /*
          * Prepare skin meshes and check merge texture
          */
-        private void OnChangeTexture(TextureType[] changedTypes)
+        private async Task OnChangeTexture(TextureType[] changedTypes)
         {
             var types = new List<TextureType>();
             foreach (var type in changedTypes)
@@ -469,12 +449,7 @@ namespace CharacterEditor
             if (types.Count == 0) return;
             PrepareSkinMeshTextures(types);
 
-            if (_mergeCoroutine != null)
-            {
-                StopCoroutine(_mergeCoroutine);
-                _mergeCoroutine = null;
-            }
-            _mergeCoroutine = StartCoroutine(UpdateTextures());
+            await UpdateTextures();
         }
 
         private void PrepareSkinMeshTextures(List<TextureType> types)

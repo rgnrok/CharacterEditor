@@ -75,7 +75,11 @@ namespace CharacterEditor
             // Or customize the URL based on your deployment or configuration
             //AssetBundleManager.SetSourceAssetBundleURL("http://www.MyWebsite/MyAssetBundles");
 #endif
-
+                if (AssetBundleManager.SimulateAssetBundleInEditor)
+                {
+                    AssetBundleManager.Initialize();
+                    return;
+                }
                 // Initialize AssetBundleManifest which loads the AssetBundleManifest object.
                 var request = AssetBundleManager.Initialize();
                 while (!request.IsDone())
