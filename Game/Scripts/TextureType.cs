@@ -2,7 +2,6 @@
 
 namespace CharacterEditor
 {
-    [Flags]
     public enum TextureType
     {
         Undefined = 0x0000,

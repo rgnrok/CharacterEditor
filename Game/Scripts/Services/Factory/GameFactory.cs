@@ -1,15 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CharacterEditor.CharacterInventory;
-using Game;
+using CharacterEditor.Mesh;
 using UnityEngine;
-using UnityEngine.AI;
+using Object = UnityEngine.Object;
 
 namespace CharacterEditor.Services
 {
-    public class GameFactory : IGameFactory
+    public class GameFactory : IGameFactory, IMeshInstanceCreator
     {
         private readonly ILoaderService _loaderService;
+
+        public event Action<Character> OnCharacterSpawned;
+        public event Action<CharacterGameObjectData> OnCharacterGoDataSpawned;
 
         public GameFactory(ILoaderService loaderService)
         {
@@ -20,16 +24,13 @@ namespace CharacterEditor.Services
         {
             if (config.Prefab == null) return null;
 
-            var textureManager = TextureManager.Instance;
-            var meshManager = MeshManager.Instance;
-
             var characterPrefab = Object.Instantiate(config.CreateGamePrefab);
 
             characterPrefab.SetActive(false);
             var gameObjectData = new CharacterGameObjectData(config, characterPrefab);
 
-            await textureManager.ApplyConfig(config, gameObjectData);
-            await meshManager.ApplyConfig(config, gameObjectData);
+
+            OnCharacterGoDataSpawned?.Invoke(gameObjectData);
 
             return gameObjectData;
         }
@@ -39,7 +40,6 @@ namespace CharacterEditor.Services
             await FillCharacterConfig(config);
 
             var portraitIcon = await _loaderService.SpriteLoader.LoadPortrait(characterData.portrait);
-
 
             //Setup config
             var previewInstance = Object.Instantiate(config.PreviewPrefab);
@@ -55,10 +55,9 @@ namespace CharacterEditor.Services
             character.Init();
 
             var itemGuids = new List<string>();
-            // Надетые айтемы
             foreach (var pair in characterData.equipItems)
                 itemGuids.Add(pair.Value.dataGuid);
-            // Айтемы в инвентаре
+
             foreach (var item in characterData.inventoryCells.Values)
                 itemGuids.Add(item.dataGuid);
 
@@ -96,7 +95,20 @@ namespace CharacterEditor.Services
 
             await EquipItems(character, equipItems, faceMeshItems);
 
+            OnCharacterSpawned?.Invoke(character);
+
             return character;
+        }
+
+        public GameObject CreateMeshInstance(CharacterMesh characterMesh, Transform anchor)
+        {
+            if (characterMesh.LoadedMeshObject == null) return null;
+
+            var meshInstantiate = Object.Instantiate(characterMesh.LoadedMeshObject, anchor.position, anchor.rotation, anchor);
+            foreach (var render in meshInstantiate.GetComponentsInChildren<MeshRenderer>())
+                if (render.material != null) render.material.mainTexture = characterMesh.Texture.Current;
+
+            return meshInstantiate;
         }
 
         private async Task FillCharacterConfig(CharacterConfig config)

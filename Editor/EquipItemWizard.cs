@@ -85,9 +85,25 @@ namespace EditorWizards
         {
             DisplayWizard<EquipItemWizard>("Create item", "Save new", "Update selected");
         }
-        
+
+        void OnSelectionChange()
+        {
+            var newTarget = Selection.activeObject as EquipItemData;
+            if (newTarget != null && _selectedObject != newTarget)
+            {
+                InitWizard();
+                OnValidate();
+            }
+        }
+
+
 
         void Awake()
+        {
+            InitWizard();
+        }
+
+        private void InitWizard()
         {
             _selectedObject = Selection.activeObject as EquipItemData;
             if (_selectedObject != null)

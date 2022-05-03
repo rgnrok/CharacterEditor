@@ -92,10 +92,10 @@ namespace CharacterEditor
             var bones = ScriptableObject.CreateInstance<PrefabBoneData>();
             var boneList = new List<PrefabBoneData.BoneData>();
 
-            foreach (var mesh in MeshManager.Instance.SelectedArmorMeshes)
+            foreach (var meshWrapper in MeshManager.Instance.SelectedArmorMeshes)
             {
-                Transform bone;
-                if (!goData.meshBones.TryGetValue(mesh.MeshType, out bone)) return;
+                var mesh = meshWrapper.Mesh;
+                if (!goData.meshBones.TryGetValue(mesh.MeshType, out var bone)) return;
 
                 var boneData = new PrefabBoneData.BoneData();
                 boneData.bone = bone.name;
@@ -106,10 +106,10 @@ namespace CharacterEditor
             bones.armorBones = boneList.ToArray();
 
             boneList.Clear();
-            foreach (var mesh in MeshManager.Instance.SelectedSkinMeshes)
+            foreach (var meshWrapper in MeshManager.Instance.SelectedSkinMeshes)
             {
-                Transform bone;
-                if (!goData.meshBones.TryGetValue(mesh.MeshType, out bone)) return;
+                var mesh = meshWrapper.Mesh;
+                if (!goData.meshBones.TryGetValue(mesh.MeshType, out var bone)) return;
 
                 var boneData = new PrefabBoneData.BoneData();
                 boneData.bone = bone.name;
@@ -155,12 +155,12 @@ namespace CharacterEditor
             SaveBoneData(folderName);
         }
 
-        private void SetMeshesMaterial(Material material, IEnumerable<CharacterMesh> meshes)
+        private void SetMeshesMaterial(Material material, IEnumerable<CharacterMeshWrapper> mesheWrapperss)
         {
-            foreach (var mesh in meshes)
+            foreach (var meshWrapper in mesheWrapperss)
             {
-                if (mesh.CurrentMesh == null) continue;
-                foreach (var meshRenderer in mesh.CurrentMesh.GetComponentsInChildren<MeshRenderer>())
+                if (meshWrapper == null) continue;
+                foreach (var meshRenderer in meshWrapper.MeshInstance.GetComponentsInChildren<MeshRenderer>())
                     UpdateMeshMaterials(meshRenderer, material);
             }
         }
@@ -187,10 +187,10 @@ namespace CharacterEditor
             var meshes = new Dictionary<string, MeshFilter>();
 
             var itemNum = 0;
-            for (var armNum = 0; armNum < selectedMeshes.Count; armNum++, itemNum++)
+            foreach (var selectedMeshWrapper in selectedMeshes)
             {
                 //Update LOD parts for each armor item
-                var armorsParts = selectedMeshes[armNum].CurrentMesh.GetComponentsInChildren<MeshFilter>();
+                var armorsParts = selectedMeshWrapper.MeshInstance.GetComponentsInChildren<MeshFilter>();
                 for (var armLOD = 0; armLOD < armorsParts.Length; armLOD++)
                 {
                     if (armorsParts[armLOD] != null)
@@ -257,10 +257,10 @@ namespace CharacterEditor
             var meshes = new Dictionary<string, MeshFilter>();
 
             var itemNum = 0;
-            for (var armNum = 0; armNum < selectedMeshes.Count; armNum++, itemNum++)
+            foreach (var meshWrapper in selectedMeshes)
             {
                 //Update LOD parts for each armor item
-                var armorsParts = selectedMeshes[armNum].CurrentMesh.GetComponentsInChildren<MeshFilter>();
+                var armorsParts = meshWrapper.MeshInstance.GetComponentsInChildren<MeshFilter>();
                 for (var armLOD = 0; armLOD < armorsParts.Length; armLOD++)
                 {
                     if (armorsParts[armLOD] != null)

@@ -34,10 +34,17 @@ namespace Game
             _services.RegisterSingle<IFSM>(_fsm);
             _services.RegisterSingle<ICoroutineRunner>(_coroutineRunner);
             _services.RegisterSingle<ILoaderService>(new LoaderService(_services.Single<IStaticDataService>(), _coroutineRunner));
-            _services.RegisterSingle<IGameFactory>(new GameFactory(_services.Single<ILoaderService>()));
+            RegisterGameFactory();
 
             _services.RegisterSingle<IConfigManager>(new ConfigManager());
             _services.RegisterSingle<ISaveLoadService>(new SaveLoadService(_services.Single<ILoaderService>(), _services.Single<IGameFactory>(), _coroutineRunner));
+        }
+
+        private void RegisterGameFactory()
+        {
+            var gameFactory = new GameFactory(_services.Single<ILoaderService>());
+            _services.RegisterSingle<IGameFactory>(gameFactory);
+            _services.RegisterSingle<IMeshInstanceCreator>(gameFactory);
         }
 
         private void RegisterStaticDataService()

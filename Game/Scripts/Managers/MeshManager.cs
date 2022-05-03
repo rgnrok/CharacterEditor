@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Assets.Game.Scripts.Loaders;
-using CharacterEditor.Mesh;
+using CharacterEditor.Helpers;
 using CharacterEditor.Services;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -14,7 +15,7 @@ namespace CharacterEditor
     public class MeshManager : MonoBehaviour
     {
         [Serializable]
-        public class DefaultValues
+        public class DefaultMeshValue
         {
             public MeshType type;
             public int value;
@@ -25,16 +26,16 @@ namespace CharacterEditor
         [SerializeField] private RawImage skinMeshRawImage;
         [EnumFlag] public MeshType canChangeMask;
         [HideInInspector] public MeshType[] CanChangeTypes;
-        [SerializeField] private DefaultValues[] defaultValues;
+        [SerializeField] private DefaultMeshValue[] defaultValues;
 
         public Texture2D ArmorTexture { get; private set; }
         public Texture2D FaceTexture { get; private set; }
-        public List<CharacterMesh> SelectedArmorMeshes { get; private set; }
-        public List<CharacterMesh> SelectedSkinMeshes { get; private set; }
+        public List<CharacterMeshWrapper> SelectedArmorMeshes { get; private set; }
+        public List<CharacterMeshWrapper> SelectedSkinMeshes { get; private set; }
         public bool IsReady { get; private set; }
 
-        private Dictionary<string, Dictionary<MeshType, CharacterMesh>> _characterMeshes;
-        private Dictionary<MeshType, CharacterMesh> _currentCharacterMeshes;
+        private Dictionary<string, Dictionary<MeshType, CharacterMeshWrapper>> _characterMeshes;
+        private Dictionary<MeshType, CharacterMeshWrapper> _currentCharacterMeshes;
 
         private string _characterRace;
         private bool _isLock;
@@ -46,6 +47,9 @@ namespace CharacterEditor
         private IMeshLoader _meshLoader;
         private IStaticDataService _staticDataService;
         private IDataManager _dataManager;
+        private IMeshInstanceCreator _meshInstanceCreator;
+        private IGameFactory _gameFactory;
+        private Dictionary<MeshType, int> _defaultMeshValues;
 
         public static MeshManager Instance { get; private set; }
 
@@ -54,79 +58,78 @@ namespace CharacterEditor
             if (Instance != null) Destroy(gameObject);
             Instance = this;
 
-            _characterMeshes = new Dictionary<string, Dictionary<MeshType, CharacterMesh>>();
-            SelectedArmorMeshes = new List<CharacterMesh>();
-            SelectedSkinMeshes = new List<CharacterMesh>();
+            _characterMeshes = new Dictionary<string, Dictionary<MeshType, CharacterMeshWrapper>>();
+            SelectedArmorMeshes = new List<CharacterMeshWrapper>();
+            SelectedSkinMeshes = new List<CharacterMeshWrapper>();
 
-            var list = new List<MeshType>();
-            foreach (var enumValue in Enum.GetValues(typeof(MeshType)))
-            {
-                var checkBit = (int)canChangeMask & (int)enumValue;
-                if (checkBit != 0) list.Add((MeshType)enumValue);
-            }
-            CanChangeTypes = list.ToArray();
+            CanChangeTypes = canChangeMask.FlagToArray<MeshType>();
 
             ArmorTexture = null;
             FaceTexture = new Texture2D(Constants.SKIN_MESHES_ATLAS_SIZE, Constants.SKIN_MESHES_ATLAS_SIZE, TextureFormat.RGB24, false);
             _emptyPixels = new Color32[Constants.MESH_TEXTURE_SIZE * Constants.MESH_TEXTURE_SIZE];
-            for (var i = 0; i < _emptyPixels.Length; i++)
-                _emptyPixels[i] = new Color32(0, 0, 0, 0);
 
-            // @todo
+            _defaultMeshValues = defaultValues.ToDictionary(x => x.type, x => x.value);
+           
             var loaderService = AllServices.Container.Single<ILoaderService>();
             _meshLoader = loaderService.MeshLoader;
             _dataManager = loaderService.DataManager;
             _staticDataService = AllServices.Container.Single<IStaticDataService>();
+            _meshInstanceCreator = AllServices.Container.Single<IMeshInstanceCreator>();
+            _gameFactory = AllServices.Container.Single<IGameFactory>();
+
+            _gameFactory.OnCharacterGoDataSpawned += OnCharacterGoDataSpawnedHandler;
         }
 
-      
+        private async void OnCharacterGoDataSpawnedHandler(CharacterGameObjectData data)
+        {
+            await ApplyConfig(data);
+        }
+
 
         /*
          * Change Character. Update armor/weapon meshes and fx meshes
          */
-        public async Task ApplyConfig(CharacterConfig config, CharacterGameObjectData data)
+        public async Task ApplyConfig(CharacterGameObjectData data)
         {
             IsReady = false;
 
-            _characterRace = config.folderName;
-            InitCurentCharacterMehes(config, data, _characterRace);
+            _characterRace = data.Config.folderName;
+            InitCurrentCharacterMeshes(data, _characterRace);
 
             foreach (var mesh in _currentCharacterMeshes.Values)
-                while (!mesh.IsReady) await Task.Yield();
+                while (!mesh.Mesh.IsReady) await Task.Yield();
             
             StartCoroutine(UpdateTextures());
             while (!IsReady) await Task.Yield();
 
-            TextureShaderType shader;
-            if (TextureManager.Instance.CharacterShaders.TryGetValue(_characterRace, out shader) && TextureManager.Instance.CurrentCharacterShader != shader)
+            if (TextureManager.Instance.CharacterShaders.TryGetValue(_characterRace, out var shader) && TextureManager.Instance.CurrentCharacterShader != shader)
                 SetShader(TextureManager.Instance.CurrentCharacterShader);
 
             IsReady = true;
         }
 
-        private void InitCurentCharacterMehes(CharacterConfig config, CharacterGameObjectData data, string characterKey)
+        private void InitCurrentCharacterMeshes(CharacterGameObjectData data, string characterKey)
         {
-            if (!_characterMeshes.ContainsKey(characterKey))
+            if (_characterMeshes.TryGetValue(characterKey, out _currentCharacterMeshes)) return;
+
+            _currentCharacterMeshes = new Dictionary<MeshType, CharacterMeshWrapper>();
+            foreach (var availableMesh in data.Config.availableMeshes)
             {
-                _currentCharacterMeshes = new Dictionary<MeshType, CharacterMesh>();
-                foreach (var meshBone in config.availableMeshes)
+                var meshType = availableMesh.mesh;
+                if (Array.IndexOf(CanChangeTypes, meshType) == -1) continue;
+                if (!data.meshBones.TryGetValue(meshType, out var bone)) continue;
+
+                var meshWrapper = new CharacterMeshWrapper(_meshInstanceCreator, _meshLoader, bone, _dataManager, meshType, data.Config.folderName);
+                if (_defaultMeshValues.TryGetValue(meshType, out var defaultMeshValue))
                 {
-                    if (Array.IndexOf(CanChangeTypes, meshBone.mesh) == -1) continue;
-
-                    Transform bone;
-                    if (!data.meshBones.TryGetValue(meshBone.mesh, out bone)) continue;
-
-                    _currentCharacterMeshes[meshBone.mesh] = MeshFactory.Create(_meshLoader, _dataManager, meshBone.mesh, bone, config.folderName);
+                    meshWrapper.Mesh.SetMesh(defaultMeshValue);
+                    meshWrapper.Mesh.SetTextureAndColor(0, 0);
                 }
-                _characterMeshes[characterKey] = _currentCharacterMeshes;
 
-                foreach (var defValue in defaultValues)
-                {
-                    _currentCharacterMeshes[defValue.type].SetMesh(defValue.value);
-                    _currentCharacterMeshes[defValue.type].SetTextureAndColor(0,0);
-                }
+                _currentCharacterMeshes[meshType] = meshWrapper;
             }
-            _currentCharacterMeshes = _characterMeshes[characterKey];
+
+            _characterMeshes[characterKey] = _currentCharacterMeshes;
         }
 
         /*
@@ -140,21 +143,23 @@ namespace CharacterEditor
 
             var armorMaterial = materialInfo.armorMeshMaterial;
             var faceMaterial = materialInfo.faceMeshMaterial;
-            foreach (var mesh in _currentCharacterMeshes.Values)
+            foreach (var meshWrapper in _currentCharacterMeshes.Values)
             {
-                if (mesh.CurrentMesh == null) continue;
-                foreach (var render in mesh.CurrentMesh.GetComponentsInChildren<MeshRenderer>())
+                if (meshWrapper.IsEmptyMesh) continue;
+
+                foreach (var render in meshWrapper.MeshInstance.GetComponentsInChildren<MeshRenderer>())
                 {
                     var materials = new List<Material>();
                     render.GetMaterials(materials);
                     foreach (var material in materials)
                     {
-                        material.shader = mesh.IsFaceMesh ? faceMaterial.shader : armorMaterial.shader;
-                        material.CopyPropertiesFromMaterial(mesh.IsFaceMesh ? faceMaterial : armorMaterial);
+                        var meshIsFaceMesh = meshWrapper.Mesh.IsFaceMesh;
+                        material.shader = meshIsFaceMesh ? faceMaterial.shader : armorMaterial.shader;
+                        material.CopyPropertiesFromMaterial(meshIsFaceMesh ? faceMaterial : armorMaterial);
                         if (IsDynamicTextureAtlas())
-                            material.mainTexture = mesh.Texture.Current;
+                            material.mainTexture = meshWrapper.Mesh.Texture.Current;
                         else
-                            material.mainTexture = mesh.IsFaceMesh ? FaceTexture : ArmorTexture;
+                            material.mainTexture = meshIsFaceMesh ? FaceTexture : ArmorTexture;
                     }
                     render.materials = materials.ToArray();
                 }
@@ -179,10 +184,10 @@ namespace CharacterEditor
         private IEnumerator UpdateTextures()
         {
             IsReady = false;
-            foreach (var mesh in _currentCharacterMeshes.Values)
-                while (!mesh.IsReady) yield return null;
+            foreach (var meshWrapper in _currentCharacterMeshes.Values)
+                while (!meshWrapper.Mesh.IsReady) yield return null;
 
-            if (OnMeshesLoaded != null) OnMeshesLoaded();
+            OnMeshesLoaded?.Invoke();
 
             yield return BuildTexture();
         }
@@ -196,12 +201,12 @@ namespace CharacterEditor
 
             SelectedArmorMeshes.Clear();
             SelectedSkinMeshes.Clear();
-            foreach (var mesh in _currentCharacterMeshes.Values)
+            foreach (var meshWrapper in _currentCharacterMeshes.Values)
             {
-                if (mesh.CurrentMesh == null) continue;
+                if (meshWrapper.IsEmptyMesh) continue;
 
-                if (mesh.IsFaceMesh) SelectedSkinMeshes.Add(mesh);
-                else SelectedArmorMeshes.Add(mesh);
+                if (meshWrapper.Mesh.IsFaceMesh) SelectedSkinMeshes.Add(meshWrapper);
+                else SelectedArmorMeshes.Add(meshWrapper);
             }
 
             yield return null;
@@ -246,19 +251,20 @@ namespace CharacterEditor
             OnMeshesChanged?.Invoke();
         }
 
-        private void CreateMeshAtlas(Texture2D atlas, List<CharacterMesh> meshes)
+        private void CreateMeshAtlas(Texture2D atlas, List<CharacterMeshWrapper> meshes)
         {
             Profiler.BeginSample("CreateMeshAtlas");
             var j = 0;
-            const int meshTextureSize = Constants.MESH_TEXTURE_SIZE;
+            var meshTextureSize = Constants.MESH_TEXTURE_SIZE;
             var armorSize = atlas.width;
-            foreach (var selectedMesh in meshes)
+            foreach (var meshWrapper in meshes)
             {
+                var selectedMesh = meshWrapper.Mesh;
                 var position = IsDynamicTextureAtlas() ? j++ : selectedMesh.MergeOrder;
                 var x = meshTextureSize * (position % (armorSize / meshTextureSize));
                 var y = (armorSize - meshTextureSize) - (meshTextureSize * position / armorSize) * meshTextureSize;
 
-                var emptyMesh = selectedMesh.CurrentMesh == null;
+                var emptyMesh = meshWrapper.IsEmptyMesh;
                 if (IsDynamicTextureAtlas() && emptyMesh) continue;
 
                 atlas.SetPixels32(x, y, meshTextureSize, meshTextureSize, 
@@ -282,22 +288,23 @@ namespace CharacterEditor
                 armorRawImage.enabled = SelectedArmorMeshes.Count != 0;
             }
 
-            foreach (var mesh in _currentCharacterMeshes.Values)
+            foreach (var meshWrapper in _currentCharacterMeshes.Values)
             {
-                mesh.UpdateMesh();
-                if (mesh.CurrentMesh == null) continue;
+                meshWrapper.ClearPrevMesh();
 
-                mesh.CurrentMesh.SetActive(true);
+                if (meshWrapper.IsEmptyMesh) continue;
                 if (IsDynamicTextureAtlas()) continue;
 
-                foreach (var meshRenderer in mesh.CurrentMesh.GetComponentsInChildren<MeshRenderer>())
+                foreach (var meshRenderer in meshWrapper.MeshInstance.GetComponentsInChildren<MeshRenderer>())
                 foreach (var material in meshRenderer.materials)
-                    material.mainTexture = mesh.IsFaceMesh ? FaceTexture : ArmorTexture;
+                    material.mainTexture = meshWrapper.Mesh.IsFaceMesh ? FaceTexture : ArmorTexture;
             }
 
-          //  if (!IsDynamicTextureAtlas())
+            if (!IsDynamicTextureAtlas())
                 SetShader(TextureManager.Instance.CurrentCharacterShader);
         }
+
+      
 
         #region Mesh Actions
         public void OnNextMesh(IEnumerable<MeshType> types)
@@ -306,7 +313,7 @@ namespace CharacterEditor
             foreach (var type in types)
             {
                 if (_currentCharacterMeshes.ContainsKey(type))
-                    _currentCharacterMeshes[type].MoveNext();
+                    _currentCharacterMeshes[type].Mesh.MoveNext();
             }
             OnChangeMesh();
         }
@@ -317,7 +324,7 @@ namespace CharacterEditor
             foreach (var type in types)
             {
                 if (_currentCharacterMeshes.ContainsKey(type))
-                    _currentCharacterMeshes[type].MovePrev();
+                    _currentCharacterMeshes[type].Mesh.MovePrev();
             }
             OnChangeMesh();
         }
@@ -328,7 +335,7 @@ namespace CharacterEditor
             foreach (var type in types)
             {
                 if (_currentCharacterMeshes.ContainsKey(type))
-                    _currentCharacterMeshes[type].Reset();
+                    _currentCharacterMeshes[type].Mesh.Reset();
             }
             OnChangeMesh();
         }
@@ -355,7 +362,7 @@ namespace CharacterEditor
                 if (!_currentCharacterMeshes.ContainsKey(type)) continue;
                 var color = -1;
                 if (sameColorTypes != null && Array.IndexOf(sameColorTypes, type) != -1) color = sameColor;
-                _currentCharacterMeshes[type].Shuffle(color);
+                _currentCharacterMeshes[type].Mesh.Shuffle(color);
             }
 
             // Setup missing same types
@@ -363,13 +370,15 @@ namespace CharacterEditor
             {
                 foreach (var typeGroup in sameTypes)
                 {
+                    if (typeGroup.Length == 0) continue;
+
+                    var firstMeshForGroup = _currentCharacterMeshes[typeGroup[0]].Mesh;
                     for (var i = 1; i < typeGroup.Length; i++)
                     {
-                        if (!_currentCharacterMeshes.ContainsKey(typeGroup[i])) continue;
+                        if (!_currentCharacterMeshes.TryGetValue(typeGroup[i], out var meshWrapper)) continue;
 
-                        var mesh = _currentCharacterMeshes[typeGroup[0]];
-                        _currentCharacterMeshes[typeGroup[i]].SetMesh(mesh.SelectedMesh);
-                        _currentCharacterMeshes[typeGroup[i]].SetTextureAndColor(mesh.Texture.SelectedTexture, mesh.Texture.SelectedColor);
+                        meshWrapper.Mesh.SetMesh(firstMeshForGroup.SelectedMesh);
+                        meshWrapper.Mesh.SetTextureAndColor(firstMeshForGroup.Texture.SelectedTexture, firstMeshForGroup.Texture.SelectedColor);
                     }
                 }
             }
@@ -385,7 +394,7 @@ namespace CharacterEditor
             foreach (var type in types)
             {
                 if (_currentCharacterMeshes.ContainsKey(type))
-                    _currentCharacterMeshes[type].MoveNextColor();
+                    _currentCharacterMeshes[type].Mesh.MoveNextColor();
             }
             OnChangeMesh();
         }
@@ -396,7 +405,7 @@ namespace CharacterEditor
             foreach (var type in types)
             {
                 if (_currentCharacterMeshes.ContainsKey(type))
-                    _currentCharacterMeshes[type].MovePrevColor();
+                    _currentCharacterMeshes[type].Mesh.MovePrevColor();
             }
             OnChangeMesh();
         }
@@ -407,7 +416,7 @@ namespace CharacterEditor
             foreach (var type in types)
             {
                 if (_currentCharacterMeshes.ContainsKey(type))
-                    _currentCharacterMeshes[type].SetColor(color);
+                    _currentCharacterMeshes[type].Mesh.SetColor(color);
             }
             OnChangeMesh();
         }
@@ -418,7 +427,7 @@ namespace CharacterEditor
             foreach (var type in types)
             {
                 if (_currentCharacterMeshes.ContainsKey(type))
-                    _currentCharacterMeshes[type].ResetColor();
+                    _currentCharacterMeshes[type].Mesh.ResetColor();
             }
             OnChangeMesh();
         }

@@ -63,8 +63,8 @@ namespace CharacterEditor
 
         private async Task ChangeCharacter()
         {
-            await TextureManager.Instance.ApplyConfig(Config, ConfigData);
-            await MeshManager.Instance.ApplyConfig(Config, ConfigData);
+            await TextureManager.Instance.ApplyConfig(ConfigData);
+            await MeshManager.Instance.ApplyConfig(ConfigData);
 
             ConfigData.CharacterObject.SetActive(true);
 

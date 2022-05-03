@@ -7,7 +7,6 @@ using CharacterEditor.Helpers;
 using CharacterEditor.Services;
 using UnityEngine;
 using UnityEngine.Profiling;
-using UnityEngine.Rendering;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 
@@ -76,6 +75,7 @@ namespace CharacterEditor
             _modelRenderers = new List<SkinnedMeshRenderer>();
             _cloakRenderers = new List<SkinnedMeshRenderer>();
             CharacterShaders = new Dictionary<string, TextureShaderType>();
+            _characterPortraits = new Dictionary<string, TwoWayArray<Sprite>>();
 
             CharacterTexture = new Texture2D(Constants.SKIN_TEXTURE_ATLAS_SIZE, Constants.SKIN_TEXTURE_ATLAS_SIZE, TextureFormat.RGB24, false);
 
@@ -83,29 +83,35 @@ namespace CharacterEditor
             _canChangeTypes = canChangeMask.FlagToArray<TextureType>();
 
 
-
-            _characterPortraits = new Dictionary<string, TwoWayArray<Sprite>>();
             var loaderService = AllServices.Container.Single<ILoaderService>();
             _textureLoader = loaderService.TextureLoader;
             _dataManager = loaderService.DataManager;
+
+            var gameFactory = AllServices.Container.Single<IGameFactory>();
+            gameFactory.OnCharacterGoDataSpawned += OnCharacterGoDataSpawnedHandler;
+        }
+
+        private async void OnCharacterGoDataSpawnedHandler(CharacterGameObjectData data)
+        {
+            await ApplyConfig(data);
         }
 
 
         /*
          * Change Character. Update textures and skin meshes
          */
-        public async Task ApplyConfig(CharacterConfig config, CharacterGameObjectData data)
+        public async Task ApplyConfig(CharacterGameObjectData data)
         {
             _modelRenderers.Clear();
             _modelRenderers.AddRange(data.SkinMeshes);
             _modelRenderers.AddRange(data.ShortRobeMeshes);
             _modelRenderers.AddRange(data.LongRobeMeshes);
 
-            _characterRace = config.folderName;
+            _characterRace = data.Config.folderName;
             if (!_characterTextures.ContainsKey(_characterRace))
             {
-                _characterTextures[_characterRace] = new Dictionary<TextureType, CharacterTexture>(config.availableTextures.Length, EnumComparer.TextureType);
-                foreach (var texture in config.availableTextures)
+                _characterTextures[_characterRace] = new Dictionary<TextureType, CharacterTexture>(data.Config.availableTextures.Length, EnumComparer.TextureType);
+                foreach (var texture in data.Config.availableTextures)
                 {
                     if (Array.IndexOf(_canChangeTypes, texture) == -1) continue;
                     _characterTextures[_characterRace][texture] = TextureFactory.Create(texture, _textureLoader, _dataManager, _characterRace);

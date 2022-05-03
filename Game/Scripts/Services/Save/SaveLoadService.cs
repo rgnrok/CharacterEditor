@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
@@ -59,11 +60,16 @@ namespace CharacterEditor
         public void Save(string saveName, CharacterGameObjectData data)
         {
             if (GameManager.Instance != null)
+            {
                 SaveGame(saveName);
+            }
             else
+            {
                 CreateGame(saveName, data, 
                     TextureManager.Instance.CharacterTexture, TextureManager.Instance.CharacterPortrait,
-                    MeshManager.Instance.SelectedSkinMeshes, MeshManager.Instance.FaceTexture);
+                    MeshManager.Instance.SelectedSkinMeshes.Select(mw => mw.Mesh), MeshManager.Instance.FaceTexture);
+
+            }
 
             KeepLastSaveName(saveName);
         }
@@ -118,7 +124,7 @@ namespace CharacterEditor
 
         private void CreateGame(string saveName, CharacterGameObjectData configData,
             Texture2D characterTexture, Sprite portrait,
-            List<CharacterMesh> faceMeshes, Texture2D faceMeshTexture)
+            IEnumerable<CharacterMesh> faceMeshes, Texture2D faceMeshTexture)
         {
             var saveFolderPath = SaveFolderPath(saveName);
             Directory.CreateDirectory(saveFolderPath);

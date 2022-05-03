@@ -2,7 +2,6 @@
 
 namespace CharacterEditor
 {
-    [Flags]
     public enum MeshType
     {
         Undefined = 0x0000,

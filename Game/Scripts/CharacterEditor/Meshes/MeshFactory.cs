@@ -7,7 +7,7 @@ namespace CharacterEditor
 {
     public class MeshFactory
     {
-        public static CharacterMesh Create(IMeshLoader loader, IDataManager dataManager, MeshType meshType, Transform anchor, string characterRace)
+        public static CharacterMesh Create(IMeshLoader loader, IDataManager dataManager, MeshType meshType, string characterRace)
         {
             var meshTexturesPath = dataManager.ParseMeshes(characterRace, meshType);
             var meshOrder = GetMeshMergeOrder(meshType);
@@ -16,9 +16,9 @@ namespace CharacterEditor
                 case MeshType.Beard:
                 case MeshType.FaceFeature:
                 case MeshType.Hair:
-                    return new CharacterMesh(loader, anchor, meshTexturesPath, meshType, meshOrder, true);
+                    return new CharacterMesh(loader, meshTexturesPath, meshType, meshOrder, true);
                 default:
-                    return new CharacterMesh(loader, anchor, meshTexturesPath, meshType, meshOrder, false);
+                    return new CharacterMesh(loader, meshTexturesPath, meshType, meshOrder, false);
             }
         }
 
