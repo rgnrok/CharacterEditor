@@ -13,7 +13,6 @@ namespace CharacterEditor.Services
         private readonly ILoaderService _loaderService;
 
         public event Action<Character> OnCharacterSpawned;
-        public event Action<CharacterGameObjectData> OnCharacterGoDataSpawned;
 
         public GameFactory(ILoaderService loaderService)
         {
@@ -28,9 +27,6 @@ namespace CharacterEditor.Services
 
             characterPrefab.SetActive(false);
             var gameObjectData = new CharacterGameObjectData(config, characterPrefab);
-
-
-            OnCharacterGoDataSpawned?.Invoke(gameObjectData);
 
             return gameObjectData;
         }

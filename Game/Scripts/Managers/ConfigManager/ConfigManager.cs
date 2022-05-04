@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 
@@ -10,16 +11,8 @@ namespace CharacterEditor
         private int CurrentConfigIndex
         {
             get => _currentConfigIndex;
-            set
-            {
-                if (value < 0)
-                    value = _charactersGameObjectData.Length - 1;
-                
-                if (value >= _charactersGameObjectData.Length)
-                    value = 0;
-                
-                _currentConfigIndex = value;
-            }
+            set => 
+                _currentConfigIndex = Helper.GetActualIndex(value, _charactersGameObjectData.Length);
         }
 
         public CharacterConfig Config =>
@@ -28,9 +21,10 @@ namespace CharacterEditor
         public CharacterGameObjectData ConfigData =>
             _charactersGameObjectData[CurrentConfigIndex];
 
-        public event Action OnChangeCharacter;
-
         private CharacterGameObjectData[] _charactersGameObjectData;
+
+        public event Action OnChangeCharacter;
+        public event Func<CharacterGameObjectData, Task> OnChangeConfig;
 
 
         public async Task Init(CharacterGameObjectData[] configData)
@@ -63,9 +57,11 @@ namespace CharacterEditor
 
         private async Task ChangeCharacter()
         {
-            await TextureManager.Instance.ApplyConfig(ConfigData);
-            await MeshManager.Instance.ApplyConfig(ConfigData);
-
+            if (OnChangeConfig != null)
+            {
+                await Task.WhenAll(OnChangeConfig.GetInvocationList()
+                    .Select(eDelegate => ((Func<CharacterGameObjectData, Task>)eDelegate)(ConfigData)));
+            }
             ConfigData.CharacterObject.SetActive(true);
 
             OnChangeCharacter?.Invoke();

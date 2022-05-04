@@ -86,8 +86,8 @@ namespace CharacterEditor
             if (_isProcess || _textureManager == null || _meshManager == null) return;
             _isProcess = true;
 
-            _textureManager.OnTexturesLoaded -= TexturesChangedHandler;
-            _meshManager.OnMeshesLoaded -= MeshesChangedHandler;
+            _textureManager.OnTexturesChanged -= TexturesChangedHandler;
+            _meshManager.OnMeshesChanged -= MeshesChangedHandler;
 
             RandomizeTextures();
             RandomizeMeshes();

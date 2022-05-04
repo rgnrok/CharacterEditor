@@ -21,11 +21,11 @@ namespace CharacterEditor
 
         void Start()
         {
-            if (TextureManager.Instance == null) return;
+            if (PrefabShaderManager.Instance == null) return;
 
             shaders = new List<TextureShaderType>();
             shaderDropdown.options.Clear();
-            foreach (var materialInfo in TextureManager.Instance.Materials)
+            foreach (var materialInfo in PrefabShaderManager.Instance.Materials)
             {
                 shaders.Add(materialInfo.shader);
                 shaderDropdown.options.Add(new Dropdown.OptionData(materialInfo.shader.ToString()));
@@ -46,8 +46,8 @@ namespace CharacterEditor
                 yield return null;
 
             var selectedShader = shaders[shaderDropdown.value];
-            TextureManager.Instance.SetShader(selectedShader);
-            MeshManager.Instance.SetShader(selectedShader);
+            PrefabShaderManager.Instance.SetShader(selectedShader);
+     
         }
     }
 }

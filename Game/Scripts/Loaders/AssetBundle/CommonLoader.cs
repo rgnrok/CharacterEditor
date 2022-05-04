@@ -83,7 +83,6 @@ namespace CharacterEditor
             private IEnumerator LoadByPathCoroutine(string path, Action<T> callback)
             {
                 var (assetBundleName, assetName) = ParseAssetName(path);
-
                 if (_cache.TryGetValue(path, out var asset))
                 {
                     BundleUsageChecker.UpdateUsageCounter(assetBundleName);
@@ -110,10 +109,10 @@ namespace CharacterEditor
 
             private static (string, string) ParseAssetName(string path)
             {
-                var pathParts = path.Split('/');
+                var index = path.IndexOf('/');
+                var bundleName = path.Substring(0, index).ToLower();
+                var assetName = path.Substring(index+1);
 
-                var bundleName = pathParts[0].ToLower();
-                var assetName = pathParts[pathParts.Length - 1];
                 return (bundleName, assetName);
             }
         }

@@ -546,7 +546,6 @@ namespace AssetBundles
             for (int i = 0; i < m_InProgressOperations.Count;)
             {
                 var operation = m_InProgressOperations[i];
-                Profiler.BeginSample("OPER UPDATE");
                 if (operation.Update())
                 {
                     i++;
@@ -556,7 +555,6 @@ namespace AssetBundles
                     m_InProgressOperations.RemoveAt(i);
                     ProcessFinishedOperation(operation);
                 }
-                Profiler.EndSample();
             }
         }
 

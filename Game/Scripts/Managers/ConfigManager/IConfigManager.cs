@@ -10,7 +10,9 @@ namespace CharacterEditor
         Task OnNextCharacter();
         Task OnPrevCharacter();
 
-        event Action OnChangeCharacter;
         Task Init(CharacterGameObjectData[] configData);
+
+        event Action OnChangeCharacter;
+        event Func<CharacterGameObjectData, Task> OnChangeConfig;
     }
 }

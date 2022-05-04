@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 
 namespace CharacterEditor
 {
@@ -9,14 +8,11 @@ namespace CharacterEditor
 
         public static bool CheckUnload(string assetBundleName)
         {
-            _bundleUsageCounters.TryGetValue(assetBundleName, out var count);
-            Logger.LogWarning($"Unload assetBundleName: {assetBundleName}. UsageCounters: {count}");
+            if (!_bundleUsageCounters.ContainsKey(assetBundleName)) return true;
 
-            if (_bundleUsageCounters.ContainsKey(assetBundleName))
-            {
-                _bundleUsageCounters[assetBundleName]--;
-                if (_bundleUsageCounters[assetBundleName] > 0) return false;
-            }
+            var bundleUsageCounter = _bundleUsageCounters[assetBundleName];
+            bundleUsageCounter--;
+            if (bundleUsageCounter > 0) return false;
 
             return true;
         }
@@ -27,8 +23,6 @@ namespace CharacterEditor
                 _bundleUsageCounters[assetBundleName] = 0;
 
             _bundleUsageCounters[assetBundleName]++;
-
-            Logger.LogWarning($"UpdateUsageCounter  {assetBundleName}. UsageCounters: { _bundleUsageCounters[assetBundleName] }");
         }
     }
 }

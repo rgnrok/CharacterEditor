@@ -12,17 +12,7 @@ namespace CharacterEditor
         public CharacterMesh Mesh { get; private set; }
 
         private GameObject _meshInstance;
-        public GameObject MeshInstance
-        {
-            get
-            {
-                if (_meshInstance == null)
-                    _meshInstance = _meshFactory.CreateMeshInstance(Mesh, _meshBone);
-                return _meshInstance;
 
-            }
-        }
-        
         public bool IsEmptyMesh =>
             Mesh.LoadedMeshObject == null;
 
@@ -34,18 +24,24 @@ namespace CharacterEditor
             Mesh = MeshFactory.Create(meshLoader, dataManager, meshType, characterRace);
         }
 
-     
+        public GameObject GetOrCreateMeshInstance()
+        {
+            if (_meshInstance == null)
+                _meshInstance = _meshFactory.CreateMeshInstance(Mesh, _meshBone);
+            return _meshInstance;
+        }
+
 
         public void ClearPrevMesh()
         {
-            if (_meshInstance != null)
-            {
-                _meshInstance.SetActive(false);
-                Object.Destroy(_meshInstance);
-                _meshInstance = null;
-            }
+            if (_meshInstance == null) return;
+
+            _meshInstance.SetActive(false);
+            Object.Destroy(_meshInstance);
+            _meshInstance = null;
 
             Mesh.ClearPrevMesh();
+
         }
     }
 }

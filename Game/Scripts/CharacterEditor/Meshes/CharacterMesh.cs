@@ -191,6 +191,11 @@ namespace CharacterEditor
             {
                 Texture.SetTextureAndColor(texture, color);
             }
+
+            public bool HasChanges()
+            {
+                return _prevMeshPath != null && _prevMeshPath != MeshPath;
+            }
         }
     }
 }

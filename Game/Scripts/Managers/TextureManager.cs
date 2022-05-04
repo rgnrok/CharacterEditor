@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Assets.Game.Scripts.Loaders;
 using CharacterEditor.Helpers;
 using CharacterEditor.Services;
 using UnityEngine;
-using UnityEngine.Profiling;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 
@@ -32,19 +30,16 @@ namespace CharacterEditor
 
         [EnumFlag] public TextureType canChangeMask;
         private TextureType[] _canChangeTypes;
-
-        [SerializeField] private MaterialInfo[] materials;
-        public MaterialInfo[] Materials { get { return materials; } }
-
+        
         public Dictionary<TextureType, CharacterTexture> CurrentCharacterTextures { get; private set; }
         public Texture2D CharacterTexture { get; private set; }
         public Texture2D CloakTexture { get; private set; }
         public bool IsReady { get; private set; }
-        public Dictionary<string, TextureShaderType> CharacterShaders { get; private set; }
-        public TextureShaderType CurrentCharacterShader { get; private set; }
+
 
         private List<SkinnedMeshRenderer> _modelRenderers;
         private List<SkinnedMeshRenderer> _cloakRenderers;
+
         private Dictionary<string, Dictionary<TextureType, CharacterTexture>> _characterTextures;
 
         private Dictionary<string, TwoWayArray<Sprite>> _characterPortraits;
@@ -74,7 +69,7 @@ namespace CharacterEditor
             _characterTextures = new Dictionary<string, Dictionary<TextureType, CharacterTexture>>();
             _modelRenderers = new List<SkinnedMeshRenderer>();
             _cloakRenderers = new List<SkinnedMeshRenderer>();
-            CharacterShaders = new Dictionary<string, TextureShaderType>();
+
             _characterPortraits = new Dictionary<string, TwoWayArray<Sprite>>();
 
             CharacterTexture = new Texture2D(Constants.SKIN_TEXTURE_ATLAS_SIZE, Constants.SKIN_TEXTURE_ATLAS_SIZE, TextureFormat.RGB24, false);
@@ -87,20 +82,19 @@ namespace CharacterEditor
             _textureLoader = loaderService.TextureLoader;
             _dataManager = loaderService.DataManager;
 
-            var gameFactory = AllServices.Container.Single<IGameFactory>();
-            gameFactory.OnCharacterGoDataSpawned += OnCharacterGoDataSpawnedHandler;
+            var configManager = AllServices.Container.Single<IConfigManager>();
+            configManager.OnChangeConfig += OnChangeConfigHandler;
         }
 
-        private async void OnCharacterGoDataSpawnedHandler(CharacterGameObjectData data)
+        private async Task OnChangeConfigHandler(CharacterGameObjectData data)
         {
             await ApplyConfig(data);
         }
 
-
         /*
          * Change Character. Update textures and skin meshes
          */
-        public async Task ApplyConfig(CharacterGameObjectData data)
+        private async Task ApplyConfig(CharacterGameObjectData data)
         {
             _modelRenderers.Clear();
             _modelRenderers.AddRange(data.SkinMeshes);
@@ -123,12 +117,8 @@ namespace CharacterEditor
             _cloakRenderers.AddRange(data.CloakMeshes);
 
             await UpdateTextures();
-            while (!IsReady) await Task.Yield();
+            // while (!IsReady) await Task.Yield();
            
-            if (!CharacterShaders.ContainsKey(_characterRace) ||
-                CharacterShaders[_characterRace] != CurrentCharacterShader)
-                SetShader(CurrentCharacterShader);
-
             if (portraits != null)
             {
                 if (!_characterPortraits.ContainsKey(_characterRace))
@@ -142,42 +132,7 @@ namespace CharacterEditor
             }
         }
 
-        public MaterialInfo GetShaderMaterial(TextureShaderType shader)
-        {
-            foreach (var mat in materials)
-                if (mat.shader == shader) return mat;
-
-            return null;
-        }
-
-        public MaterialInfo GetShaderMaterial()
-        {
-            return GetShaderMaterial(CurrentCharacterShader);
-        }
-
-        /*
-        * Update skin mesh materials and shaders
-        */
-        public void SetShader(TextureShaderType shader)
-        {
-            var materialInfo = GetShaderMaterial(shader);
-            if (materialInfo == null)
-                return;
-
-            CurrentCharacterShader = shader;
-            CharacterShaders[_characterRace] = CurrentCharacterShader;
-
-            var material = materialInfo.skinMaterial;
-            material.mainTexture = CharacterTexture;
-            foreach (var render in _modelRenderers)
-                render.material = material;
-
-            var cloakMaterial = materialInfo.cloakMaterial;
-            cloakMaterial.mainTexture = CloakTexture;
-            foreach (var render in _cloakRenderers)
-                render.material = cloakMaterial;
-        }
-
+      
         public void LockUpdate(bool isLock)
         {
             _isLock = isLock;
@@ -187,12 +142,13 @@ namespace CharacterEditor
         private async Task UpdateTextures()
         {
             IsReady = false;
+
             foreach (var texture in CurrentCharacterTextures.Values)
                 while (!texture.IsReady) await Task.Yield();
 
-            if (OnTexturesLoaded != null) OnTexturesLoaded();
+            OnTexturesLoaded?.Invoke();
             await MergeTextures();
-            // yield return StartCoroutine(UpdateCloakTexture());
+            await UpdateCloakTexture();
         }
 
    
@@ -202,19 +158,12 @@ namespace CharacterEditor
         private async Task MergeTextures()
         {
             IsReady = false;
+
             renderSkinTexture = await _mergeTextureService.MergeTextures(skinRenderShaderMaterial, renderSkinTexture, CurrentCharacterTextures, _ignoreTypes);
 
             RenderTexture.active = renderSkinTexture;
-            Profiler.BeginSample("===== CharacterTexture.ReadPixels");
-
-
-            // Graphics.CopyTexture(renderSkinTexture, 0, 0, 0, 0, renderSkinTexture.width, renderSkinTexture.height, CharacterTexture, 0,0, 0, 0);
-            // Graphics.CopyTexture(renderSkinTexture,  CharacterTexture);
-
-
             CharacterTexture.ReadPixels(new Rect(0, 0, renderSkinTexture.width, renderSkinTexture.height), 0, 0);
-            // CharacterTexture.Apply();
-            Profiler.EndSample();
+
             UpdateModelTextures();
 
             IsReady = true;
@@ -226,21 +175,21 @@ namespace CharacterEditor
         private void UpdateModelTextures()
         {
             if (_isLock) return;
+
             CharacterTexture.Apply();
-            // foreach (var render in _modelRenderers)
-            //     render.material.mainTexture = CharacterTexture;
-            
+            foreach (var render in _modelRenderers)
+                render.material.mainTexture = CharacterTexture;
+
             if (skinRawImage != null)
                 skinRawImage.texture = CharacterTexture;
         }
 
-        private IEnumerator UpdateCloakTexture()
+        private async Task UpdateCloakTexture()
         {
             CloakTexture = null;
-            CharacterTexture cloak;
-            if (!CurrentCharacterTextures.TryGetValue(TextureType.Cloak, out cloak)) yield break;
+            if (!CurrentCharacterTextures.TryGetValue(TextureType.Cloak, out var cloak)) return;
 
-            while (!cloak.IsReady) yield return null;
+            while (!cloak.IsReady) await Task.Yield();
             CloakTexture = cloak.Current;
 
             foreach (var render in _cloakRenderers)
@@ -253,12 +202,7 @@ namespace CharacterEditor
                 render.material = mat;
         }
 
-        public void UpdateCloakMaterial(Material mat)
-        {
-            foreach (var render in _cloakRenderers)
-                render.material = mat;
-        }
-
+  
         public void OnPrevTexture(TextureType[] types, TextureType[] clearTypes = null)
         {
             if (!IsReady) return;
@@ -446,16 +390,15 @@ namespace CharacterEditor
          */
         private async Task OnChangeTexture(TextureType[] changedTypes)
         {
-            var types = new List<TextureType>();
+            var types = new List<TextureType>(changedTypes.Length);
             foreach (var type in changedTypes)
             {
                 if (CurrentCharacterTextures.ContainsKey(type))
                     types.Add(type);
             }
-
             if (types.Count == 0) return;
-            PrepareSkinMeshTextures(types);
 
+            PrepareSkinMeshTextures(types);
             await UpdateTextures();
         }
 

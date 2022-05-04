@@ -8,7 +8,6 @@ namespace CharacterEditor.Services
     public interface IGameFactory : IService
     {
         event Action<Character> OnCharacterSpawned;
-        event Action<CharacterGameObjectData> OnCharacterGoDataSpawned;
 
         Task<CharacterGameObjectData> SpawnCreateCharacter(CharacterConfig config);
 

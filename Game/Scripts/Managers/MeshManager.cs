@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,7 +6,6 @@ using Assets.Game.Scripts.Loaders;
 using CharacterEditor.Helpers;
 using CharacterEditor.Services;
 using UnityEngine;
-using UnityEngine.Profiling;
 using UnityEngine.UI;
 
 namespace CharacterEditor
@@ -39,19 +37,20 @@ namespace CharacterEditor
 
         private string _characterRace;
         private bool _isLock;
-        private Coroutine _buildCoroutine;
         private Color32[] _emptyPixels;
 
-        public Action OnMeshesChanged;
-        public Action OnMeshesLoaded;
+
         private IMeshLoader _meshLoader;
         private IStaticDataService _staticDataService;
         private IDataManager _dataManager;
         private IMeshInstanceCreator _meshInstanceCreator;
-        private IGameFactory _gameFactory;
         private Dictionary<MeshType, int> _defaultMeshValues;
 
         public static MeshManager Instance { get; private set; }
+
+        public Action OnMeshesChanged;
+        public Action OnMeshesLoaded;
+        public Action OnMeshesTextureUpdated;
 
         void Awake()
         {
@@ -75,37 +74,25 @@ namespace CharacterEditor
             _dataManager = loaderService.DataManager;
             _staticDataService = AllServices.Container.Single<IStaticDataService>();
             _meshInstanceCreator = AllServices.Container.Single<IMeshInstanceCreator>();
-            _gameFactory = AllServices.Container.Single<IGameFactory>();
 
-            _gameFactory.OnCharacterGoDataSpawned += OnCharacterGoDataSpawnedHandler;
+            var configManager = AllServices.Container.Single<IConfigManager>();
+            configManager.OnChangeConfig += OnChangeConfigHandler;
         }
 
-        private async void OnCharacterGoDataSpawnedHandler(CharacterGameObjectData data)
+        private Task OnChangeConfigHandler(CharacterGameObjectData data)
         {
-            await ApplyConfig(data);
+            return ApplyConfig(data);
         }
 
-
-        /*
-         * Change Character. Update armor/weapon meshes and fx meshes
-         */
-        public async Task ApplyConfig(CharacterGameObjectData data)
+        private async Task ApplyConfig(CharacterGameObjectData data)
         {
             IsReady = false;
 
             _characterRace = data.Config.folderName;
             InitCurrentCharacterMeshes(data, _characterRace);
 
-            foreach (var mesh in _currentCharacterMeshes.Values)
-                while (!mesh.Mesh.IsReady) await Task.Yield();
-            
-            StartCoroutine(UpdateTextures());
+            await UpdateTextures();
             while (!IsReady) await Task.Yield();
-
-            if (TextureManager.Instance.CharacterShaders.TryGetValue(_characterRace, out var shader) && TextureManager.Instance.CurrentCharacterShader != shader)
-                SetShader(TextureManager.Instance.CurrentCharacterShader);
-
-            IsReady = true;
         }
 
         private void InitCurrentCharacterMeshes(CharacterGameObjectData data, string characterKey)
@@ -132,41 +119,8 @@ namespace CharacterEditor
             _characterMeshes[characterKey] = _currentCharacterMeshes;
         }
 
-        /*
-         * Update mesh materials and shaders
-         */
-        public void SetShader(TextureShaderType shader)
-        {
-            var materialInfo = TextureManager.Instance.GetShaderMaterial(shader);
-            if (materialInfo == null)
-                return;
-
-            var armorMaterial = materialInfo.armorMeshMaterial;
-            var faceMaterial = materialInfo.faceMeshMaterial;
-            foreach (var meshWrapper in _currentCharacterMeshes.Values)
-            {
-                if (meshWrapper.IsEmptyMesh) continue;
-
-                foreach (var render in meshWrapper.MeshInstance.GetComponentsInChildren<MeshRenderer>())
-                {
-                    var materials = new List<Material>();
-                    render.GetMaterials(materials);
-                    foreach (var material in materials)
-                    {
-                        var meshIsFaceMesh = meshWrapper.Mesh.IsFaceMesh;
-                        material.shader = meshIsFaceMesh ? faceMaterial.shader : armorMaterial.shader;
-                        material.CopyPropertiesFromMaterial(meshIsFaceMesh ? faceMaterial : armorMaterial);
-                        if (IsDynamicTextureAtlas())
-                            material.mainTexture = meshWrapper.Mesh.Texture.Current;
-                        else
-                            material.mainTexture = meshIsFaceMesh ? FaceTexture : ArmorTexture;
-                    }
-                    render.materials = materials.ToArray();
-                }
-            }
-        }
-
-        private bool IsDynamicTextureAtlas()
+  
+        public bool IsDynamicTextureAtlas()
         {
 #if UNITY_EDITOR
             return _staticDataService.LoaderType == LoaderType.AssetDatabase && _staticDataService.MeshAtlasType == MeshAtlasType.Dynamic;
@@ -181,37 +135,37 @@ namespace CharacterEditor
             if (!_isLock) UpdateModelTextures();
         }
 
-        private IEnumerator UpdateTextures()
+        private async Task UpdateTextures()
         {
             IsReady = false;
             foreach (var meshWrapper in _currentCharacterMeshes.Values)
-                while (!meshWrapper.Mesh.IsReady) yield return null;
-
+                while (!meshWrapper.Mesh.IsReady) await Task.Yield();
             OnMeshesLoaded?.Invoke();
 
-            yield return BuildTexture();
+            BuildTexture();
+            IsReady = true;
+
         }
 
         /*
          * Create mesh atlas from selected meshes
          */
-        private IEnumerator BuildTexture()
+        private void BuildTexture()
         {
-            IsReady = false;
+            UpdateSelectedMeshes();
 
-            SelectedArmorMeshes.Clear();
-            SelectedSkinMeshes.Clear();
-            foreach (var meshWrapper in _currentCharacterMeshes.Values)
-            {
-                if (meshWrapper.IsEmptyMesh) continue;
+            CreateMeshAtlas();
 
-                if (meshWrapper.Mesh.IsFaceMesh) SelectedSkinMeshes.Add(meshWrapper);
-                else SelectedArmorMeshes.Add(meshWrapper);
-            }
+            BuildMeshAtlas(ArmorTexture, SelectedArmorMeshes);
+            BuildMeshAtlas(FaceTexture, SelectedSkinMeshes);
 
-            yield return null;
+            if (!_isLock) UpdateModelTextures();
 
-            //Create empty atlas
+            OnMeshesChanged?.Invoke();
+        }
+
+        private void CreateMeshAtlas()
+        {
             var armorSize = Constants.ARMOR_MESHES_ATLAS_SIZE;
             var skinSize = Constants.SKIN_MESHES_ATLAS_SIZE;
 
@@ -222,38 +176,32 @@ namespace CharacterEditor
                     armorSize / 4;
                 skinSize = SelectedSkinMeshes.Count > 1 ? skinSize : skinSize / 2;
                 ArmorTexture = new Texture2D(armorSize, armorSize, TextureFormat.RGB24, false);
-                yield return null;
                 FaceTexture = new Texture2D(skinSize, skinSize, TextureFormat.RGB24, false);
-                yield return null;
             }
 
             if (SelectedArmorMeshes.Count > 0 && ArmorTexture == null)
             {
                 ArmorTexture = new Texture2D(armorSize, armorSize, TextureFormat.RGB24, false);
-                yield return null;
             }
-
-            if (ArmorTexture != null)
-            {
-                CreateMeshAtlas(ArmorTexture, SelectedArmorMeshes);
-                yield return null;
-            }
-
-            CreateMeshAtlas(FaceTexture, SelectedSkinMeshes);
-            yield return null;
-
-            if (!_isLock)
-            {
-                UpdateModelTextures();
-                yield return null;
-            }
-            IsReady = true;
-            OnMeshesChanged?.Invoke();
         }
 
-        private void CreateMeshAtlas(Texture2D atlas, List<CharacterMeshWrapper> meshes)
+        private void UpdateSelectedMeshes()
         {
-            Profiler.BeginSample("CreateMeshAtlas");
+            SelectedArmorMeshes.Clear();
+            SelectedSkinMeshes.Clear();
+            foreach (var meshWrapper in _currentCharacterMeshes.Values)
+            {
+                if (meshWrapper.IsEmptyMesh) continue;
+
+                if (meshWrapper.Mesh.IsFaceMesh) SelectedSkinMeshes.Add(meshWrapper);
+                else SelectedArmorMeshes.Add(meshWrapper);
+            }
+        }
+
+        private void BuildMeshAtlas(Texture2D atlas, List<CharacterMeshWrapper> meshes)
+        {
+            if (atlas == null) return;
+
             var j = 0;
             var meshTextureSize = Constants.MESH_TEXTURE_SIZE;
             var armorSize = atlas.width;
@@ -270,13 +218,13 @@ namespace CharacterEditor
                 atlas.SetPixels32(x, y, meshTextureSize, meshTextureSize, 
                     emptyMesh ? _emptyPixels : selectedMesh.Texture.GetPixels32());
             }
-            Profiler.EndSample();
         }
         
         private void UpdateModelTextures()
         {
-            if (FaceTexture != null) FaceTexture.Apply();
-            if (ArmorTexture != null) ArmorTexture.Apply();
+            FaceTexture.Apply();
+            ArmorTexture?.Apply();
+
             if (skinMeshRawImage != null)
             {
                 skinMeshRawImage.texture = FaceTexture;
@@ -290,18 +238,17 @@ namespace CharacterEditor
 
             foreach (var meshWrapper in _currentCharacterMeshes.Values)
             {
-                meshWrapper.ClearPrevMesh();
+                if (meshWrapper.Mesh.HasChanges())
+                    meshWrapper.ClearPrevMesh();
 
                 if (meshWrapper.IsEmptyMesh) continue;
                 if (IsDynamicTextureAtlas()) continue;
 
-                foreach (var meshRenderer in meshWrapper.MeshInstance.GetComponentsInChildren<MeshRenderer>())
+                foreach (var meshRenderer in meshWrapper.GetOrCreateMeshInstance().GetComponentsInChildren<MeshRenderer>())
                 foreach (var material in meshRenderer.materials)
                     material.mainTexture = meshWrapper.Mesh.IsFaceMesh ? FaceTexture : ArmorTexture;
             }
-
-            if (!IsDynamicTextureAtlas())
-                SetShader(TextureManager.Instance.CurrentCharacterShader);
+            OnMeshesTextureUpdated?.Invoke();
         }
 
       
@@ -343,7 +290,6 @@ namespace CharacterEditor
         public void OnRandom(MeshType[] types, MeshType[][] sameTypes, MeshType[] sameColorTypes, int sameColor = 0)
         {
             if (!IsReady) return; 
-
             //Remove same meshes from random list
             if (sameTypes != null && sameTypes.Length > 0)
             {
@@ -433,10 +379,9 @@ namespace CharacterEditor
         }
         #endregion
 
-        private void OnChangeMesh()
+        private async void OnChangeMesh()
         {
-            if (_buildCoroutine != null) StopCoroutine(_buildCoroutine);
-            _buildCoroutine = StartCoroutine(UpdateTextures());
+            await UpdateTextures();
         }
     }
 }
