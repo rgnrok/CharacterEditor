@@ -101,6 +101,49 @@ public static class Helper
         }
     }
 
+    public static string GetShaderTextureName(MeshType type)
+    {
+        switch (type)
+        {
+            case MeshType.Beard:
+                return "_BeardTex";
+            case MeshType.Hair:
+                return "_HairTex";
+            case MeshType.FaceFeature:
+                return "_FaceFeatureTex";
+
+            case MeshType.Helm:
+                return "_HelmTex";
+            case MeshType.Torso:
+                return "_TorsoTex";
+            case MeshType.TorsoAdd:
+                return "_TorsoAddTex";
+            case MeshType.Belt:
+                return "_BeltTex";
+            case MeshType.BeltAdd:
+                return "_BeltAddTex";
+            case MeshType.ShoulderRight:
+                return "_ShoulderRightTex";
+            case MeshType.ShoulderLeft:
+                return "_ShoulderLeftTex";
+            case MeshType.ArmRight:
+                return "_ArmRightTex";
+            case MeshType.ArmLeft:
+                return "_ArmLeftTex";
+            case MeshType.LegRight:
+                return "_LegRightTex";
+            case MeshType.LegLeft:
+                return "_LegLeftTex";
+            case MeshType.HandRight:
+                return "_HandRightTex";
+            case MeshType.HandLeft:
+                return "_HandLeftTex";
+
+            default:
+                return null;
+        }
+    }
+
     public static MeshType GetHandMeshTypeBySlot(EquipItemSlot type)
     {
         switch (type)

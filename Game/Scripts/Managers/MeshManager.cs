@@ -26,6 +26,12 @@ namespace CharacterEditor
         [HideInInspector] public MeshType[] CanChangeTypes;
         [SerializeField] private DefaultMeshValue[] defaultValues;
 
+        [SerializeField] private Material skinMeshRenderMaterial;
+        [SerializeField] private RenderTexture skinMeshRenderTexture;
+
+        [SerializeField] private Material armorMeshRenderMaterial;
+        [SerializeField] private RenderTexture armorMeshRenderTexture;
+
         public Texture2D ArmorTexture { get; private set; }
         public Texture2D FaceTexture { get; private set; }
         public List<CharacterMeshWrapper> SelectedArmorMeshes { get; private set; }
@@ -44,6 +50,7 @@ namespace CharacterEditor
         private IStaticDataService _staticDataService;
         private IDataManager _dataManager;
         private IMeshInstanceCreator _meshInstanceCreator;
+        private IMergeTextureService _mergeTextureService;
         private Dictionary<MeshType, int> _defaultMeshValues;
 
         public static MeshManager Instance { get; private set; }
@@ -65,6 +72,8 @@ namespace CharacterEditor
 
             ArmorTexture = null;
             FaceTexture = new Texture2D(Constants.SKIN_MESHES_ATLAS_SIZE, Constants.SKIN_MESHES_ATLAS_SIZE, TextureFormat.RGB24, false);
+            ArmorTexture = new Texture2D(Constants.ARMOR_MESHES_ATLAS_SIZE, Constants.ARMOR_MESHES_ATLAS_SIZE, TextureFormat.RGB24, false);
+
             _emptyPixels = new Color32[Constants.MESH_TEXTURE_SIZE * Constants.MESH_TEXTURE_SIZE];
 
             _defaultMeshValues = defaultValues.ToDictionary(x => x.type, x => x.value);
@@ -74,6 +83,7 @@ namespace CharacterEditor
             _dataManager = loaderService.DataManager;
             _staticDataService = AllServices.Container.Single<IStaticDataService>();
             _meshInstanceCreator = AllServices.Container.Single<IMeshInstanceCreator>();
+            _mergeTextureService = AllServices.Container.Single<IMergeTextureService>();
 
             var configManager = AllServices.Container.Single<IConfigManager>();
             configManager.OnChangeConfig += OnChangeConfigHandler;
@@ -142,7 +152,7 @@ namespace CharacterEditor
                 while (!meshWrapper.Mesh.IsReady) await Task.Yield();
             OnMeshesLoaded?.Invoke();
 
-            BuildTexture();
+            BuildTextures();
             IsReady = true;
 
         }
@@ -150,39 +160,61 @@ namespace CharacterEditor
         /*
          * Create mesh atlas from selected meshes
          */
-        private void BuildTexture()
+        private async void BuildTextures()
         {
             UpdateSelectedMeshes();
 
-            CreateMeshAtlas();
-
-            BuildMeshAtlas(ArmorTexture, SelectedArmorMeshes);
-            BuildMeshAtlas(FaceTexture, SelectedSkinMeshes);
+            if (IsDynamicTextureAtlas())
+            {
+                CreateDynamicMeshAtlas();
+            }
+            else
+            {
+                await BuildTexture(SelectedSkinMeshes, skinMeshRenderMaterial, skinMeshRenderTexture, FaceTexture);
+                await BuildTexture(SelectedArmorMeshes, armorMeshRenderMaterial, armorMeshRenderTexture, ArmorTexture);
+            }
 
             if (!_isLock) UpdateModelTextures();
 
             OnMeshesChanged?.Invoke();
         }
 
-        private void CreateMeshAtlas()
+        private async Task BuildTexture(List<CharacterMeshWrapper> meshWrappers, Material material, RenderTexture renderTexture, Texture2D resultTexture)
+        {
+            var mergeTextures = new Dictionary<string, Texture2D>();
+            var baseTexture = Texture2D.whiteTexture;
+            foreach (var meshWrapper in meshWrappers)
+            {
+                var mesh = meshWrapper.Mesh;
+                var textureName = Helper.GetShaderTextureName(mesh.MeshType);
+                if (textureName == null) continue;
+
+                while (!mesh.IsReady) await Task.Yield();
+                mergeTextures[textureName] = mesh.Texture.Current;
+
+                if (mesh.MeshType == MeshType.Hair)
+                    baseTexture = mesh.Texture.Current;
+            }
+
+            _mergeTextureService.MergeTextures(material, renderTexture, baseTexture, mergeTextures);
+            RenderTexture.active = renderTexture;
+            resultTexture.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
+        }
+
+        private void CreateDynamicMeshAtlas()
         {
             var armorSize = Constants.ARMOR_MESHES_ATLAS_SIZE;
             var skinSize = Constants.SKIN_MESHES_ATLAS_SIZE;
 
-            if (IsDynamicTextureAtlas())
-            {
-                armorSize = SelectedArmorMeshes.Count > 4 ? armorSize :
-                    SelectedArmorMeshes.Count > 1 ? armorSize / 2 :
-                    armorSize / 4;
-                skinSize = SelectedSkinMeshes.Count > 1 ? skinSize : skinSize / 2;
-                ArmorTexture = new Texture2D(armorSize, armorSize, TextureFormat.RGB24, false);
-                FaceTexture = new Texture2D(skinSize, skinSize, TextureFormat.RGB24, false);
-            }
+            armorSize = SelectedArmorMeshes.Count > 4 ? armorSize :
+                SelectedArmorMeshes.Count > 1 ? armorSize / 2 :
+                armorSize / 4;
+            skinSize = SelectedSkinMeshes.Count > 1 ? skinSize : skinSize / 2;
+            ArmorTexture = new Texture2D(armorSize, armorSize, TextureFormat.RGB24, false);
+            FaceTexture = new Texture2D(skinSize, skinSize, TextureFormat.RGB24, false);
 
-            if (SelectedArmorMeshes.Count > 0 && ArmorTexture == null)
-            {
-                ArmorTexture = new Texture2D(armorSize, armorSize, TextureFormat.RGB24, false);
-            }
+            BuildMeshAtlas(ArmorTexture, SelectedArmorMeshes);
+            BuildMeshAtlas(FaceTexture, SelectedSkinMeshes);
         }
 
         private void UpdateSelectedMeshes()

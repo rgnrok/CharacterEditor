@@ -33,6 +33,7 @@ namespace Game
 
             _services.RegisterSingle<IFSM>(_fsm);
             _services.RegisterSingle<ICoroutineRunner>(_coroutineRunner);
+            _services.RegisterSingle<IMergeTextureService>(new MergeTextureService());
             _services.RegisterSingle<ILoaderService>(new LoaderService(_services.Single<IStaticDataService>(), _coroutineRunner));
             RegisterGameFactory();
 

@@ -53,7 +53,7 @@ namespace CharacterEditor
 
         public Action OnTexturesChanged;
         public Action OnTexturesLoaded;
-        private MergeTextureService _mergeTextureService;
+        private IMergeTextureService _mergeTextureService;
 
         public static TextureManager Instance { get; private set; }
 
@@ -63,8 +63,6 @@ namespace CharacterEditor
             Instance = this;
 
             IsReady = false;
-
-            _mergeTextureService = new MergeTextureService();
 
             _characterTextures = new Dictionary<string, Dictionary<TextureType, CharacterTexture>>();
             _modelRenderers = new List<SkinnedMeshRenderer>();
@@ -76,6 +74,7 @@ namespace CharacterEditor
 
 
             _canChangeTypes = canChangeMask.FlagToArray<TextureType>();
+            _mergeTextureService = AllServices.Container.Single<IMergeTextureService>();
 
 
             var loaderService = AllServices.Container.Single<ILoaderService>();
@@ -151,15 +150,24 @@ namespace CharacterEditor
             await UpdateCloakTexture();
         }
 
-   
-        /*
-         * Combining the texture of the character
-         */
         private async Task MergeTextures()
         {
             IsReady = false;
 
-            renderSkinTexture = await _mergeTextureService.MergeTextures(skinRenderShaderMaterial, renderSkinTexture, CurrentCharacterTextures, _ignoreTypes);
+            var mergeTextures = new Dictionary<string, Texture2D>();
+            foreach (var texture in CurrentCharacterTextures.Values)
+            {
+                var textureName = texture.GetShaderTextureName();
+                if (textureName == null) continue;
+
+                var isIgnoredType = _ignoreTypes != null && Array.IndexOf(_ignoreTypes, texture.Type) != -1;
+                if (isIgnoredType) continue;
+
+                while (!texture.IsReady) await Task.Yield();
+                mergeTextures[textureName] = texture.Current;
+            }
+
+            _mergeTextureService.MergeTextures(skinRenderShaderMaterial, renderSkinTexture, CurrentCharacterTextures[TextureType.Skin].Current, mergeTextures);
 
             RenderTexture.active = renderSkinTexture;
             CharacterTexture.ReadPixels(new Rect(0, 0, renderSkinTexture.width, renderSkinTexture.height), 0, 0);

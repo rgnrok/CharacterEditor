@@ -1,18 +1,37 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace CharacterEditor.Services
 {
-    public class MergeTextureService
+    public class MergeTextureService : IMergeTextureService
     {
         private Texture2D _emptyAlphaTexture;
+        private Dictionary<string, List<string>> _shaderTextures = new Dictionary<string, List<string>>();
 
         public MergeTextureService()
         {
             CreateEmptyTexture();
+        }
+
+        /*
+         * Combining the texture of the character
+         */
+        public void MergeTextures(Material skinRenderShaderMaterial, RenderTexture renderSkinTexture, Texture2D baseTexture, Dictionary<string, Texture2D> textures)
+        {
+            var textureNames = GetTexturesName(skinRenderShaderMaterial.shader);
+            foreach (var textureName in textureNames)
+            {
+                if (textures.ContainsKey(textureName)) continue;
+                skinRenderShaderMaterial.SetTexture(textureName, _emptyAlphaTexture);
+            }
+
+            foreach (var texturePair in textures)
+            {
+                skinRenderShaderMaterial.SetTexture(texturePair.Key, texturePair.Value);
+            }
+
+            Graphics.Blit(Texture2D.whiteTexture, renderSkinTexture);
+            Graphics.Blit(baseTexture, renderSkinTexture, skinRenderShaderMaterial);
         }
 
         private void CreateEmptyTexture()
@@ -22,36 +41,20 @@ namespace CharacterEditor.Services
             _emptyAlphaTexture.Apply();
         }
 
-        /*
-         * Combining the texture of the character
-         */
-        public async Task<RenderTexture> MergeTextures(Material skinRenderShaderMaterial, RenderTexture renderSkinTexture, Dictionary<TextureType, CharacterTexture> textures, TextureType[] ignoreTypes )
+        private IEnumerable<string> GetTexturesName(Shader shader)
         {
-            // Clear uniquie textures for each character
-            skinRenderShaderMaterial.SetTexture("_BeardTex", _emptyAlphaTexture);
-            skinRenderShaderMaterial.SetTexture("_FaceFeatureTex", _emptyAlphaTexture);
+            if (_shaderTextures.TryGetValue(shader.name, out var textures))
+                return textures;
 
-            foreach (var texture in textures.Values)
+            var names = new List<string>();
+            for (var i = 0; i < shader.GetPropertyCount(); i++)
             {
-                if (texture.Type == TextureType.Cloak) continue;
-                while (!texture.IsReady) await Task.Yield();
-
-                var textureName = texture.GetShaderTextureName();
-                if (textureName == null) continue;
-
-                var isIgnoredType = ignoreTypes != null && Array.IndexOf(ignoreTypes, texture.Type) != -1;
-                if (isIgnoredType)
-                {
-                    skinRenderShaderMaterial.SetTexture(textureName, _emptyAlphaTexture);
-                    continue;
-                }
-
-                skinRenderShaderMaterial.SetTexture(textureName, texture.Current);
+                if (shader.GetPropertyType(i) != UnityEngine.Rendering.ShaderPropertyType.Texture) continue;
+                names.Add(shader.GetPropertyName(i));
             }
-            Graphics.Blit(Texture2D.whiteTexture, renderSkinTexture);
-            Graphics.Blit(textures[TextureType.Skin].Current, renderSkinTexture, skinRenderShaderMaterial);
 
-            return renderSkinTexture;
+            _shaderTextures[shader.name] = names;
+            return names;
         }
     }
 }

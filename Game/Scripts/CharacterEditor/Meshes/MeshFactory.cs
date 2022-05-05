@@ -43,9 +43,9 @@ namespace CharacterEditor
                     return 2;
                 case MeshType.TorsoAdd:
                     return 3;
-                case MeshType.ShoulderRight:
-                    return 4;
                 case MeshType.ShoulderLeft:
+                    return 4;
+                case MeshType.ShoulderRight:
                     return 5;
                 case MeshType.ArmLeft:
                     return 6;
