@@ -350,7 +350,7 @@ public class EditorBundleManager
 
     private static List<MeshesMap> ParseBundleMeshes(string raceName)
     {
-        var meshLoader = new MeshLoader(new TextureLoader(), MeshAtlasType.Static);
+        var dataManager = new DataManager(MeshAtlasType.Static);
         var bundleMeshList = new List<MeshesMap>();
 
         int substringLength = PREFAB_PATH_PREFIX.Length;
@@ -360,7 +360,7 @@ public class EditorBundleManager
             var bundleMeshes = new MeshesMap();
             bundleMeshes.type = meshType;
 
-            var meshPaths = meshLoader.ParseMeshes(raceName, meshType);
+            var meshPaths = dataManager.ParseCharacterMeshes(raceName, meshType);
             if (meshPaths == null || meshPaths.Count == 0) continue;
 
             foreach (var meshPathPair in meshPaths)
@@ -419,14 +419,14 @@ public class EditorBundleManager
 
     protected static List<TexturesMap> ParseBundleTextures(string raceName)
     {
-        var loader = new TextureLoader();
+        var dataManager = new DataManager(MeshAtlasType.Static);
 
         var bundleTextures = new List<TexturesMap>();
         foreach (TextureType textureType in Enum.GetValues(typeof(TextureType)))
         {
             var textures = new TexturesMap();
             textures.type = textureType;
-            var paths = loader.ParseCharacterTextures(raceName, textureType);
+            var paths = dataManager.ParseCharacterTextures(raceName, textureType);
             if (paths == null) continue;
 
             foreach (string[] texturePaths in paths)

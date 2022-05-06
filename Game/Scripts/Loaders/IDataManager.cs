@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using CharacterEditor;
 
-namespace Assets.Game.Scripts.Loaders
+namespace CharacterEditor
 {
     public interface IDataManager
     {
-        string[][] ParseTextures(string characterRace, TextureType type);
-        Dictionary<string, string[][]> ParseMeshes(string characterRace, MeshType meshType);
+        string[][] ParseCharacterTextures(string characterRace, TextureType type);
+        Dictionary<string, string[][]> ParseCharacterMeshes(string characterRace, MeshType meshType);
 
     }
 }

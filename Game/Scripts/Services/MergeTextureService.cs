@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace CharacterEditor.Services
@@ -14,7 +15,7 @@ namespace CharacterEditor.Services
         }
 
         /*
-         * Combining the texture of the character
+         * Combining the texture of the character with shader
          */
         public void MergeTextures(Material skinRenderShaderMaterial, RenderTexture renderSkinTexture, Texture2D baseTexture, Dictionary<string, Texture2D> textures)
         {
@@ -32,6 +33,35 @@ namespace CharacterEditor.Services
 
             Graphics.Blit(Texture2D.whiteTexture, renderSkinTexture);
             Graphics.Blit(baseTexture, renderSkinTexture, skinRenderShaderMaterial);
+        }
+
+
+        public Texture2D BuildTextureAtlas(int partTextureSize, List<Texture2D> textures)
+        {
+            if (textures.Count == 0) return null;
+
+            var texturesPerRow = CalculateTexturesPerRow(textures.Count);
+            var resultTextureSize = partTextureSize * texturesPerRow;
+
+            var resultTexture = new Texture2D(resultTextureSize, resultTextureSize, TextureFormat.RGB24, false);
+
+            var j = 0;
+            foreach (var texture in textures)
+            {
+                var position = j++;
+                var x = partTextureSize * (position % (resultTextureSize / partTextureSize));
+                var y = (resultTextureSize - partTextureSize) - (partTextureSize * position / resultTextureSize) * partTextureSize;
+
+                resultTexture.SetPixels32(x, y, partTextureSize, partTextureSize, texture.GetPixels32());
+            }
+
+            return resultTexture;
+        }
+
+        private static int CalculateTexturesPerRow(int count)
+        {
+            return count > 4 ? 4 :
+                count > 1 ? 2 : 1;
         }
 
         private void CreateEmptyTexture()

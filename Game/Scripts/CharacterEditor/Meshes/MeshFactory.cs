@@ -1,7 +1,5 @@
 ﻿using System;
-using Assets.Game.Scripts.Loaders;
 using CharacterEditor.Mesh;
-using UnityEngine;
 
 namespace CharacterEditor
 {
@@ -9,7 +7,7 @@ namespace CharacterEditor
     {
         public static CharacterMesh Create(IMeshLoader loader, IDataManager dataManager, MeshType meshType, string characterRace)
         {
-            var meshTexturesPath = dataManager.ParseMeshes(characterRace, meshType);
+            var meshTexturesPath = dataManager.ParseCharacterMeshes(characterRace, meshType);
             var meshOrder = GetMeshMergeOrder(meshType);
             switch (meshType)
             {

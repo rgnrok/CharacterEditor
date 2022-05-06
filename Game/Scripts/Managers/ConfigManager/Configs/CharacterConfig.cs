@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace CharacterEditor
 {
+
     [Serializable]
     public class CharacterConfig : EntityConfig
     {

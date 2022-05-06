@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using CharacterEditor.CharacterInventory;
 using Game;
 using UnityEngine;
@@ -16,11 +14,6 @@ namespace CharacterEditor
             public MeshLoader(ITextureLoader textureLoader, ICoroutineRunner coroutineRunner) : base(coroutineRunner)
             {
                 _textureLoader = textureLoader;
-            }
-
-            public void LoadMesh(string meshPath, Action<string, GameObject> callback)
-            {
-                LoadByPath(meshPath, callback);
             }
 
             public void LoadItemMesh(string meshPath, string texturePath, Action<GameObject, ItemTexture> callback)

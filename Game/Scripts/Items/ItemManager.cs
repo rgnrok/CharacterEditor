@@ -10,11 +10,6 @@ namespace CharacterEditor
     {
         public class ItemManager : MonoBehaviour
         {
-            private enum CharacterModelType
-            {
-                Model,
-                Preview
-            }
 
             private struct MeshInstanceInfo
             {

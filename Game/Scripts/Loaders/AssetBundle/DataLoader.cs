@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CharacterEditor.JSONMap;
-using Game;
 
 namespace CharacterEditor
 {

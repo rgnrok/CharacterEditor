@@ -1,6 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Assets.Game.Scripts.Loaders;
-using CharacterEditor.AssetBundleLoader;
 using CharacterEditor.CharacterInventory;
 using UnityEngine;
 

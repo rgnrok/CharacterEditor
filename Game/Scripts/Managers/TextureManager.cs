@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Assets.Game.Scripts.Loaders;
 using CharacterEditor.Helpers;
 using CharacterEditor.Services;
 using UnityEngine;
@@ -108,7 +107,6 @@ namespace CharacterEditor
             _cloakRenderers.AddRange(data.CloakMeshes);
 
             await UpdateTextures();
-            // while (!IsReady) await Task.Yield();
            
             if (portraits != null)
             {

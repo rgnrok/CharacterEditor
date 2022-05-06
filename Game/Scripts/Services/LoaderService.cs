@@ -1,6 +1,4 @@
-﻿
-using System.Threading.Tasks;
-using Assets.Game.Scripts.Loaders;
+﻿using System.Threading.Tasks;
 using CharacterEditor.CharacterInventory;
 using Game;
 using UnityEngine;
@@ -26,9 +24,9 @@ namespace CharacterEditor.Services
         public LoaderService(IStaticDataService staticDataService, ICoroutineRunner coroutineRunner)
         {
             _coroutineRunner = coroutineRunner;
-            Initialize(staticDataService.LoaderType);
+            Initialize(staticDataService.LoaderType, staticDataService.MeshAtlasType);
 
-            MeshLoader = _loaderFactory.CreateMeshLoader(staticDataService.MeshAtlasType);
+            MeshLoader = _loaderFactory.CreateMeshLoader();
             TextureLoader = _loaderFactory.CreateTextureLoader();
             ConfigLoader = _loaderFactory.CreateConfigLoader();
             SpriteLoader = _loaderFactory.CreateIconLoader();
@@ -39,21 +37,21 @@ namespace CharacterEditor.Services
             GameObjectLoader = _loaderFactory.CreateGameObjectLoader();
         }
 
-        private void Initialize(LoaderType loaderType)
+        private void Initialize(LoaderType loaderType, MeshAtlasType meshAtlasType)
         {
             switch (loaderType)
             {
 #if UNITY_EDITOR
                 case LoaderType.AssetDatabase:
                     _loaderFactory = new AssetDatabaseLoader.AssetDatabaseLoaderFactory();
-                    DataManager = new DataManager("assetBundleInfo");
+                    DataManager = new AssetDatabaseLoader.DataManager(meshAtlasType);
                     break;
 #endif
                 // case LoaderType.Addresable:
                 // _loaderFactory = new Addre
                 default:
-                    _loaderFactory= new AssetBundleLoader.AssetBundleLoaderFactory(_coroutineRunner);
-                    DataManager = new DataManager("assetBundleInfo");
+                    DataManager = new AssetBundleLoader.DataManager("assetBundleInfo");
+                    _loaderFactory= new AssetBundleLoader.AssetBundleLoaderFactory((AssetBundleLoader.DataManager) DataManager, _coroutineRunner);
 
                     break;
             }

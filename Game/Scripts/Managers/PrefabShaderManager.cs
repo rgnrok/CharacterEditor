@@ -37,9 +37,11 @@ namespace CharacterEditor
         public Dictionary<string, TextureShaderType> CharacterShaders { get; private set; }
         public TextureShaderType CurrentCharacterShader { get; private set; }
 
-        private string _characterRace;
         private List<SkinnedMeshRenderer> _modelRenderers;
         private List<SkinnedMeshRenderer> _cloakRenderers;
+
+        private string _characterRace;
+        private MeshManager _meshManager;
 
 
         void Awake()
@@ -52,7 +54,8 @@ namespace CharacterEditor
 
             CharacterShaders = new Dictionary<string, TextureShaderType>();
 
-            MeshManager.Instance.OnMeshesTextureUpdated += OnMeshesTextureUpdatedHandler;
+            _meshManager = MeshManager.Instance;
+            _meshManager.OnMeshesTextureUpdated += OnMeshesTextureUpdatedHandler;
 
             var configManager = AllServices.Container.Single<IConfigManager>();
             configManager.OnChangeConfig += OnChangeConfigHandler;
@@ -120,7 +123,7 @@ namespace CharacterEditor
         private void UpdateMeshShaders(MaterialInfo materialInfo)
         {
             UpdateMeshShaders(MeshManager.Instance.SelectedArmorMeshes, materialInfo.GetMaterial(MaterialType.Armor));
-            UpdateMeshShaders(MeshManager.Instance.SelectedSkinMeshes, materialInfo.GetMaterial(MaterialType.Skin));
+            UpdateMeshShaders(MeshManager.Instance.SelectedSkinMeshes, materialInfo.GetMaterial(MaterialType.Face));
         }
 
         private void UpdateMeshShaders(IEnumerable<CharacterMeshWrapper> meshes, Material material)
@@ -129,14 +132,14 @@ namespace CharacterEditor
             {
                 if (meshWrapper.IsEmptyMesh) continue;
 
-                foreach (var render in meshWrapper.GetOrCreateMeshInstance().GetComponentsInChildren<MeshRenderer>())
+                foreach (var render in meshWrapper.MeshInstance.GetComponentsInChildren<MeshRenderer>())
                 {
                     var tmpMaterials = render.materials;
                     var replacedMaterials = new Material[tmpMaterials.Length];
                     for (var i = 0; i < tmpMaterials.Length; i++)
                     {
                         var currentMaterial = tmpMaterials[i];
-                        replacedMaterials[i] = material;
+                        replacedMaterials[i] = _meshManager.IsDynamicTextureAtlas() ? new Material(material) : material;
                         replacedMaterials[i].mainTexture = currentMaterial.mainTexture;
                     }
 

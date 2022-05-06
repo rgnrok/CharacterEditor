@@ -1,5 +1,4 @@
-﻿using Assets.Game.Scripts.Loaders;
-using CharacterEditor.Mesh;
+﻿using CharacterEditor.Mesh;
 using CharacterEditor.Services;
 using UnityEngine;
 
@@ -11,7 +10,7 @@ namespace CharacterEditor
         private readonly Transform _meshBone;
         public CharacterMesh Mesh { get; private set; }
 
-        private GameObject _meshInstance;
+        public GameObject MeshInstance { get; private set; }
 
         public bool IsEmptyMesh =>
             Mesh.LoadedMeshObject == null;
@@ -24,21 +23,21 @@ namespace CharacterEditor
             Mesh = MeshFactory.Create(meshLoader, dataManager, meshType, characterRace);
         }
 
-        public GameObject GetOrCreateMeshInstance()
+        public GameObject CreateMeshInstance()
         {
-            if (_meshInstance == null)
-                _meshInstance = _meshFactory.CreateMeshInstance(Mesh, _meshBone);
-            return _meshInstance;
+            if (MeshInstance == null)
+                MeshInstance = _meshFactory.CreateMeshInstance(Mesh, _meshBone);
+            return MeshInstance;
         }
 
 
         public void ClearPrevMesh()
         {
-            if (_meshInstance == null) return;
+            if (MeshInstance == null) return;
 
-            _meshInstance.SetActive(false);
-            Object.Destroy(_meshInstance);
-            _meshInstance = null;
+            MeshInstance.SetActive(false);
+            Object.Destroy(MeshInstance);
+            MeshInstance = null;
 
             Mesh.ClearPrevMesh();
 

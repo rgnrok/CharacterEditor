@@ -1,13 +1,9 @@
-﻿using System.Collections;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AssetBundles;
 using CharacterEditor.CharacterInventory;
 using CharacterEditor.Services;
 using Game;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace CharacterEditor
 {
@@ -18,13 +14,13 @@ namespace CharacterEditor
             private readonly ICoroutineRunner _coroutineRunner;
             private readonly DataManager _dataManager;
 
-            public AssetBundleLoaderFactory(ICoroutineRunner coroutineRunner)
+            public AssetBundleLoaderFactory(DataManager dataManager, ICoroutineRunner coroutineRunner)
             {
                 _coroutineRunner = coroutineRunner;
-                _dataManager = new DataManager("assetBundleInfo");
+                _dataManager = dataManager;
             }
 
-            public IMeshLoader CreateMeshLoader(MeshAtlasType atlasType) => 
+            public IMeshLoader CreateMeshLoader() => 
                 new MeshLoader(CreateTextureLoader(), _coroutineRunner);
 
             public ITextureLoader CreateTextureLoader() => 

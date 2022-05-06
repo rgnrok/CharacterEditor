@@ -45,7 +45,7 @@ namespace CharacterEditor
                 if (_cache.TryGetValue(path, out var asset))
                     return asset;
 
-                asset = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(path));
+                asset = AssetDatabase.LoadAssetAtPath<T>(path);
                 _cache[path] = asset;
                 return asset;
             }

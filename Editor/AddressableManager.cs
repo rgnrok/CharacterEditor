@@ -166,7 +166,7 @@ public class AddressableManager
 
     protected static List<TexturesMap> ParseTextures(string raceName)
     {
-        var loader = new TextureLoader();
+        var dataManager = new DataManager(MeshAtlasType.Static);
 
         var bundleTextures = new List<TexturesMap>();
         var textureEnums = Enum.GetValues(typeof(TextureType));
@@ -180,7 +180,7 @@ public class AddressableManager
 
             var textures = new TexturesMap();
             textures.type = textureType;
-            var paths = loader.ParseCharacterTextures(raceName, textureType);
+            var paths = dataManager.ParseCharacterTextures(raceName, textureType);
             if (paths == null) continue;
 
             foreach (string[] texturePaths in paths)
@@ -203,7 +203,7 @@ public class AddressableManager
 
     private static List<MeshesMap> ParseMeshes(string raceName)
     {
-        var meshLoader = new MeshLoader(new TextureLoader(), MeshAtlasType.Static);
+        var dataManager = new DataManager(MeshAtlasType.Static);
         var bundleMeshList = new List<MeshesMap>();
 
         var meshTypes = Enum.GetValues(typeof(MeshType));
@@ -218,7 +218,7 @@ public class AddressableManager
             var meshesMap = new MeshesMap();
             meshesMap.type = meshType;
 
-            var meshPaths = meshLoader.ParseMeshes(raceName, meshType);
+            var meshPaths = dataManager.ParseCharacterMeshes(raceName, meshType);
             if (meshPaths == null || meshPaths.Count == 0) continue;
 
             foreach (var meshPathPair in meshPaths)

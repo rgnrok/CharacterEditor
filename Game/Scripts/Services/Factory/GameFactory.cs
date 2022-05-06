@@ -21,8 +21,6 @@ namespace CharacterEditor.Services
 
         public async Task<CharacterGameObjectData> SpawnCreateCharacter(CharacterConfig config)
         {
-            if (config.Prefab == null) return null;
-
             var characterPrefab = Object.Instantiate(config.CreateGamePrefab);
 
             characterPrefab.SetActive(false);
@@ -33,8 +31,6 @@ namespace CharacterEditor.Services
 
         public async Task<Character> SpawnGameCharacter(CharacterSaveData characterData, CharacterConfig config, Texture2D characterTexture, Texture2D faceTexture)
         {
-            await FillCharacterConfig(config);
-
             var portraitIcon = await _loaderService.SpriteLoader.LoadPortrait(characterData.portrait);
 
             //Setup config
@@ -105,21 +101,6 @@ namespace CharacterEditor.Services
                 if (render.material != null) render.material.mainTexture = characterMesh.Texture.Current;
 
             return meshInstantiate;
-        }
-
-        private async Task FillCharacterConfig(CharacterConfig config)
-        {
-            if (config.Prefab == null)
-            {
-                var gamePrefab = await _loaderService.GameObjectLoader.LoadByPath(config.createGameBundlePrefabPath);
-                config.Prefab = gamePrefab;
-            }
-
-            if (config.PreviewPrefab == null)
-            {
-                var previewPrefab = await _loaderService.GameObjectLoader.LoadByPath(config.previewBundlePrefabPath);
-                config.PreviewPrefab = previewPrefab;
-            }
         }
 
         //todo need remove ItemManager.Instance

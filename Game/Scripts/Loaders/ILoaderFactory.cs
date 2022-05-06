@@ -7,7 +7,7 @@ namespace CharacterEditor.Services
     public interface ILoaderFactory : IService
     {
         ITextureLoader CreateTextureLoader();
-        IMeshLoader CreateMeshLoader(MeshAtlasType atlasType);
+        IMeshLoader CreateMeshLoader();
         IConfigLoader CreateConfigLoader();
         ISpriteLoader CreateIconLoader();
         IDataLoader<ItemData> CreateItemLoader();

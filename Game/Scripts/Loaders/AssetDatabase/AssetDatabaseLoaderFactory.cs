@@ -10,9 +10,9 @@ namespace CharacterEditor
     {
         public class AssetDatabaseLoaderFactory : ILoaderFactory
         {
-            public IMeshLoader CreateMeshLoader(MeshAtlasType atlasType)
+            public IMeshLoader CreateMeshLoader()
             {
-                return new MeshLoader(new TextureLoader(), atlasType);
+                return new MeshLoader(CreateTextureLoader());
             }
 
             public ITextureLoader CreateTextureLoader()
@@ -57,7 +57,7 @@ namespace CharacterEditor
 
             public Task Prepare()
             {
-                return null;
+                return Task.CompletedTask;
             }
         }
     }

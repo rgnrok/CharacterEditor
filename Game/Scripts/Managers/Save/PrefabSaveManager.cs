@@ -160,7 +160,7 @@ namespace CharacterEditor
             foreach (var meshWrapper in mesheWrapperss)
             {
                 if (meshWrapper == null) continue;
-                foreach (var meshRenderer in meshWrapper.GetOrCreateMeshInstance().GetComponentsInChildren<MeshRenderer>())
+                foreach (var meshRenderer in meshWrapper.MeshInstance.GetComponentsInChildren<MeshRenderer>())
                     UpdateMeshMaterials(meshRenderer, material);
             }
         }
@@ -190,7 +190,7 @@ namespace CharacterEditor
             foreach (var selectedMeshWrapper in selectedMeshes)
             {
                 //Update LOD parts for each armor item
-                var armorsParts = selectedMeshWrapper.GetOrCreateMeshInstance().GetComponentsInChildren<MeshFilter>();
+                var armorsParts = selectedMeshWrapper.MeshInstance.GetComponentsInChildren<MeshFilter>();
                 for (var armLOD = 0; armLOD < armorsParts.Length; armLOD++)
                 {
                     if (armorsParts[armLOD] != null)
@@ -260,7 +260,7 @@ namespace CharacterEditor
             foreach (var meshWrapper in selectedMeshes)
             {
                 //Update LOD parts for each armor item
-                var armorsParts = meshWrapper.GetOrCreateMeshInstance().GetComponentsInChildren<MeshFilter>();
+                var armorsParts = meshWrapper.MeshInstance.GetComponentsInChildren<MeshFilter>();
                 for (var armLOD = 0; armLOD < armorsParts.Length; armLOD++)
                 {
                     if (armorsParts[armLOD] != null)
