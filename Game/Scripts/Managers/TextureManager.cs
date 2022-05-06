@@ -45,6 +45,8 @@ namespace CharacterEditor
         public Action OnTexturesLoaded;
         private IMergeTextureService _mergeTextureService;
 
+        private Material _tmpSkinRenderMaterial;
+
         public static TextureManager Instance { get; private set; }
 
         void Awake()
@@ -61,7 +63,7 @@ namespace CharacterEditor
             _characterPortraits = new Dictionary<string, TwoWayArray<Sprite>>();
 
             CharacterTexture = new Texture2D(Constants.SKIN_TEXTURE_ATLAS_SIZE, Constants.SKIN_TEXTURE_ATLAS_SIZE, TextureFormat.RGB24, false);
-
+            _tmpSkinRenderMaterial = new Material(skinRenderShaderMaterial);
 
             _canChangeTypes = canChangeMask.FlagToArray<TextureType>();
             _mergeTextureService = AllServices.Container.Single<IMergeTextureService>();
@@ -157,7 +159,7 @@ namespace CharacterEditor
                 mergeTextures[textureName] = texture.Current;
             }
 
-            _mergeTextureService.MergeTextures(skinRenderShaderMaterial, renderSkinTexture, CurrentCharacterTextures[TextureType.Skin].Current, mergeTextures);
+            _mergeTextureService.MergeTextures(_tmpSkinRenderMaterial, renderSkinTexture, CurrentCharacterTextures[TextureType.Skin].Current, mergeTextures);
 
             RenderTexture.active = renderSkinTexture;
             CharacterTexture.ReadPixels(new Rect(0, 0, renderSkinTexture.width, renderSkinTexture.height), 0, 0);

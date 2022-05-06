@@ -10,5 +10,8 @@ namespace CharacterEditor
         public class MeshTypeComparer : IEqualityComparer<MeshType> { public bool Equals(MeshType x, MeshType y) { return x == y; } public int GetHashCode(MeshType x) { return (int)x; } }
         public static readonly MeshTypeComparer MeshType = new MeshTypeComparer();
 
+        public class MaterialTypeComparer : IEqualityComparer<MaterialType> { public bool Equals(MaterialType x, MaterialType y) { return x == y; } public int GetHashCode(MaterialType x) { return (int)x; } }
+        public static readonly MaterialTypeComparer MaterialType = new MaterialTypeComparer();
+
     }
 }

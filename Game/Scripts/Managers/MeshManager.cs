@@ -115,7 +115,7 @@ namespace CharacterEditor
         {
             if (_characterMeshes.TryGetValue(characterKey, out _currentCharacterMeshes)) return;
 
-            _currentCharacterMeshes = new Dictionary<MeshType, CharacterMeshWrapper>();
+            _currentCharacterMeshes = new Dictionary<MeshType, CharacterMeshWrapper>(EnumComparer.MeshType);
             foreach (var availableMesh in data.Config.availableMeshes)
             {
                 var meshType = availableMesh.mesh;

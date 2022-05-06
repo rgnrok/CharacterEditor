@@ -324,7 +324,7 @@ namespace CharacterEditor
         private Material GetObjectMaterial()
         {
             var material = PrefabShaderManager.Instance.GetShaderMaterial();
-            return new Material(material.skinMaterial);
+            return new Material(material.GetMaterial(MaterialType.Skin));
         }
 
     }

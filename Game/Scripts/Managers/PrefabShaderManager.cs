@@ -12,10 +12,21 @@ namespace CharacterEditor
         public class MaterialInfo
         {
             public TextureShaderType shader;
-            public Material skinMaterial;
-            public Material armorMeshMaterial;
-            public Material faceMeshMaterial;
-            public Material cloakMaterial;
+
+            [SerializeField]
+            private Material material;
+
+            private Dictionary<MaterialType, Material> _materialInstance = new Dictionary<MaterialType, Material>(4, EnumComparer.MaterialType);
+            public Material GetMaterial(MaterialType type)
+            {
+                if (!_materialInstance.TryGetValue(type, out var materialInstance))
+                {
+                    materialInstance = new Material(material);
+                    _materialInstance[type] = materialInstance;
+                }
+
+                return materialInstance;
+            }
         }
 
         public static PrefabShaderManager Instance { get; private set; }
@@ -89,14 +100,14 @@ namespace CharacterEditor
             CurrentCharacterShader = shader;
             CharacterShaders[_characterRace] = CurrentCharacterShader;
 
-            var material = materialInfo.skinMaterial;
+            var material = materialInfo.GetMaterial(MaterialType.Skin);
             foreach (var render in _modelRenderers)
             {
                 material.mainTexture = render.material.mainTexture;
                 render.material = material;
             }
             
-            var cloakMaterial = materialInfo.cloakMaterial;
+            var cloakMaterial = materialInfo.GetMaterial(MaterialType.Cloak);
             foreach (var render in _cloakRenderers)
             {
                 cloakMaterial.mainTexture = render.material.mainTexture;
@@ -108,8 +119,8 @@ namespace CharacterEditor
 
         private void UpdateMeshShaders(MaterialInfo materialInfo)
         {
-            UpdateMeshShaders(MeshManager.Instance.SelectedArmorMeshes, materialInfo.armorMeshMaterial);
-            UpdateMeshShaders(MeshManager.Instance.SelectedSkinMeshes, materialInfo.faceMeshMaterial);
+            UpdateMeshShaders(MeshManager.Instance.SelectedArmorMeshes, materialInfo.GetMaterial(MaterialType.Armor));
+            UpdateMeshShaders(MeshManager.Instance.SelectedSkinMeshes, materialInfo.GetMaterial(MaterialType.Skin));
         }
 
         private void UpdateMeshShaders(IEnumerable<CharacterMeshWrapper> meshes, Material material)
