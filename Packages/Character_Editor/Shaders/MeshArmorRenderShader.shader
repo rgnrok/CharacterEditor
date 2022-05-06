@@ -81,26 +81,26 @@
 			float4 _BeltAddTex_ST;
 			float4 _LegLeftTex_ST;
 			float4 _LegRightTex_ST;
-			
+
 			v2f vert(appdata v)
 			{
 				v2f o;
 
 				o.vertex = UnityObjectToClipPos(v.vertex);
 				o.uv_0 = TRANSFORM_TEX(v.uv, _HandLeftTex);
+				o.uv_1 = TRANSFORM_TEX(v.uv, _HandRightTex);
+				o.uv_2 = TRANSFORM_TEX(v.uv, _TorsoTex);
+				o.uv_3 = TRANSFORM_TEX(v.uv, _TorsoAddTex);
+				o.uv_4 = TRANSFORM_TEX(v.uv, _ShoulderLeftTex);
+				o.uv_5 = TRANSFORM_TEX(v.uv, _ShoulderRightTex);
+				o.uv_6 = TRANSFORM_TEX(v.uv, _ArmLeftTex);
+				o.uv_7 = TRANSFORM_TEX(v.uv, _ArmRightTex);
+				o.uv_8 = TRANSFORM_TEX(v.uv, _HelmTex);
+				o.uv_9 = TRANSFORM_TEX(v.uv, _BeltTex);
+				o.uv_10 = TRANSFORM_TEX(v.uv, _BeltAddTex);
+				o.uv_11 = TRANSFORM_TEX(v.uv, _LegLeftTex);
+				o.uv_12 = TRANSFORM_TEX(v.uv, _LegRightTex);
 
-				o.uv_1 = v.uv.xy * _HandRightTex_ST.xy - _HandRightTex_ST.zw;
-				o.uv_2 = v.uv.xy * _TorsoTex_ST.xy - _TorsoTex_ST.zw;
-				o.uv_3 = v.uv.xy * _TorsoAddTex_ST.xy - _TorsoAddTex_ST.zw;
-				o.uv_4 = v.uv.xy * _ShoulderLeftTex_ST.xy - _ShoulderLeftTex_ST.zw;
-				o.uv_5 = v.uv.xy * _ShoulderRightTex_ST.xy - _ShoulderRightTex_ST.zw;
-				o.uv_6 = v.uv.xy * _ArmLeftTex_ST.xy - _ArmLeftTex_ST.zw;
-				o.uv_7 = v.uv.xy * _ArmRightTex_ST.xy - _ArmRightTex_ST.zw;
-				o.uv_8 = v.uv.xy * _HelmTex_ST.xy - _HelmTex_ST.zw;
-				o.uv_9 = v.uv.xy * _BeltTex_ST.xy - _BeltTex_ST.zw;
-				o.uv_10 = v.uv.xy * _BeltAddTex_ST.xy - _BeltAddTex_ST.zw;
-				o.uv_11 = v.uv.xy * _LegLeftTex_ST.xy - _LegLeftTex_ST.zw;
-				o.uv_12 = v.uv.xy * _LegRightTex_ST.xy - _LegRightTex_ST.zw;
 				return o;
 			}
 	

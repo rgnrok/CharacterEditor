@@ -42,16 +42,16 @@
 			float4 _HairTex_ST;
 			float4 _BeardTex_ST;
 			float4 _FaceFeatureTex_ST;
-			
+
 			v2f vert (appdata v)
 			{
 				v2f o;
 
 				o.vertex = UnityObjectToClipPos(v.vertex);
 				o.uv_0 = TRANSFORM_TEX(v.uv, _HairTex);
+				o.uv_1 = TRANSFORM_TEX(v.uv, _BeardTex);
+				o.uv_2 = TRANSFORM_TEX(v.uv, _FaceFeatureTex);
 
-				o.uv_1 = v.uv.xy * _BeardTex_ST.xy - _BeardTex_ST.zw;
-				o.uv_2 = v.uv.xy * _FaceFeatureTex_ST.xy - _FaceFeatureTex_ST.zw;
 				return o;
 			}
 	

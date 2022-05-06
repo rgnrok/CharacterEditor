@@ -10,16 +10,6 @@ using UnityEngine.UI;
 
 namespace CharacterEditor
 {
-    [Serializable]
-    public class MaterialInfo
-    {
-        [SerializeField] internal TextureShaderType shader;
-        [SerializeField] internal Material skinMaterial;
-        [SerializeField] internal Material armorMeshMaterial;
-        [SerializeField] internal Material faceMeshMaterial;
-        [SerializeField] internal Material cloakMaterial;
-    }
-
     public class TextureManager : MonoBehaviour
     {
         [SerializeField] private Material skinRenderShaderMaterial;

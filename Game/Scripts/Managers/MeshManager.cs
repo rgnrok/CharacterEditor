@@ -22,15 +22,19 @@ namespace CharacterEditor
 
         [SerializeField] private RawImage armorRawImage;
         [SerializeField] private RawImage skinMeshRawImage;
+
         [EnumFlag] public MeshType canChangeMask;
         [HideInInspector] public MeshType[] CanChangeTypes;
+
         [SerializeField] private DefaultMeshValue[] defaultValues;
 
         [SerializeField] private Material skinMeshRenderMaterial;
         [SerializeField] private RenderTexture skinMeshRenderTexture;
+        private Material _tmpSkinMeshRenderMaterial;
 
         [SerializeField] private Material armorMeshRenderMaterial;
         [SerializeField] private RenderTexture armorMeshRenderTexture;
+        private Material _tmpArmorMeshRenderMaterial;
 
         public Texture2D ArmorTexture { get; private set; }
         public Texture2D FaceTexture { get; private set; }
@@ -77,7 +81,9 @@ namespace CharacterEditor
             _emptyPixels = new Color32[Constants.MESH_TEXTURE_SIZE * Constants.MESH_TEXTURE_SIZE];
 
             _defaultMeshValues = defaultValues.ToDictionary(x => x.type, x => x.value);
-           
+            _tmpSkinMeshRenderMaterial = new Material(skinMeshRenderMaterial);
+            _tmpArmorMeshRenderMaterial = new Material(armorMeshRenderMaterial);
+
             var loaderService = AllServices.Container.Single<ILoaderService>();
             _meshLoader = loaderService.MeshLoader;
             _dataManager = loaderService.DataManager;
@@ -170,8 +176,8 @@ namespace CharacterEditor
             }
             else
             {
-                await BuildTexture(SelectedSkinMeshes, skinMeshRenderMaterial, skinMeshRenderTexture, FaceTexture);
-                await BuildTexture(SelectedArmorMeshes, armorMeshRenderMaterial, armorMeshRenderTexture, ArmorTexture);
+                await BuildTexture(SelectedSkinMeshes, _tmpSkinMeshRenderMaterial, skinMeshRenderTexture, FaceTexture);
+                await BuildTexture(SelectedArmorMeshes, _tmpArmorMeshRenderMaterial, armorMeshRenderTexture, ArmorTexture);
             }
 
             if (!_isLock) UpdateModelTextures();

@@ -1,12 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
 namespace CharacterEditor
 {
+
     public class PrefabShaderManager : MonoBehaviour
     {
-        public static PrefabShaderManager Instance { get; set; }
+        [Serializable]
+        public class MaterialInfo
+        {
+            public TextureShaderType shader;
+            public Material skinMaterial;
+            public Material armorMeshMaterial;
+            public Material faceMeshMaterial;
+            public Material cloakMaterial;
+        }
+
+        public static PrefabShaderManager Instance { get; private set; }
 
         [SerializeField] private MaterialInfo[] _materials = new MaterialInfo[0];
         public MaterialInfo[] Materials => _materials;
@@ -96,10 +108,8 @@ namespace CharacterEditor
 
         private void UpdateMeshShaders(MaterialInfo materialInfo)
         {
-            var armorMaterial = materialInfo.armorMeshMaterial;
-            var faceMaterial = materialInfo.faceMeshMaterial;
-            UpdateMeshShaders(MeshManager.Instance.SelectedArmorMeshes, armorMaterial);
-            UpdateMeshShaders(MeshManager.Instance.SelectedSkinMeshes, faceMaterial);
+            UpdateMeshShaders(MeshManager.Instance.SelectedArmorMeshes, materialInfo.armorMeshMaterial);
+            UpdateMeshShaders(MeshManager.Instance.SelectedSkinMeshes, materialInfo.faceMeshMaterial);
         }
 
         private void UpdateMeshShaders(IEnumerable<CharacterMeshWrapper> meshes, Material material)
@@ -110,16 +120,16 @@ namespace CharacterEditor
 
                 foreach (var render in meshWrapper.GetOrCreateMeshInstance().GetComponentsInChildren<MeshRenderer>())
                 {
-                    var renderMaterials = new List<Material>();
-                    render.GetMaterials(renderMaterials);
-                    foreach (var renderMaterial in renderMaterials)
+                    var tmpMaterials = render.materials;
+                    var replacedMaterials = new Material[tmpMaterials.Length];
+                    for (var i = 0; i < tmpMaterials.Length; i++)
                     {
-                        var texture = renderMaterial.mainTexture;
-                        renderMaterial.shader = material.shader;
-                        renderMaterial.CopyPropertiesFromMaterial(material);
-                        renderMaterial.mainTexture = texture;
+                        var currentMaterial = tmpMaterials[i];
+                        replacedMaterials[i] = material;
+                        replacedMaterials[i].mainTexture = currentMaterial.mainTexture;
                     }
-                    render.materials = renderMaterials.ToArray();
+
+                    render.materials = replacedMaterials;
                 }
             }
         }
