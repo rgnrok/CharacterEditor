@@ -10,50 +10,35 @@ namespace CharacterEditor
     {
         public class AssetDatabaseLoaderFactory : ILoaderFactory
         {
-            public IMeshLoader CreateMeshLoader()
-            {
-                return new MeshLoader(CreateTextureLoader());
-            }
+            public IMeshLoader CreateMeshLoader() => 
+                new MeshLoader(CreateTextureLoader());
 
-            public ITextureLoader CreateTextureLoader()
-            {
-                return new TextureLoader();
-            }
+            public ITextureLoader CreateTextureLoader() => 
+                new TextureLoader();
 
-            public IConfigLoader CreateConfigLoader()
-            {
-                return new ConfigLoader();
-            }
+            public IConfigLoader CreateConfigLoader() => 
+                new ConfigLoader();
 
-            public ISpriteLoader CreateIconLoader()
-            {
-                return new SpriteLoader();
-            }
+            public ISpriteLoader CreateIconLoader() => 
+                new SpriteLoader();
 
-            public IDataLoader<ItemData> CreateItemLoader()
-            {
-                return new ItemLoader();
-            }
+            public IDataLoader<ItemData> CreateItemLoader() => 
+                new ItemLoader();
 
-            public IDataLoader<PlayerCharacterConfig> CreatePlayerCharacterLoader()
-            {
-                return new PlayerCharacterLoader();
-            }
+            public IDataLoader<PlayableNpcConfig> CreatePlayerCharacterLoader() => 
+                new PlayerCharacterLoader();
 
-            public IDataLoader<EnemyConfig> CreateEnemyLoader()
-            {
-                return new EnemyLoader();
-            }
+            public IDataLoader<EnemyConfig> CreateEnemyLoader() => 
+                new EnemyLoader();
 
-            public IDataLoader<ContainerConfig> CreateContainerLoader()
-            {
-                return new ContainerLoader();
-            }
+            public IDataLoader<ContainerConfig> CreateContainerLoader() => 
+                new ContainerLoader();
 
-            public ICommonLoader<GameObject> CreateGameObjectLoader()
-            {
-                return new CommonLoader<GameObject>();
-            }
+            public ICommonLoader<GameObject> CreateGameObjectLoader() => 
+                new CommonLoader<GameObject>();
+
+            public ICommonLoader<Material> CreateMaterialLoader() => 
+                new CommonLoader<Material>();
 
             public Task Prepare()
             {

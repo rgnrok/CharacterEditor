@@ -13,7 +13,7 @@ namespace UnityEngine.AssetBundles
 
         public SingleBundleInspector() { }
 
-        private Editor m_Editor = null;
+        private UnityEditor.Editor m_Editor = null;
 
         private Rect m_Position;
 
@@ -28,7 +28,7 @@ namespace UnityEngine.AssetBundles
             //members
             m_Editor = null;
             if (bundle != null)
-                m_Editor = Editor.CreateEditor(bundle);
+                m_Editor = UnityEditor.Editor.CreateEditor(bundle);
         }
 
         public void OnGUI(Rect pos)
@@ -52,7 +52,7 @@ namespace UnityEngine.AssetBundles
     }
 
     [CustomEditor(typeof(AssetBundle))]
-    public class LevelScriptEditor : Editor
+    public class LevelScriptEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

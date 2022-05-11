@@ -158,7 +158,7 @@ namespace CharacterEditor
         /*
          * Create mesh atlas from selected meshes
          */
-        private async void BuildTextures()
+        private void BuildTextures()
         {
             UpdateSelectedMeshes();
 

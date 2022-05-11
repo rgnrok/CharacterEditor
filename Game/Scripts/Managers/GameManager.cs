@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
 
     public Action<Character> OnChangeCharacter;
     public Action<Character> OnAddCharacter;
-    public Action<string> OnRemoveCharacter;
+    public Action<Character> OnRemoveCharacter;
 
     public Action<string, IAttacked> OnEnemyClick;
 
@@ -64,7 +64,9 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
     public EnemySpawnPoint[] EnemySpawnPoints { get { return _enemySpawnPoints ?? new EnemySpawnPoint[0]; } }
 
     [SerializeField] private ContainerSpawnPoint[] _containerSpawnPoints;
-    public ContainerSpawnPoint[] ContainerSpawnPoints { get { return _containerSpawnPoints ?? new ContainerSpawnPoint[0]; } }
+    private ISaveLoadService _saveLoadService;
+    public ContainerSpawnPoint[] ContainerSpawnPoints => 
+        _containerSpawnPoints ?? new ContainerSpawnPoint[0];
 
     #endregion
 
@@ -97,6 +99,12 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
         _followCamera = Camera.main.GetComponent<FollowCamera>();
         // _gameStateMachine = new GameStateMachine(new SceneLoader(this), AllServices.Container);
 
+        _saveLoadService = AllServices.Container.Single<ISaveLoadService>();
+        _saveLoadService = AllServices.Container.Single<ISaveLoadService>();
+        _saveLoadService.OnCharactersLoaded += OnCharactersLoadedHandler;
+        _saveLoadService.OnEnemiesLoaded += OnEnemiesLoadedHandler;
+        _saveLoadService.OnLoadData += OnLoadDataHandler;
+
     }
 
     private void Start()
@@ -106,11 +114,17 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
         // _gameStateMachine.Start();
     }
 
-
-    public void SetNpcPlayerCharacter(Character ch)
+    private void OnDestroy()
     {
-        _npcPlayerCharacters[ch.guid] = ch;
+        if (_saveLoadService != null)
+        {
+            _saveLoadService.OnCharactersLoaded -= OnCharactersLoadedHandler;
+            _saveLoadService.OnPlayableNpcLoaded -= OnPlayableNpcLoadedHandler;
+            _saveLoadService.OnEnemiesLoaded -= OnEnemiesLoadedHandler;
+            _saveLoadService.OnLoadData -= OnLoadDataHandler;
+        }
     }
+
 
     public void SetCharacter(string guid)
     {
@@ -119,16 +133,19 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
     }
 
 
-    public void AddCharacter(Character ch)
+    private void RemoveCharacter(Character ch)
     {
-        SetCharacter(ch);
-        if (OnAddCharacter != null) OnAddCharacter(ch);
+        if (!Characters.Remove(ch.guid)) return;
+        OnRemoveCharacter?.Invoke(ch);
     }
 
-    public void AddEnemy(Enemy enemy)
+    private void AddCharacter(Character ch)
     {
-        Enemies[enemy.guid] = enemy;
+        SetCharacter(ch);
+        OnAddCharacter?.Invoke(ch);
     }
+
+
 
     public void SetCharacter(Character ch, bool focus = false)
     {
@@ -147,7 +164,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
 
         OnChangeCharacter?.Invoke(CurrentCharacter);
     }
-    
+
 
     private void CharacterGameObjectClickHandler(RaycastHit hit)
     {
@@ -169,8 +186,6 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
         if (OnEnemyClick != null) OnEnemyClick(CurrentCharacter.guid, enemy);
     }
 
-
- 
 
     private void NpcGameObjectClickHandler(RaycastHit hit)
     {
@@ -340,4 +355,33 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
 
         InputManager.UpdateCursor(state);
     }
+
+    private void OnCharactersLoadedHandler(IList<Character> characters)
+    {
+        foreach (var character in Characters.Values)
+            OnRemoveCharacter?.Invoke(character);
+        Characters.Clear();
+
+        foreach (var character in characters)
+            AddCharacter(character);
+    }
+
+    private void OnPlayableNpcLoadedHandler(IList<Character> npcs)
+    {
+        foreach (var npc in npcs)
+            _npcPlayerCharacters[npc.guid] = npc;
+    }
+
+    private void OnEnemiesLoadedHandler(IList<Enemy> enemies)
+    {
+        foreach (var enemy in enemies)
+            Enemies[enemy.guid] = enemy;
+    }
+
+    private void OnLoadDataHandler(SaveData saveData)
+    {
+        MainCharacterGuid = saveData.mainCharacterGuid;
+        SetCharacter(saveData.selectedCharacterGuid);
+    }
+
 }

@@ -20,7 +20,7 @@ namespace CharacterEditor
                 if (_guidCache != null && _guidCache.Count != 0) return;
 
                 var stringType = typeof(T).Name;
-                var paths = AssetDatabase.FindAssets("t:" + stringType, new string[] { ConfigsPath });
+                var paths = AssetDatabase.FindAssets("t:" + stringType, new[] { ConfigsPath });
 
                 _guidCache = new Dictionary<string, T>(paths.Length);
                 foreach (var path in paths)
@@ -36,11 +36,11 @@ namespace CharacterEditor
                 callback.Invoke(_guidCache);
             }
 
-            public async Task<T> LoadData(string guid)
+            public Task<T> LoadData(string guid)
             {
                 PrepareGuidCache();
                 _guidCache.TryGetValue(guid, out var data);
-                return data;
+                return Task.FromResult(data);
             }
 
             public void LoadData(string guid, Action<T> callback)
@@ -50,17 +50,17 @@ namespace CharacterEditor
                 callback.Invoke(data);
             }
 
-            public void LoadData(List<string> guids, Action<Dictionary<string, T>> callback)
+            public void LoadData(IList<string> guids, Action<Dictionary<string, T>> callback)
             {
                 callback.Invoke(InnerLoadData(guids));
             }
 
-            public async Task<Dictionary<string, T>> LoadData(List<string> guids)
+            public Task<Dictionary<string, T>> LoadData(IList<string> guids)
             {
-                return InnerLoadData(guids);
+                return Task.FromResult(InnerLoadData(guids));
             }
 
-            private Dictionary<string, T> InnerLoadData(List<string> guids)
+            private Dictionary<string, T> InnerLoadData(IList<string> guids)
             {
                 PrepareGuidCache();
                 var dataItems = new Dictionary<string, T>(guids.Count);

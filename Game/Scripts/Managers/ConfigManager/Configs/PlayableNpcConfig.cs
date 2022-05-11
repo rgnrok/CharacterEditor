@@ -34,7 +34,7 @@ namespace CharacterEditor
     }
 
     [Serializable]
-    public class PlayerCharacterConfig : ScriptableObject, IData
+    public class PlayableNpcConfig : ScriptableObject, IData
     {
         public string guid;
         public string Guid { get { return guid; } }

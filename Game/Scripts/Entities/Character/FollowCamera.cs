@@ -1,13 +1,11 @@
 ﻿using System;
+using CharacterEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class FollowCamera : MonoBehaviour
 {
-    [SerializeField]
-    [Range(0, 100)] private float smoothing = 0.1f;
-
     [SerializeField] private float minCameraDistance = 10f;
     [SerializeField] private float maxCameraDistance = 30f;
     [SerializeField] private float zoomStep = 1f;
@@ -23,21 +21,41 @@ public class FollowCamera : MonoBehaviour
     private Camera _camera;
 
     private float _cameraOffsetDistance;
+    private ISaveLoadService _saveLoadService;
 
     public event Action OnPositionChanged;
     public event Action OnZoomChanged;
 
 
-    void Awake()
+    private void Awake()
     {
         _camera = GetComponent<Camera>();
+
+        _saveLoadService = AllServices.Container.Single<ISaveLoadService>();
+        _saveLoadService.OnLoadData += OnLoadDataHandler;
     }
 
-    void Start()
+    private void Start()
     {
         _offset = transform.position;
     }
 
+
+    private void Update()
+    {
+        if (_followTarget != null)
+            FollowTarget();
+        
+        ScrollMap();
+        ZoomMap();
+    }
+
+    private void OnDestroy()
+    {
+        if (_saveLoadService != null)
+            _saveLoadService.OnLoadData -= OnLoadDataHandler;
+
+    }
 
     public void SetFocus(Transform target, bool isFollow = false, bool force = false)
     {
@@ -47,15 +65,9 @@ public class FollowCamera : MonoBehaviour
         if (force) ChangePosition(target.position + _offset);
     }
 
-    void Update()
+    private void OnLoadDataHandler(SaveData obj)
     {
-        Debug.DrawRay(transform.position, transform.forward * 100, Color.cyan);
-
-        if (_followTarget != null)
-            FollowTarget();
-        
-        ScrollMap();
-        ZoomMap();
+        SetFocus(GameManager.Instance.CurrentCharacter.GameObjectData.CharacterObject.transform, true, true);
     }
 
     private void FollowTarget()
@@ -77,16 +89,16 @@ public class FollowCamera : MonoBehaviour
         var targetCamPosition = transform.position;
 
         if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
-            targetCamPosition.x -= scrollSpeed * Time.deltaTime; // move on -X axis
+            targetCamPosition.x -= scrollSpeed * Time.deltaTime;
 
         if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
-            targetCamPosition.x += scrollSpeed * Time.deltaTime; // move on -X axis
+            targetCamPosition.x += scrollSpeed * Time.deltaTime;
 
         if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
-            targetCamPosition.z += scrollSpeed * Time.deltaTime; // move on -Z axis
+            targetCamPosition.z += scrollSpeed * Time.deltaTime;
 
         if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
-            targetCamPosition.z -= scrollSpeed * Time.deltaTime; // move on -Z axis
+            targetCamPosition.z -= scrollSpeed * Time.deltaTime;
 
         if (transform.position == targetCamPosition) return;
 

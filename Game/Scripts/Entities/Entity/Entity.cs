@@ -32,7 +32,7 @@ namespace CharacterEditor
             return Health.StatCurrentValue > 0;
         }
 
-        public GameObject EntityGameObject { get { return GameObjectData.Entity;} }
+        public virtual GameObject EntityGameObject { get { return GameObjectData.Entity;} }
 
 
         protected Entity()

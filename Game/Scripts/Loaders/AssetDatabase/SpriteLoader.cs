@@ -12,37 +12,37 @@ namespace CharacterEditor
     {
         public class SpriteLoader : CommonLoader<SpriteAtlas>, ISpriteLoader
         {
-            private static readonly string ITEM_ICON_ATLAS_PATH =
+            private static readonly string ItemIconAtlasPath =
                 $"{AssetsConstants.CharacterEditorRootPath}/Sprites/ItemIcons";
 
-            private static readonly string PORTRAIT_ICON_ATLAS_PATH =
+            private static readonly string PortraitIconAtlasPath =
                 $"{AssetsConstants.CharacterEditorRootPath}/Sprites/Portraits";
 
-            protected Dictionary<string, SpriteAtlas> atlasCache = new Dictionary<string, SpriteAtlas>();
+            private readonly Dictionary<string, SpriteAtlas> _atlasCache = new Dictionary<string, SpriteAtlas>();
 
             public void LoadItemIcon(string iconName, Action<Sprite> callback)
             {
-                LoadIcon(ITEM_ICON_ATLAS_PATH, iconName, callback);
+                LoadIcon(ItemIconAtlasPath, iconName, callback);
             }
 
             public void LoadPortrait(string portraitName, Action<Sprite> callback)
             {
-                LoadIcon(PORTRAIT_ICON_ATLAS_PATH, portraitName, callback);
+                LoadIcon(PortraitIconAtlasPath, portraitName, callback);
             }
 
-            public async Task<Sprite> LoadItemIcon(string iconName)
+            public Task<Sprite> LoadItemIcon(string iconName)
             {
-                return LoadIcon(ITEM_ICON_ATLAS_PATH, iconName);
+                return Task.FromResult(LoadIcon(ItemIconAtlasPath, iconName));
             }
 
-            public async Task<Sprite> LoadPortrait(string portraitName)
+            public Task<Sprite> LoadPortrait(string portraitName)
             {
-                return LoadIcon(PORTRAIT_ICON_ATLAS_PATH, portraitName);
+                return Task.FromResult(LoadIcon(PortraitIconAtlasPath, portraitName));
             }
 
             private void LoadIcon(string atlasPath, string iconName, Action<Sprite> callback)
             {
-                if (atlasCache.TryGetValue(atlasPath, out var atlas))
+                if (_atlasCache.TryGetValue(atlasPath, out var atlas))
                 {
                     callback.Invoke(atlas.GetSprite(iconName));
                     return;
@@ -56,20 +56,20 @@ namespace CharacterEditor
                 }
 
                 var loadedAtlas = AssetDatabase.LoadAssetAtPath<SpriteAtlas>(AssetDatabase.GUIDToAssetPath(paths[0]));
-                atlasCache[atlasPath] = loadedAtlas;
+                _atlasCache[atlasPath] = loadedAtlas;
                 callback.Invoke(loadedAtlas.GetSprite(iconName));
             }
 
             private Sprite LoadIcon(string atlasPath, string iconName)
             {
-                if (atlasCache.TryGetValue(atlasPath, out var atlas))
+                if (_atlasCache.TryGetValue(atlasPath, out var atlas))
                     return atlas.GetSprite(iconName);
 
                 var paths = AssetDatabase.FindAssets("t:SpriteAtlas", new[] {atlasPath});
                 if (paths.Length == 0) return null;
 
                 var loadedAtlas = AssetDatabase.LoadAssetAtPath<SpriteAtlas>(AssetDatabase.GUIDToAssetPath(paths[0]));
-                atlasCache[atlasPath] = loadedAtlas;
+                _atlasCache[atlasPath] = loadedAtlas;
                 return loadedAtlas.GetSprite(iconName);
             }
         }

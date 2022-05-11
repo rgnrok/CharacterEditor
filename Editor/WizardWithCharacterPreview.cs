@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CharacterEditor;
 using CharacterEditor.CharacterInventory;
+using Editor;
 using UnityEditor;
 using UnityEngine;
 

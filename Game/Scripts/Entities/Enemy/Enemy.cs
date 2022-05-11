@@ -12,7 +12,7 @@ namespace EnemySystem
         public EnemyFSM FSM { get; private set; }
         public FSM BaseFSM => FSM;
 
-        public GameObject EntityGameObject { get {return GameObjectData.Entity; } }
+        public override GameObject EntityGameObject { get {return GameObjectData.Entity; } }
 
         public EnemyAttackManager AttackManager { get; private set; }
 

@@ -11,10 +11,11 @@ namespace CharacterEditor.Services
         IConfigLoader CreateConfigLoader();
         ISpriteLoader CreateIconLoader();
         IDataLoader<ItemData> CreateItemLoader();
-        IDataLoader<PlayerCharacterConfig> CreatePlayerCharacterLoader();
+        IDataLoader<PlayableNpcConfig> CreatePlayerCharacterLoader();
         IDataLoader<EnemyConfig> CreateEnemyLoader();
         IDataLoader<ContainerConfig> CreateContainerLoader();
         ICommonLoader<GameObject> CreateGameObjectLoader();
+        ICommonLoader<Material> CreateMaterialLoader();
         Task Prepare();
     }
 }

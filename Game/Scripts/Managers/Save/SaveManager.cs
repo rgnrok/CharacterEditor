@@ -1,14 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using CharacterEditor.Services;
-using Game;
+﻿using System.Linq;
 using UnityEngine;
 
 namespace CharacterEditor
 {
-    /*
-     * Preservation of characters  in runtime
-     */
     public class SaveManager : MonoBehaviour
     {
         public GameObject saveLoadPopup;
@@ -50,8 +44,6 @@ namespace CharacterEditor
             _saveLoadPopupInstance.SetMode(mode);
         }
 
-    
-
         public void OnSavePrefabClick()
         {
 #if UNITY_EDITOR
@@ -74,13 +66,12 @@ namespace CharacterEditor
 
         public void Save(string saveName)
         {
-
-            _saveLoadService.Save(saveName, _configManager.ConfigData);
-        }
-
-        public async Task Load(string saveName, Action<int> loadProcessAction)
-        {
-            await _saveLoadService.Load(saveName, loadProcessAction);
+            if (GameManager.Instance != null)
+                _saveLoadService.SaveGame(saveName, GameManager.Instance);
+            else 
+                _saveLoadService.CreateGame(saveName, _configManager.ConfigData,
+                TextureManager.Instance.CharacterTexture, TextureManager.Instance.CharacterPortrait,
+                MeshManager.Instance.SelectedSkinMeshes.Select(mw => mw.Mesh), MeshManager.Instance.FaceTexture);
         }
     }
 }

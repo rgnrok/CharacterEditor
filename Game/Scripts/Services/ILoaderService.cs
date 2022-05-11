@@ -12,10 +12,11 @@ namespace CharacterEditor.Services
         IConfigLoader ConfigLoader { get; }
         ISpriteLoader SpriteLoader { get; }
         IDataLoader<ItemData> ItemLoader { get; }
-        IDataLoader<PlayerCharacterConfig> PlayerCharacterLoader { get; }
+        IDataLoader<PlayableNpcConfig> PlayableNpcLoader { get; }
         IDataLoader<EnemyConfig> EnemyLoader { get; }
         IDataLoader<ContainerConfig> ContainerLoader { get; }
         ICommonLoader<GameObject> GameObjectLoader { get; }
+        ICommonLoader<Material> MaterialLoader { get; }
         Task Initialize();
     }
 }

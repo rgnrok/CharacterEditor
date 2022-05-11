@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace CharacterEditor.Services
@@ -7,7 +6,7 @@ namespace CharacterEditor.Services
     public class MergeTextureService : IMergeTextureService
     {
         private Texture2D _emptyAlphaTexture;
-        private Dictionary<string, List<string>> _shaderTextures = new Dictionary<string, List<string>>();
+        private readonly Dictionary<string, List<string>> _shaderTextures = new Dictionary<string, List<string>>();
 
         public MergeTextureService()
         {
@@ -27,9 +26,7 @@ namespace CharacterEditor.Services
             }
 
             foreach (var texturePair in textures)
-            {
                 skinRenderShaderMaterial.SetTexture(texturePair.Key, texturePair.Value);
-            }
 
             Graphics.Blit(Texture2D.whiteTexture, renderSkinTexture);
             Graphics.Blit(baseTexture, renderSkinTexture, skinRenderShaderMaterial);

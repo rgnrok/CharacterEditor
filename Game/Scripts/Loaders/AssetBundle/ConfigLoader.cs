@@ -68,7 +68,7 @@ namespace CharacterEditor
                 config.PreviewPrefab = await LoadPrefab(config.previewBundlePrefabPath);
                 config.CreateGamePrefab = await LoadPrefab(config.createGameBundlePrefabPath);
                 config.EnemyPrefab = await LoadPrefab(config.enemyBundlePrefabPath);
-
+                Debug.LogWarning($"{config.guid} - {config.bundlePrefabPath}");
                 return config;
             }
 

@@ -36,7 +36,8 @@ namespace CharacterEditor
 
         public async Task OnNextCharacter()
         {
-            if (_charactersGameObjectData.Length == 1 && ConfigData.CharacterObject.activeSelf)  return;
+            if (!CanChangeCharacter())
+                return;
 
             ConfigData.CharacterObject.SetActive(false);
             CurrentConfigIndex++;
@@ -46,7 +47,7 @@ namespace CharacterEditor
 
         public async Task OnPrevCharacter()
         {
-            if (_charactersGameObjectData.Length == 1 && ConfigData.CharacterObject.activeSelf)
+            if (!CanChangeCharacter())
                 return;
 
             ConfigData.CharacterObject.SetActive(false);
@@ -55,6 +56,9 @@ namespace CharacterEditor
             await ChangeCharacter();
         }
 
+        private bool CanChangeCharacter() => 
+            _charactersGameObjectData.Length > 1;
+
         private async Task ChangeCharacter()
         {
             if (OnChangeConfig != null)
@@ -62,8 +66,8 @@ namespace CharacterEditor
                 await Task.WhenAll(OnChangeConfig.GetInvocationList()
                     .Select(eDelegate => ((Func<CharacterGameObjectData, Task>)eDelegate)(ConfigData)));
             }
-            ConfigData.CharacterObject.SetActive(true);
 
+            ConfigData.CharacterObject.SetActive(true);
             OnChangeCharacter?.Invoke();
         }
     }

@@ -29,9 +29,9 @@ namespace CharacterEditor
                 _commonLoader.LoadByPath(pathMap.path, (path, entity) => callback(entity));
             }
 
-            public void LoadData(List<string> guids, Action<Dictionary<string, T>> callback)
+            public void LoadData(IList<string> guids, Action<Dictionary<string, T>> callback)
             {
-                var paths = new List<string>(guids.Capacity);
+                var paths = new List<string>(guids.Count);
 
                 foreach (var guid in guids)
                 {
@@ -50,9 +50,9 @@ namespace CharacterEditor
                 return await _commonLoader.LoadByPath(pathMap.path);
             }
 
-            public async Task<Dictionary<string, T>> LoadData(List<string> guids)
+            public async Task<Dictionary<string, T>> LoadData(IList<string> guids)
             {
-                var paths = new List<string>(guids.Capacity);
+                var paths = new List<string>(guids.Count);
                 foreach (var guid in guids)
                 {
                     if (!_guids.TryGetValue(guid, out var pathMap)) continue;

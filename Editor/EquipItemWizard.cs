@@ -6,7 +6,7 @@ using CharacterEditor.CharacterInventory;
 using UnityEditor;
 using UnityEngine;
 
-namespace EditorWizards
+namespace Editor
 {
     public class EquipItemWizard : ScriptableWizard
     {
@@ -61,7 +61,7 @@ namespace EditorWizards
         private EquipItemData _selectedObject;
         private SerializedObject _serializedObject;
 
-        private Editor _gameObjectEditor;
+        private UnityEditor.Editor _gameObjectEditor;
 
         private int _selectedMeshIndex;
         private List<string> _mesheTitles = new List<string>();
@@ -309,7 +309,7 @@ namespace EditorWizards
                 uvModelPath = uvModelPath.Replace("/StaticModel/", "/Model/");
 
                 var uvModel = AssetDatabase.LoadAssetAtPath<GameObject>(uvModelPath);
-                Editor.CreateCachedEditor(uvModel, null, ref _gameObjectEditor);
+                UnityEditor.Editor.CreateCachedEditor(uvModel, null, ref _gameObjectEditor);
 
                 _gameObjectEditor.OnPreviewGUI(GUILayoutUtility.GetRect(200, 200), GUIStyle.none);
             }

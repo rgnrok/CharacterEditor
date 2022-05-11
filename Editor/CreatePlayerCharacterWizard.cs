@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using CharacterEditor;
 using CharacterEditor.CharacterInventory;
 using UnityEditor;
 using UnityEngine;
 
-namespace CharacterEditor
+namespace Editor
 {
 
     [Serializable]
@@ -42,7 +43,7 @@ namespace CharacterEditor
         public Texture2D texture;
         public Texture2D faceMeshTexture;
 
-        private PlayerCharacterConfig _selectedObject;
+        private PlayableNpcConfig _selectedObject;
 
 
         [MenuItem("Tools/Character Editor/Create Player Character Wizard...")]
@@ -55,16 +56,16 @@ namespace CharacterEditor
         void Awake()
         {
             var selectedObject = Selection.activeObject;
-            if (selectedObject != null && selectedObject is PlayerCharacterConfig)
+            if (selectedObject != null && selectedObject is PlayableNpcConfig)
             {
-                _selectedObject = selectedObject as PlayerCharacterConfig;
+                _selectedObject = selectedObject as PlayableNpcConfig;
                 InitValues(_selectedObject);
             }
         }
 
         void OnWizardCreate()
         {
-            var config = ScriptableObject.CreateInstance<PlayerCharacterConfig>();
+            var config = ScriptableObject.CreateInstance<PlayableNpcConfig>();
 
             SetValues(config);
 
@@ -219,7 +220,7 @@ namespace CharacterEditor
             helpString = "Enter character details";
         }
 
-        private void SetValues(PlayerCharacterConfig config)
+        private void SetValues(PlayableNpcConfig config)
         {
             config.portraitIconName = portrait.name;
             config.portraitIconPath = AssetDatabase.GetAssetPath(portrait);
@@ -261,7 +262,7 @@ namespace CharacterEditor
                 config.guid = System.Guid.NewGuid().ToString();
         }
 
-        private void InitValues(PlayerCharacterConfig config)
+        private void InitValues(PlayableNpcConfig config)
         {
             texture = AssetDatabase.LoadAssetAtPath<Texture2D>(config.texturePath);
             faceMeshTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(config.faceMeshTexturePath);

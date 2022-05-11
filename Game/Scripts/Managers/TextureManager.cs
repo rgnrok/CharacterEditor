@@ -48,6 +48,8 @@ namespace CharacterEditor
 
         public static TextureManager Instance { get; private set; }
 
+
+
         void Awake()
         {
             if (Instance != null) Destroy(gameObject);
@@ -386,7 +388,7 @@ namespace CharacterEditor
         /*
          * Prepare skin meshes and check merge texture
          */
-        private async Task OnChangeTexture(TextureType[] changedTypes)
+        private async void OnChangeTexture(TextureType[] changedTypes)
         {
             var types = new List<TextureType>(changedTypes.Length);
             foreach (var type in changedTypes)

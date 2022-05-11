@@ -38,7 +38,7 @@ namespace CharacterEditor
                 return result;
             }
 
-            public async Task<Dictionary<string, T>> LoadByPath(List<string> paths)
+            public async Task<Dictionary<string, T>> LoadByPath(IList<string> paths)
             {
                 var totalCount = paths.Count;
                 var result = new Dictionary<string, T>(totalCount);
@@ -55,7 +55,7 @@ namespace CharacterEditor
                 return result;
             }
 
-            public void LoadByPath(List<string> paths, Action<Dictionary<string, T>> callback)
+            public void LoadByPath(IList<string> paths, Action<Dictionary<string, T>> callback)
             {
                 _coroutineRunner.StartCoroutine(LoadByPathCoroutine(paths, callback));
             }
@@ -71,7 +71,7 @@ namespace CharacterEditor
                 Resources.UnloadUnusedAssets();
             }
 
-            private IEnumerator LoadByPathCoroutine(List<string> paths, Action<Dictionary<string, T>> callback)
+            private IEnumerator LoadByPathCoroutine(IList<string> paths, Action<Dictionary<string, T>> callback)
             {
                 var dataItems = new Dictionary<string, T>();
                 foreach (var path in paths)

@@ -38,7 +38,12 @@ namespace Game
             RegisterGameFactory();
 
             _services.RegisterSingle<IConfigManager>(new ConfigManager());
-            _services.RegisterSingle<ISaveLoadService>(new SaveLoadService(_services.Single<ILoaderService>(), _services.Single<IGameFactory>(), _coroutineRunner));
+            _services.RegisterSingle<ISaveLoadStorage>(new FileSaveLoadStorage());
+            _services.RegisterSingle<ISaveLoadService>(new SaveLoadService(
+                _services.Single<ISaveLoadStorage>(), 
+                _services.Single<ILoaderService>(), 
+                _services.Single<IGameFactory>()
+                ));
         }
 
         private void RegisterGameFactory()

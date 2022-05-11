@@ -47,7 +47,7 @@ public abstract class FSM : IFSM
 
         public void SpawnEvent(int transitionId)
         {
-            foreach (FSMTransition t in _transitions)
+            foreach (var t in _transitions)
             {
                 if (t.Id != transitionId) continue;
                 if (t.From != null && t.From != CurrentState) continue;
@@ -62,8 +62,7 @@ public abstract class FSM : IFSM
     
         public void Update()
         {
-            if (_currentUpdatableState != null)
-                _currentUpdatableState.Update();
+            _currentUpdatableState?.Update();
         }
 
         protected T AddState<T>(T state) where T : IExitableState

@@ -16,10 +16,11 @@ namespace CharacterEditor.Services
         public IConfigLoader ConfigLoader { get; }
         public ISpriteLoader SpriteLoader { get; }
         public IDataLoader<ItemData> ItemLoader { get; }
-        public IDataLoader<PlayerCharacterConfig> PlayerCharacterLoader { get; }
+        public IDataLoader<PlayableNpcConfig> PlayableNpcLoader { get; }
         public IDataLoader<EnemyConfig> EnemyLoader { get; }
         public IDataLoader<ContainerConfig> ContainerLoader { get; }
         public ICommonLoader<GameObject> GameObjectLoader { get; }
+        public ICommonLoader<Material> MaterialLoader { get; }
 
         public LoaderService(IStaticDataService staticDataService, ICoroutineRunner coroutineRunner)
         {
@@ -31,10 +32,11 @@ namespace CharacterEditor.Services
             ConfigLoader = _loaderFactory.CreateConfigLoader();
             SpriteLoader = _loaderFactory.CreateIconLoader();
             ItemLoader = _loaderFactory.CreateItemLoader();
-            PlayerCharacterLoader = _loaderFactory.CreatePlayerCharacterLoader();
+            PlayableNpcLoader = _loaderFactory.CreatePlayerCharacterLoader();
             EnemyLoader = _loaderFactory.CreateEnemyLoader();
             ContainerLoader = _loaderFactory.CreateContainerLoader();
             GameObjectLoader = _loaderFactory.CreateGameObjectLoader();
+            MaterialLoader = _loaderFactory.CreateMaterialLoader();
         }
 
         private void Initialize(LoaderType loaderType, MeshAtlasType meshAtlasType)

@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using CharacterEditor;
 using UnityEditor;
 using UnityEngine;
 
-namespace CharacterEditor
+namespace Editor
 {
     public class CreateEnemyWizard : ScriptableWizard
     {

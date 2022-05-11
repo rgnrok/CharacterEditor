@@ -63,7 +63,8 @@ namespace CharacterEditor
 
         private Task OnChangeConfigHandler(CharacterGameObjectData data)
         {
-            return ApplyConfig(data);
+            ApplyConfig(data);
+            return Task.CompletedTask;
         }
 
         private void OnMeshesTextureUpdatedHandler()
@@ -75,7 +76,7 @@ namespace CharacterEditor
             UpdateMeshShaders(materialInfo);
         }
 
-        private async Task ApplyConfig(CharacterGameObjectData data)
+        private void ApplyConfig(CharacterGameObjectData data)
         {
             _characterRace = data.Config.folderName;
 

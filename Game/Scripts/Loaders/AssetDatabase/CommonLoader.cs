@@ -14,14 +14,14 @@ namespace CharacterEditor
         {
             private readonly Dictionary<string, T> _cache = new Dictionary<string, T>();
 
-            public async Task<T> LoadByPath(string path)
+            public Task<T> LoadByPath(string path)
             {
-                return InnerLoadByPath(path);
+                return Task.FromResult(InnerLoadByPath(path));
             }
 
-            public async Task<Dictionary<string, T>> LoadByPath(List<string> paths)
+            public Task<Dictionary<string, T>> LoadByPath(IList<string> paths)
             {
-                return InnerLoadByPath(paths);
+                return Task.FromResult(InnerLoadByPath(paths));
             }
 
             public void LoadByPath(string path, Action<string, T> callback)
@@ -29,7 +29,7 @@ namespace CharacterEditor
                 callback?.Invoke(path, InnerLoadByPath(path));
             }
 
-            public void LoadByPath(List<string> paths, Action<Dictionary<string, T>> callback)
+            public void LoadByPath(IList<string> paths, Action<Dictionary<string, T>> callback)
             {
                 var dataItems = InnerLoadByPath(paths);
                 callback.Invoke(dataItems);
@@ -50,7 +50,7 @@ namespace CharacterEditor
                 return asset;
             }
 
-            private Dictionary<string, T> InnerLoadByPath(List<string> paths)
+            private Dictionary<string, T> InnerLoadByPath(IList<string> paths)
             {
                 var dataItems = new Dictionary<string, T>();
                 foreach (var path in paths)

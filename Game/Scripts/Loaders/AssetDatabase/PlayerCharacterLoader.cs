@@ -4,7 +4,7 @@ namespace CharacterEditor
 {
     namespace AssetDatabaseLoader
     {
-        public class PlayerCharacterLoader : DataLoader<PlayerCharacterConfig>
+        public class PlayerCharacterLoader : DataLoader<PlayableNpcConfig>
         {
             protected override string ConfigsPath =>
                 $"{AssetsConstants.GameStaticDataPath}/PlayerCharacters";

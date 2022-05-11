@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using CharacterEditor.CharacterInventory;
+using EnemySystem;
 using UnityEngine;
 
 namespace CharacterEditor.Services
@@ -12,7 +13,14 @@ namespace CharacterEditor.Services
         Task<CharacterGameObjectData> SpawnCreateCharacter(CharacterConfig config);
 
 
-        Task<Character> SpawnGameCharacter(CharacterSaveData characterData, CharacterConfig config,
-            Texture2D characterTexture, Texture2D faceTexture);
+        Task<Character> CreateGameCharacter(CharacterSaveData characterData, CharacterConfig config,
+            Texture2D skinTexture, Texture2D faceTexture, Vector3 position);
+
+        Task<Character> CreatePlayableNpc(PlayableNpcConfig config, Texture2D skinTexture, Texture2D faceTexture, Sprite portraitIcon, Vector3 position);
+
+        Task<Enemy> CreateEnemy(string guid, EnemyConfig config, Material material, Texture2D skinTexture,
+            Texture2D faceTexture, Texture2D armorTexture, Sprite portraitIcon, Vector3 position);
+
+        Task<Container> CreateContainer(ContainerConfig config, ContainerSaveData containerSaveData, Vector3 position);
     }
 }

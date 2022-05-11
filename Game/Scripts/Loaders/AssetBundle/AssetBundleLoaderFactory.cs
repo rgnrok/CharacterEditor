@@ -35,8 +35,8 @@ namespace CharacterEditor
             public IDataLoader<ItemData> CreateItemLoader() => 
                 new DataLoader<ItemData>(_dataManager.Items, new CommonLoader<ItemData>(_coroutineRunner));
 
-            public IDataLoader<PlayerCharacterConfig> CreatePlayerCharacterLoader() => 
-                new DataLoader<PlayerCharacterConfig>(_dataManager.PlayerCharacters, new CommonLoader<PlayerCharacterConfig>(_coroutineRunner));
+            public IDataLoader<PlayableNpcConfig> CreatePlayerCharacterLoader() => 
+                new DataLoader<PlayableNpcConfig>(_dataManager.PlayerCharacters, new CommonLoader<PlayableNpcConfig>(_coroutineRunner));
 
             public IDataLoader<EnemyConfig> CreateEnemyLoader() => 
                 new DataLoader<EnemyConfig>(_dataManager.Enemies, new CommonLoader<EnemyConfig>(_coroutineRunner));
@@ -47,22 +47,18 @@ namespace CharacterEditor
             public ICommonLoader<GameObject> CreateGameObjectLoader() => 
                 new CommonLoader<GameObject>(_coroutineRunner);
 
+            public ICommonLoader<Material> CreateMaterialLoader() => 
+                new CommonLoader<Material>(_coroutineRunner);
+
             public async Task Prepare()
             {
                 await InitializeAssetBundles();
-
-                // Set active variants.
                 AssetBundleManager.ActiveVariants = null;
             }
 
-      
-
             // Initialize the downloading url and AssetBundleManifest object.
-            protected async Task InitializeAssetBundles()
+            private async Task InitializeAssetBundles()
             {
-                // Don't destroy this gameObject as we depend on it to run the loading script.
-                //DontDestroyOnLoad(gameObject);
-
 #if UNITY_EDITOR
                 // AssetBundleManager.SetSourceAssetBundleURL(Path.Combine(Application.streamingAssetsPath, Utility.AssetBundlesOutputPath) + "/");
                 AssetBundleManager.SetDevelopmentAssetBundleServer();

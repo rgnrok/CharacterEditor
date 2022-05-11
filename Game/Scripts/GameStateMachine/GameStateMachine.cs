@@ -25,7 +25,6 @@ public class GameStateMachine : FSM
 
         var loadProgressState = AddState(new LoadProgressState(this, services.Single<ISaveLoadService>()));
 
-
         var createGameState = AddState(new CreateGameState(this, 
             sceneLoader, 
             loadingCurtain, 
@@ -34,12 +33,14 @@ public class GameStateMachine : FSM
             services.Single<IConfigManager>()
             ));
 
-        var loadGameState = AddState(new LoadGameState(this, 
+        var loadGameState = AddState(new LoadGameState(
+            this, 
             sceneLoader, 
             loadingCurtain, 
             services.Single<ILoaderService>(),
             services.Single<IGameFactory>(),
-            services.Single<ISaveLoadService>()
+            services.Single<ISaveLoadService>(),
+            services.Single<IStaticDataService>()
             ));
 
         var createCharacterLoopState = AddState(new CreateCharacterLoopState(this));

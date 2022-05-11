@@ -22,7 +22,7 @@ namespace UnityEngine.AssetBundles
         [SerializeField]
         private TreeViewState m_BundleTreeState;
 
-        public Editor m_Editor = null;
+        public UnityEditor.Editor m_Editor = null;
 
         private SingleBundleInspector m_SingleInspector;
 

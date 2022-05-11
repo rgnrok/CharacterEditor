@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CharacterEditor.CharacterInventory;
 using CharacterEditor.Mesh;
+using EnemySystem;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -19,17 +20,28 @@ namespace CharacterEditor.Services
             _loaderService = loaderService;
         }
 
-        public async Task<CharacterGameObjectData> SpawnCreateCharacter(CharacterConfig config)
+        public GameObject CreateMeshInstance(CharacterMesh characterMesh, Transform anchor)
+        {
+            if (characterMesh.LoadedMeshObject == null) return null;
+
+            var meshInstantiate = Object.Instantiate(characterMesh.LoadedMeshObject, anchor.position, anchor.rotation, anchor);
+            foreach (var render in meshInstantiate.GetComponentsInChildren<MeshRenderer>())
+                if (render.material != null) render.material.mainTexture = characterMesh.Texture.Current;
+
+            return meshInstantiate;
+        }
+
+        public Task<CharacterGameObjectData> SpawnCreateCharacter(CharacterConfig config)
         {
             var characterPrefab = Object.Instantiate(config.CreateGamePrefab);
 
             characterPrefab.SetActive(false);
             var gameObjectData = new CharacterGameObjectData(config, characterPrefab);
 
-            return gameObjectData;
+            return Task.FromResult(gameObjectData);
         }
 
-        public async Task<Character> SpawnGameCharacter(CharacterSaveData characterData, CharacterConfig config, Texture2D characterTexture, Texture2D faceTexture)
+        public async Task<Character> CreateGameCharacter(CharacterSaveData characterData, CharacterConfig config, Texture2D skinTexture, Texture2D faceTexture, Vector3 position)
         {
             var portraitIcon = await _loaderService.SpriteLoader.LoadPortrait(characterData.portrait);
 
@@ -38,12 +50,12 @@ namespace CharacterEditor.Services
             previewInstance.transform.position = Vector3.zero;
             previewInstance.SetActive(false);
 
-            var characterInstance = Object.Instantiate(config.Prefab, characterData.position, characterData.rotation);
+            var characterInstance = Object.Instantiate(config.Prefab, position, characterData.rotation);
             characterInstance.SetActive(false);
 
 
             var gameObjectData = new CharacterGameObjectData(config, characterInstance, previewInstance);
-            var character = new Character(characterData, gameObjectData, characterTexture, faceTexture, portraitIcon);
+            var character = new Character(characterData, gameObjectData, skinTexture, faceTexture, portraitIcon);
             character.Init();
 
             var itemGuids = new List<string>();
@@ -92,15 +104,127 @@ namespace CharacterEditor.Services
             return character;
         }
 
-        public GameObject CreateMeshInstance(CharacterMesh characterMesh, Transform anchor)
+        public async Task<Character> CreatePlayableNpc(PlayableNpcConfig config, Texture2D skinTexture, Texture2D faceTexture, Sprite portraitIcon, Vector3 position)
         {
-            if (characterMesh.LoadedMeshObject == null) return null;
+            var go = Object.Instantiate(config.characterConfig.Prefab, position, Quaternion.identity);
+            go.layer = Constants.LAYER_NPC;
 
-            var meshInstantiate = Object.Instantiate(characterMesh.LoadedMeshObject, anchor.position, anchor.rotation, anchor);
-            foreach (var render in meshInstantiate.GetComponentsInChildren<MeshRenderer>())
-                if (render.material != null) render.material.mainTexture = characterMesh.Texture.Current;
+            var goData = new CharacterGameObjectData(config.characterConfig, go, null);
+            var character = new Character(config.guid, goData, skinTexture, faceTexture, portraitIcon);
 
-            return meshInstantiate;
+            var equipItems = new Dictionary<EquipItemSlot, EquipItem>();
+            var faceMeshItems = new Dictionary<MeshType, FaceMesh>();
+            foreach (var itemInfo in config.equipItems)
+            {
+                //todo use ready created item?
+                var eiMesh = new EquipItemMesh((EquipItemData)itemInfo.item, _loaderService.TextureLoader, _loaderService.MeshLoader);
+                equipItems[itemInfo.itemSlot] = new EquipItem(itemInfo.item, eiMesh);
+            }
+
+            foreach (var faceMesh in config.faceMeshs)
+                faceMeshItems[faceMesh.meshType] = new FaceMesh(_loaderService.MeshLoader, faceMesh.meshType, faceMesh.meshBundlePath);
+
+            await EquipItems(character, equipItems, faceMeshItems);
+
+            return character;
+        }
+
+        public async Task<Enemy> CreateEnemy(string guid, EnemyConfig config, Material material, Texture2D skinTexture,
+            Texture2D faceTexture, Texture2D armorTexture, Sprite portraitIcon, Vector3 position)
+        {
+            var go = Object.Instantiate(config.entityConfig.EnemyPrefab, position, Quaternion.identity);
+            go.layer = Constants.LAYER_ENEMY;
+
+            var goData = new EnemyGameObjectData(config, go);
+
+            var armorMaterial = new Material(material);
+            var faceMaterial = new Material(material);
+            var skinMaterial = new Material(material);
+            armorMaterial.mainTexture = armorTexture;
+            faceMaterial.mainTexture = faceTexture;
+            skinMaterial.mainTexture = skinTexture;
+
+            foreach (var skinMesh in goData.SkinMeshes) skinMesh.material = skinMaterial;
+
+            var enemy = Enemy.Create(guid, goData, null, portraitIcon);
+
+            var prefabPaths = new List<string>();
+            foreach (var bone in config.prefabBoneData.armorBones)
+                prefabPaths.Add(bone.prefabBundlePath);
+            foreach (var bone in config.prefabBoneData.faceBones)
+                prefabPaths.Add(bone.prefabBundlePath);
+
+            var prefabs = await _loaderService.GameObjectLoader.LoadByPath(prefabPaths);
+
+            InstantiateItemsToBones(config.prefabBoneData.armorBones, prefabs, go, armorMaterial);
+            InstantiateItemsToBones(config.prefabBoneData.faceBones, prefabs, go, faceMaterial);
+
+            var moveComponent = enemy.EntityGameObject.GetComponent<PlayerMoveComponent>();
+            if (moveComponent != null) moveComponent.Stop(true);
+
+            return enemy;
+        }
+
+        public async Task<Container> CreateContainer(ContainerConfig config, ContainerSaveData containerSaveData,
+            Vector3 position)
+        {
+            var containerGo = await _loaderService.GameObjectLoader.LoadByPath(config.bundlePrefabPath);
+            var containerInstance = Object.Instantiate(containerGo, position, Quaternion.identity);
+
+            var container = containerInstance?.GetComponent<Container>();
+            if (container == null) return null;
+
+            if (containerSaveData == null)
+                FillContainer(config, container);
+            else
+                await FillContainer(containerSaveData, container);
+
+            return container;
+        }
+
+        private async Task FillContainer(ContainerSaveData containerSaveData, Container container)
+        {
+            var itemGuids = new List<string>(containerSaveData.items.Count);
+            foreach (var itemData in containerSaveData.items)
+                itemGuids.Add(itemData.Value.dataGuid);
+
+            var itemsData = await _loaderService.ItemLoader.LoadData(itemGuids);
+            var containerItems = new Dictionary<int, ItemData>();
+            foreach (var itemDataPair in containerSaveData.items)
+            {
+                if (!itemsData.TryGetValue(itemDataPair.Value.dataGuid, out var itemData)) continue;
+                containerItems[itemDataPair.Key] = itemData;
+            }
+
+            container.SetData(containerSaveData, containerItems);
+        }
+
+        private static void FillContainer(ContainerConfig config, Container container)
+        {
+            var items = new Dictionary<int, ItemData>();
+            var containerSaveData = new ContainerSaveData {guid = config.guid};
+
+            for (var i = 0; i < config.initItems.Length; i++)
+                items[i] = config.initItems[i];
+
+            container.SetData(containerSaveData, items);
+        }
+
+
+        private static void InstantiateItemsToBones(PrefabBoneData.BoneData[] bones, Dictionary<string, GameObject> objects, GameObject go,
+            Material armorMaterial)
+        {
+            foreach (var bone in bones)
+            {
+                if (!objects.TryGetValue(bone.prefabBundlePath, out var prefabGo)) continue;
+
+                var rootBone = go.transform.FindTransform(bone.bone);
+                if (rootBone == null) continue;
+
+                var meshObject = Object.Instantiate(prefabGo, rootBone.transform.position, rootBone.transform.rotation, rootBone);
+                foreach (var meshRenderer in meshObject.GetComponentsInChildren<MeshRenderer>())
+                    meshRenderer.material = armorMaterial;
+            }
         }
 
         //todo need remove ItemManager.Instance

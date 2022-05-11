@@ -202,4 +202,7 @@ public static class Helper
         if (index < defaultIndex) return arraySize - 1;
         return index;
     }
+
+    public static string SanitizeName(this string name) =>
+        name.Replace("(Clone)", "").Trim();
 }

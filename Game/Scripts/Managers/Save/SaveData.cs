@@ -9,20 +9,20 @@ namespace CharacterEditor
     public class SaveData: ISerializable
     {
         public string saveName;
+        public string levelKey;
         public string mainCharacterGuid;
         public string selectedCharacterGuid;
         public CharacterSaveData[] characters;
         public Dictionary<string, ContainerSaveData> containers;
-        public string[] enemies = { "833a388b-6760-4567-989d-b5fa8f5c9d4d" };
 
         public SaveData()
         {
 
         }
 
-        public SaveData(string file, CharacterSaveData mainCharacter)
+        public SaveData(string name, CharacterSaveData mainCharacter)
         {
-            saveName = file;
+            saveName = name;
             mainCharacterGuid = mainCharacter.guid;
             selectedCharacterGuid = mainCharacter.guid;
             characters = new [] {mainCharacter};
@@ -34,12 +34,13 @@ namespace CharacterEditor
             try
             {
                 saveName = info.GetString("saveName");
+                levelKey = info.GetString("levelKey");
                 mainCharacterGuid = info.GetString("mainCharacterGuid");
                 selectedCharacterGuid = info.GetString("selectedCharacterGuid");
                 characters = (CharacterSaveData[]) info.GetValue("characters", typeof(CharacterSaveData[]));
                 containers = (Dictionary<string, ContainerSaveData>) info.GetValue("containers", typeof(Dictionary<string, ContainerSaveData>));
             }
-            catch (SerializationException e)
+            catch
             {
                 containers = new Dictionary<string, ContainerSaveData>();
             }
@@ -49,6 +50,7 @@ namespace CharacterEditor
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("saveName", saveName);
+            info.AddValue("levelKey", levelKey);
             info.AddValue("mainCharacterGuid", mainCharacterGuid);
             info.AddValue("selectedCharacterGuid", selectedCharacterGuid);
             info.AddValue("characters", characters);
