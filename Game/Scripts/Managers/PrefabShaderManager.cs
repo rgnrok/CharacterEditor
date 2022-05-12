@@ -37,8 +37,8 @@ namespace CharacterEditor
         public Dictionary<string, TextureShaderType> CharacterShaders { get; private set; }
         public TextureShaderType CurrentCharacterShader { get; private set; }
 
-        private List<SkinnedMeshRenderer> _modelRenderers;
-        private List<SkinnedMeshRenderer> _cloakRenderers;
+        private List<Renderer> _modelRenderers;
+        private List<Renderer> _cloakRenderers;
 
         private string _characterRace;
         private MeshManager _meshManager;
@@ -49,8 +49,8 @@ namespace CharacterEditor
             if (Instance != null) Destroy(gameObject);
             Instance = this;
 
-            _modelRenderers = new List<SkinnedMeshRenderer>();
-            _cloakRenderers = new List<SkinnedMeshRenderer>();
+            _modelRenderers = new List<Renderer>();
+            _cloakRenderers = new List<Renderer>();
 
             CharacterShaders = new Dictionary<string, TextureShaderType>();
 

@@ -39,7 +39,7 @@ namespace CharacterEditor
         private void ActiveMeshes(SkinMeshType type, bool active)
         {
             var configData = _configManager.ConfigData;
-            var meshes = new List<SkinnedMeshRenderer>();
+            var meshes = new List<Renderer>();
             switch (type)
             {
                 case SkinMeshType.RobeLong:
@@ -53,7 +53,7 @@ namespace CharacterEditor
                     break;
             }
             
-            foreach (SkinnedMeshRenderer mesh in meshes)
+            foreach (var mesh in meshes)
                 mesh.gameObject.SetActive(active);
         }
     }

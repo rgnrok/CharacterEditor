@@ -64,11 +64,10 @@ namespace CharacterEditor
                 var config = request.GetAsset<CharacterConfig>();
 
                 // Remove Load from factory
-                config.Prefab = await LoadPrefab(config.bundlePrefabPath);
-                config.PreviewPrefab = await LoadPrefab(config.previewBundlePrefabPath);
-                config.CreateGamePrefab = await LoadPrefab(config.createGameBundlePrefabPath);
-                config.EnemyPrefab = await LoadPrefab(config.enemyBundlePrefabPath);
-                Debug.LogWarning($"{config.guid} - {config.bundlePrefabPath}");
+                // config.Prefab = await LoadPrefab(config.bundlePrefabPath);
+                // config.PreviewPrefab = await LoadPrefab(config.previewBundlePrefabPath);
+                // config.CreateGamePrefab = await LoadPrefab(config.createGameBundlePrefabPath);
+                // config.EnemyPrefab = await LoadPrefab(config.enemyBundlePrefabPath);
                 return config;
             }
 

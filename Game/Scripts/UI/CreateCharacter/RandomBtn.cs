@@ -24,9 +24,9 @@ namespace CharacterEditor
         [EnumFlag]
         public SkinMeshType skinMeshTypeMask;
 
-        private SkinnedMeshRenderer[] _longRobeMeshes;
-        private SkinnedMeshRenderer[] _shortRobeMeshes;
-        private SkinnedMeshRenderer[] _cloakMeshes;
+        private Renderer[] _longRobeMeshes;
+        private Renderer[] _shortRobeMeshes;
+        private Renderer[] _cloakMeshes;
 
         [Header("Mesh settings")]
         [EnumFlag]
@@ -189,7 +189,7 @@ namespace CharacterEditor
         }
 
 
-        private void SetVisible(SkinnedMeshRenderer[] meshes, bool visible)
+        private void SetVisible(Renderer[] meshes, bool visible)
         {
             if (meshes == null) return;
             foreach (var mesh in meshes) mesh.gameObject.SetActive(visible);

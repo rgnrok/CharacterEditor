@@ -31,14 +31,20 @@ namespace CharacterEditor.Services
             return meshInstantiate;
         }
 
-        public Task<CharacterGameObjectData> SpawnCreateCharacter(CharacterConfig config)
+        public async Task<CharacterGameObjectData> SpawnCreateCharacter(CharacterConfig config)
         {
-            var characterPrefab = Object.Instantiate(config.CreateGamePrefab);
+            if (config.CreateGamePrefab == null)
+            {
+                var gamePrefabPath = _loaderService.DataPathProvider.GetPath(config.createGamePrefabPath);
+                config.CreateGamePrefab = await _loaderService.GameObjectLoader.LoadByPath(gamePrefabPath);
+            }
 
-            characterPrefab.SetActive(false);
-            var gameObjectData = new CharacterGameObjectData(config, characterPrefab);
+            var prefabInstance = Object.Instantiate(config.CreateGamePrefab);
+            prefabInstance.SetActive(false);
 
-            return Task.FromResult(gameObjectData);
+            var gameObjectData = new CharacterGameObjectData(config, prefabInstance);
+
+            return gameObjectData;
         }
 
         public async Task<Character> CreateGameCharacter(CharacterSaveData characterData, CharacterConfig config, Texture2D skinTexture, Texture2D faceTexture, Vector3 position)
@@ -106,6 +112,12 @@ namespace CharacterEditor.Services
 
         public async Task<Character> CreatePlayableNpc(PlayableNpcConfig config, Texture2D skinTexture, Texture2D faceTexture, Sprite portraitIcon, Vector3 position)
         {
+            if (config.characterConfig.Prefab == null)
+            {
+                var prefabPath = _loaderService.DataPathProvider.GetPath(config.characterConfig.prefabPath);
+                config.characterConfig.Prefab = await _loaderService.GameObjectLoader.LoadByPath(prefabPath);
+            }
+
             var go = Object.Instantiate(config.characterConfig.Prefab, position, Quaternion.identity);
             go.layer = Constants.LAYER_NPC;
 
@@ -122,7 +134,7 @@ namespace CharacterEditor.Services
             }
 
             foreach (var faceMesh in config.faceMeshs)
-                faceMeshItems[faceMesh.meshType] = new FaceMesh(_loaderService.MeshLoader, faceMesh.meshType, faceMesh.meshBundlePath);
+                faceMeshItems[faceMesh.meshType] = new FaceMesh(_loaderService.MeshLoader, faceMesh.meshType, _loaderService.DataPathProvider.GetPath(faceMesh.meshPath));
 
             await EquipItems(character, equipItems, faceMeshItems);
 
@@ -132,6 +144,12 @@ namespace CharacterEditor.Services
         public async Task<Enemy> CreateEnemy(string guid, EnemyConfig config, Material material, Texture2D skinTexture,
             Texture2D faceTexture, Texture2D armorTexture, Sprite portraitIcon, Vector3 position)
         {
+            if (config.entityConfig.EnemyPrefab == null)
+            {
+                var prefabPath = _loaderService.DataPathProvider.GetPath(config.entityConfig.enemyPrefabPath);
+                config.entityConfig.EnemyPrefab = await _loaderService.GameObjectLoader.LoadByPath(prefabPath);
+            }
+
             var go = Object.Instantiate(config.entityConfig.EnemyPrefab, position, Quaternion.identity);
             go.layer = Constants.LAYER_ENEMY;
 

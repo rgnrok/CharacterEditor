@@ -23,13 +23,12 @@ namespace CharacterEditor
     public class MeshTypeFaceMeshPath
     {
         public MeshType meshType;
-        public string meshPath;
-        public string meshBundlePath;
+        public PathData meshPath;
 
         public MeshTypeFaceMeshPath(MeshType type, string path)
         {
             meshType = type;
-            meshPath = path;
+            meshPath = new PathData(path);
         }
     }
 
@@ -42,17 +41,14 @@ namespace CharacterEditor
 
         public CharacterConfig characterConfig;
 
-        public string texturePath;
-        public string faceMeshTexturePath;
-        public string textureBundlePath;
-        public string faceMeshTextureBundlePath;
+        public PathData texturePath;
+        public PathData faceMeshTexturePath;
+
         public string portraitIconPath;
         public string portraitIconName;
 
         public EquipItemSlotItem[] equipItems;
         public MeshTypeFaceMeshPath[] faceMeshs;
-//        public Dictionary<EquipItemSlot, EquipItemData> equipItems;
-//        public Dictionary<MeshType, FaceMesh> faceMeshs;
 
     }
 }

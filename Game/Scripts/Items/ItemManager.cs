@@ -68,10 +68,10 @@ namespace CharacterEditor
             public bool IsReady { get; private set; }
 
             private Character _currentCharacter;
-            private readonly List<SkinnedMeshRenderer> _modelRenders = new List<SkinnedMeshRenderer>();
-            private readonly List<SkinnedMeshRenderer> _shortRobeRenders = new List<SkinnedMeshRenderer>();
-            private readonly List<SkinnedMeshRenderer> _longRobeRenders = new List<SkinnedMeshRenderer>();
-            private readonly List<SkinnedMeshRenderer> _cloakRenders = new List<SkinnedMeshRenderer>();
+            private readonly List<Renderer> _modelRenders = new List<Renderer>();
+            private readonly List<Renderer> _shortRobeRenders = new List<Renderer>();
+            private readonly List<Renderer> _longRobeRenders = new List<Renderer>();
+            private readonly List<Renderer> _cloakRenders = new List<Renderer>();
 
             private TextureShaderType _currentShaderType;
             private Texture2D _emptyAlphaTexture;

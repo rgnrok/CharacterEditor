@@ -14,10 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: ce80b430-c840-46b1-a7ff-3382fc0b21c0
   characterConfig: {fileID: 11400000, guid: 6b7a210257ce1b3419c035891239b8aa, type: 2}
-  texturePath: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_20191209091008894/HumanMale_CharacterSkin.png
-  faceMeshTexturePath: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_20191209091008894/HumanMale_Face.png
-  textureBundlePath: PlayerCharacters_ce80b430-c840-46b1-a7ff-3382fc0b21c0/HumanMale_CharacterSkin
-  faceMeshTextureBundlePath: PlayerCharacters_ce80b430-c840-46b1-a7ff-3382fc0b21c0/HumanMale_Face
+  texturePath:
+    path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_20191209091008894/HumanMale_CharacterSkin.png
+    bundlePath: 
+    addressPath: 
+  faceMeshTexturePath:
+    path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_20191209091008894/HumanMale_Face.png
+    bundlePath: 
+    addressPath: 
   portraitIconPath: Assets/Packages/Character_Editor/Sprites/portraits.png
   portraitIconName: portraits_69
   equipItems:
@@ -27,5 +31,7 @@ MonoBehaviour:
     item: {fileID: 11400000, guid: 9fc7b604579ccef42a017e8624f95109, type: 2}
   faceMeshs:
   - meshType: 1
-    meshPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hair/10/StaticModel/A_HairModel_HumanMale_10.prefab
-    meshBundlePath: humanmale_hair_10/A_HairModel_HumanMale_10
+    meshPath:
+      path: 
+      bundlePath: 
+      addressPath: 

@@ -37,10 +37,6 @@ namespace CharacterEditor
                 for (var i = 0; i < paths.Length; i++)
                 {
                     var config = AssetDatabase.LoadAssetAtPath<CharacterConfig>(AssetDatabase.GUIDToAssetPath(paths[i]));
-                    config.Prefab = AssetDatabase.LoadAssetAtPath<GameObject>(config.prefabPath);
-                    config.PreviewPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(config.previewPrefabPath);
-                    config.CreateGamePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(config.createGamePrefabPath);
-
                     _configCache[config.guid] = config;
                 }
             }

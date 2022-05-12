@@ -3,18 +3,14 @@ using UnityEngine;
 
 namespace CharacterEditor
 {
-
     [Serializable]
     public class CharacterConfig : EntityConfig
     {
-        public string previewPrefabPath;
-        public string previewBundlePrefabPath;
+        public string folderName = "";
 
-        public string createGamePrefabPath;
-        public string createGameBundlePrefabPath;
-
-        public string enemyPrefabPath;
-        public string enemyBundlePrefabPath;
+        public PathData previewPrefabPath;
+        public PathData createGamePrefabPath;
+        public PathData enemyPrefabPath;
 
         public GameObject PreviewPrefab { get; set; }
         public GameObject CreateGamePrefab { get; set; }

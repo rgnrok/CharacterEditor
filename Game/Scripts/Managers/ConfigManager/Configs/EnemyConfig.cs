@@ -6,18 +6,14 @@ namespace CharacterEditor
     [Serializable]
     public class EnemyConfig : EntityConfig, IData
     {
-        public CharacterConfig entityConfig; //change to entity config and move enemyprefab
+        public CharacterConfig entityConfig;
         public PrefabBoneData prefabBoneData;
 
-        public string texturePath;
-        public string faceMeshTexturePath;
-        public string armorTexturePath;
-        public string materialPath;
+        public PathData texturePath;
+        public PathData faceMeshTexturePath;
+        public PathData armorTexturePath;
+        public PathData materialPath;
 
-        public string textureBundlePath;
-        public string faceMeshTextureBundlePath;
-        public string armorTextureBundlePath;
-        public string materialBundlePath;
         public string portraitIconPath;
         public string portraitIconName;
 

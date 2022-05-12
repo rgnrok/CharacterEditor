@@ -111,10 +111,10 @@ namespace Editor
         {
             InitTextureTypes();
 
-            config.prefabPath = GetPrefabPath(gameModel);
-            config.createGamePrefabPath = GetPrefabPath(createGameModel);
-            config.previewPrefabPath = GetPrefabPath(previewModel);
-            config.enemyPrefabPath = GetPrefabPath(enemyModel);
+            config.prefabPath = new PathData(gameModel.GetObjectPath());
+            config.createGamePrefabPath = new PathData(createGameModel.GetObjectPath());
+            config.previewPrefabPath = new PathData(previewModel.GetObjectPath());
+            config.enemyPrefabPath = new PathData(enemyModel.GetObjectPath());
 
 
             config.folderName = folderName;
@@ -142,23 +142,14 @@ namespace Editor
                 config.guid = System.Guid.NewGuid().ToString();
         }
 
-        private string GetPrefabPath(GameObject asset)
-        {
-            if (asset == null) return null;
-
-            var prefabPath = AssetDatabase.GetAssetPath(asset);
-            if (!string.IsNullOrEmpty(prefabPath)) return prefabPath;
-
-            var prefab = PrefabUtility.GetCorrespondingObjectFromSource(asset);
-            return AssetDatabase.GetAssetPath(prefab);
-        }
+ 
 
         private void InitValues(CharacterConfig config)
         {
             folderName = config.folderName;
-            gameModel = AssetDatabase.LoadAssetAtPath<GameObject>(config.prefabPath);
-            createGameModel = AssetDatabase.LoadAssetAtPath<GameObject>(config.createGamePrefabPath);
-            previewModel = AssetDatabase.LoadAssetAtPath<GameObject>(config.previewPrefabPath);
+            gameModel = AssetDatabase.LoadAssetAtPath<GameObject>(config.prefabPath.path);
+            createGameModel = AssetDatabase.LoadAssetAtPath<GameObject>(config.createGamePrefabPath.path);
+            previewModel = AssetDatabase.LoadAssetAtPath<GameObject>(config.previewPrefabPath.path);
             headBone = config.headBone;
             availableMeshes = config.availableMeshes;
             _availableTextures = config.availableTextures;

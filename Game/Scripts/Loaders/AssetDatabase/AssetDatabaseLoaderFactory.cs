@@ -40,6 +40,9 @@ namespace CharacterEditor
             public ICommonLoader<Material> CreateMaterialLoader() => 
                 new CommonLoader<Material>();
 
+            public IDataPathProvider CreateDataPathProvider() => 
+                new DataPathProvider();
+
             public Task Prepare()
             {
                 return Task.CompletedTask;

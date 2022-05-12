@@ -156,11 +156,8 @@ namespace Editor
         {
             if (characterConfig == null) return;
 
-      
-                var configModel = AssetDatabase.LoadAssetAtPath<GameObject>(characterConfig.previewPrefabPath);
+            var configModel = AssetDatabase.LoadAssetAtPath<GameObject>(characterConfig.previewPrefabPath.path);
                 _currentCharacterPreview = (GameObject) PrefabUtility.InstantiatePrefab(configModel);
-            
-
 
             UpdateCharacterTexturesAndMeshes();
         }
@@ -223,26 +220,10 @@ namespace Editor
         private void SetValues(PlayableNpcConfig config)
         {
             config.portraitIconName = portrait.name;
-            config.portraitIconPath = AssetDatabase.GetAssetPath(portrait);
-            if (config.portraitIconPath == "")
-            {
-                var prefab = PrefabUtility.GetCorrespondingObjectFromSource(portrait);
-                config.portraitIconPath = AssetDatabase.GetAssetPath(prefab);
-            }
+            config.portraitIconPath = portrait.GetObjectPath();
 
-            config.texturePath = AssetDatabase.GetAssetPath(texture);
-            if (config.texturePath == "")
-            {
-                var prefab = PrefabUtility.GetCorrespondingObjectFromSource(texture);
-                config.texturePath = AssetDatabase.GetAssetPath(prefab);
-            }
-
-            config.faceMeshTexturePath = AssetDatabase.GetAssetPath(faceMeshTexture);
-            if (config.faceMeshTexturePath == "")
-            {
-                var prefab = PrefabUtility.GetCorrespondingObjectFromSource(faceMeshTexture);
-                config.faceMeshTexturePath = AssetDatabase.GetAssetPath(prefab);
-            }
+            config.texturePath = new PathData(texture.GetObjectPath());
+            config.faceMeshTexturePath = new PathData(faceMeshTexture.GetObjectPath());
 
             config.characterConfig = characterConfig;
 
@@ -259,13 +240,13 @@ namespace Editor
             }
 
             if (string.IsNullOrEmpty(config.guid))
-                config.guid = System.Guid.NewGuid().ToString();
+                config.guid = Guid.NewGuid().ToString();
         }
 
         private void InitValues(PlayableNpcConfig config)
         {
-            texture = AssetDatabase.LoadAssetAtPath<Texture2D>(config.texturePath);
-            faceMeshTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(config.faceMeshTexturePath);
+            texture = AssetDatabase.LoadAssetAtPath<Texture2D>(config.texturePath.path);
+            faceMeshTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(config.faceMeshTexturePath.path);
             var portraitSprites = AssetDatabase.LoadAllAssetsAtPath(config.portraitIconPath);
             if (portraitSprites != null && portraitSprites.Length > 0)
             {
@@ -293,7 +274,7 @@ namespace Editor
             for (var i = 0; i < config.faceMeshs.Length; i++)
             {
                 var faceMesh = config.faceMeshs[i];
-                var obj = AssetDatabase.LoadAssetAtPath<GameObject>(faceMesh.meshPath);
+                var obj = AssetDatabase.LoadAssetAtPath<GameObject>(faceMesh.meshPath.path);
                 faceMeshs[i] = new MeshTypeFaceMeshObject(faceMesh.meshType, obj);
             }
         }

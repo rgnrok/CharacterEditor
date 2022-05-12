@@ -59,13 +59,13 @@ namespace Editor
                 var playerData =
                     AssetDatabase.LoadAssetAtPath<PlayableNpcConfig>(AssetDatabase.GUIDToAssetPath(path));
 
-                playerData.faceMeshTexturePath = playerData.faceMeshTexturePath.Replace(oldPath, newPath);
-                playerData.texturePath = playerData.texturePath.Replace(oldPath, newPath);
+                playerData.faceMeshTexturePath.path = playerData.faceMeshTexturePath.path.Replace(oldPath, newPath);
+                playerData.texturePath.path = playerData.texturePath.path.Replace(oldPath, newPath);
                 playerData.portraitIconPath = playerData.portraitIconPath.Replace(oldPath, newPath);
 
                 foreach (var faceMesh in playerData.faceMeshs)
                 {
-                    faceMesh.meshPath = faceMesh.meshPath.Replace(oldPath, newPath);
+                    faceMesh.meshPath.path = faceMesh.meshPath.path.Replace(oldPath, newPath);
                 }
 
                 EditorUtility.CopySerialized(playerData, playerData);

@@ -16,6 +16,7 @@ namespace CharacterEditor.Services
         IDataLoader<ContainerConfig> CreateContainerLoader();
         ICommonLoader<GameObject> CreateGameObjectLoader();
         ICommonLoader<Material> CreateMaterialLoader();
+        IDataPathProvider CreateDataPathProvider();
         Task Prepare();
     }
 }

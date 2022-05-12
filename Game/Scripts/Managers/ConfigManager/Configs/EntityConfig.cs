@@ -8,13 +8,9 @@ namespace CharacterEditor
     public class EntityConfig : ScriptableObject
     {
         public string guid;
-        public string folderName = "";
-        public string prefabPath;
-        public string bundlePrefabPath;
-
+        public PathData prefabPath;
 
         public GameObject Prefab { get; set; }
-
 
         public string[] skinnedMeshes;
     }

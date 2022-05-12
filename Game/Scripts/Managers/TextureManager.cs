@@ -26,8 +26,8 @@ namespace CharacterEditor
         public bool IsReady { get; private set; }
 
 
-        private List<SkinnedMeshRenderer> _modelRenderers;
-        private List<SkinnedMeshRenderer> _cloakRenderers;
+        private List<Renderer> _modelRenderers;
+        private List<Renderer> _cloakRenderers;
 
         private Dictionary<string, Dictionary<TextureType, CharacterTexture>> _characterTextures;
 
@@ -58,8 +58,8 @@ namespace CharacterEditor
             IsReady = false;
 
             _characterTextures = new Dictionary<string, Dictionary<TextureType, CharacterTexture>>();
-            _modelRenderers = new List<SkinnedMeshRenderer>();
-            _cloakRenderers = new List<SkinnedMeshRenderer>();
+            _modelRenderers = new List<Renderer>();
+            _cloakRenderers = new List<Renderer>();
 
             _characterPortraits = new Dictionary<string, TwoWayArray<Sprite>>();
 

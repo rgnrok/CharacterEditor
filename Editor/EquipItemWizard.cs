@@ -369,7 +369,7 @@ namespace Editor
             else
             {
                 var selectedConfig = _configs[_selectedConfigIndex];
-                var configModel = AssetDatabase.LoadAssetAtPath<GameObject>(selectedConfig.previewPrefabPath);
+                var configModel = AssetDatabase.LoadAssetAtPath<GameObject>(selectedConfig.previewPrefabPath.path);
                 _currentCharacterPreview = (GameObject)PrefabUtility.InstantiatePrefab(configModel);
                 _characterPreviews[_selectedConfigIndex] = _currentCharacterPreview;
             }

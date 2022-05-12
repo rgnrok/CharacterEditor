@@ -12,14 +12,14 @@ public class CharacterGameObjectData : EntityGameObjectData<CharacterConfig>
     public Dictionary<MeshType, Transform> meshBones;
     public Dictionary<MeshType, Transform> previewMeshBones;
 
-    public SkinnedMeshRenderer[] ShortRobeMeshes { get; private set; }
-    public SkinnedMeshRenderer[] LongRobeMeshes { get; private set; }
-    public SkinnedMeshRenderer[] CloakMeshes { get; private set; }
+    public Renderer[] ShortRobeMeshes { get; private set; }
+    public Renderer[] LongRobeMeshes { get; private set; }
+    public Renderer[] CloakMeshes { get; private set; }
 
-    public SkinnedMeshRenderer[] PreviewSkinMeshes { get; private set; }
-    public SkinnedMeshRenderer[] PreviewShortRobeMeshes { get; private set; }
-    public SkinnedMeshRenderer[] PreviewLongRobeMeshes { get; private set; }
-    public SkinnedMeshRenderer[] PreviewCloakMeshes { get; private set; }
+    public Renderer[] PreviewSkinMeshes { get; private set; }
+    public Renderer[] PreviewShortRobeMeshes { get; private set; }
+    public Renderer[] PreviewLongRobeMeshes { get; private set; }
+    public Renderer[] PreviewCloakMeshes { get; private set; }
 
     private readonly Transform _head;
 

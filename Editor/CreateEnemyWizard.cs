@@ -87,33 +87,11 @@ namespace Editor
                 config.portraitIconPath = AssetDatabase.GetAssetPath(prefab);
             }
 
-            config.texturePath = AssetDatabase.GetAssetPath(skinTexture);
-            if (config.texturePath == "")
-            {
-                var prefab = PrefabUtility.GetCorrespondingObjectFromSource(skinTexture);
-                config.texturePath = AssetDatabase.GetAssetPath(prefab);
-            }
-
-            config.faceMeshTexturePath = AssetDatabase.GetAssetPath(faceTexture);
-            if (config.faceMeshTexturePath == "")
-            {
-                var prefab = PrefabUtility.GetCorrespondingObjectFromSource(faceTexture);
-                config.faceMeshTexturePath = AssetDatabase.GetAssetPath(prefab);
-            }
-
-            config.armorTexturePath = AssetDatabase.GetAssetPath(armorTexture);
-            if (config.armorTexturePath == "")
-            {
-                var prefab = PrefabUtility.GetCorrespondingObjectFromSource(armorTexture);
-                config.armorTexturePath = AssetDatabase.GetAssetPath(prefab);
-            }
-
-            config.materialPath = AssetDatabase.GetAssetPath(material);
-            if (config.materialPath == "")
-            {
-                var prefab = PrefabUtility.GetCorrespondingObjectFromSource(material);
-                config.materialPath = AssetDatabase.GetAssetPath(prefab);
-            }
+            config.texturePath = new PathData(skinTexture.GetObjectPath());
+            config.faceMeshTexturePath = new PathData(faceTexture.GetObjectPath());
+            config.armorTexturePath = new PathData(armorTexture.GetObjectPath());
+            config.materialPath = new PathData(material.GetObjectPath());
+       
 
             if (string.IsNullOrEmpty(config.guid))
                 config.guid = System.Guid.NewGuid().ToString();
@@ -123,10 +101,10 @@ namespace Editor
         {
             prefabBoneData = config.prefabBoneData;
             entityConfig = config.entityConfig;
-            skinTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(config.texturePath);
-            faceTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(config.faceMeshTexturePath);
-            armorTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(config.armorTexturePath);
-            material = AssetDatabase.LoadAssetAtPath<Material>(config.materialPath);
+            skinTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(config.texturePath.path);
+            faceTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(config.faceMeshTexturePath.path);
+            armorTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(config.armorTexturePath.path);
+            material = AssetDatabase.LoadAssetAtPath<Material>(config.materialPath.path);
 
             var portraitSprites = AssetDatabase.LoadAllAssetsAtPath(config.portraitIconPath);
             if (portraitSprites != null && portraitSprites.Length > 0)

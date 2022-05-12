@@ -88,10 +88,10 @@ namespace Editor
                 {
                     race = raceName,
                     configPath = ParseConfigPath(configs[i]),
-                    prefabPath = ParsePrefabPath(configs[i].prefabPath),
-                    previewPrefabPath = ParsePrefabPath(configs[i].previewPrefabPath),
-                    createGamePrefabPath = ParsePrefabPath(configs[i].createGamePrefabPath),
-                    enemyPrefabPath = ParsePrefabPath(configs[i].enemyPrefabPath),
+                    prefabPath = ParsePrefabPath(configs[i].prefabPath.path),
+                    previewPrefabPath = ParsePrefabPath(configs[i].previewPrefabPath.path),
+                    createGamePrefabPath = ParsePrefabPath(configs[i].createGamePrefabPath.path),
+                    enemyPrefabPath = ParsePrefabPath(configs[i].enemyPrefabPath.path),
                     configGuid = configs[i].guid,
                     textures = ParseBundleTextures(raceName),
                     meshes = ParseBundleMeshes(raceName),
@@ -99,10 +99,10 @@ namespace Editor
 
                 races.Add(raceMap);
 
-                configs[i].bundlePrefabPath = raceMap.prefabPath;
-                configs[i].previewBundlePrefabPath = raceMap.previewPrefabPath;
-                configs[i].createGameBundlePrefabPath = raceMap.createGamePrefabPath;
-                configs[i].enemyBundlePrefabPath = raceMap.enemyPrefabPath;
+                configs[i].prefabPath.bundlePath = raceMap.prefabPath;
+                configs[i].previewPrefabPath.bundlePath = raceMap.previewPrefabPath;
+                configs[i].createGamePrefabPath.bundlePath = raceMap.createGamePrefabPath;
+                configs[i].enemyPrefabPath.bundlePath = raceMap.enemyPrefabPath;
                 EditorUtility.CopySerialized(configs[i], configs[i]);
             }
 
@@ -239,19 +239,22 @@ namespace Editor
                     characterMap.Add(map);
 
                     var texturesBundleName = string.Format("{0}_{1}", bundleName, character.guid);
-                    AssetImporter.GetAtPath(character.texturePath).SetAssetBundleNameAndVariant(texturesBundleName, "");
-                    AssetImporter.GetAtPath(character.faceMeshTexturePath)
+                    AssetImporter.GetAtPath(character.texturePath.path)
                         .SetAssetBundleNameAndVariant(texturesBundleName, "");
-                    character.textureBundlePath = GenerateAssetPath(texturesBundleName, character.texturePath);
-                    character.faceMeshTextureBundlePath =
-                        GenerateAssetPath(texturesBundleName, character.faceMeshTexturePath);
+
+                    AssetImporter.GetAtPath(character.faceMeshTexturePath.path)
+                        .SetAssetBundleNameAndVariant(texturesBundleName, "");
+
+                    character.texturePath.bundlePath = GenerateAssetPath(texturesBundleName, character.texturePath.path);
+                    character.faceMeshTexturePath.bundlePath =
+                        GenerateAssetPath(texturesBundleName, character.faceMeshTexturePath.path);
 
                     for (int i = 0; i < character.faceMeshs.Length; i++)
                     {
                         var faceMesh = character.faceMeshs[i];
-                        var meshBundleName = AssetDatabase.GetImplicitAssetBundleName(faceMesh.meshPath);
+                        var meshBundleName = AssetDatabase.GetImplicitAssetBundleName(faceMesh.meshPath.path);
 
-                        faceMesh.meshBundlePath = GenerateAssetPath(meshBundleName, faceMesh.meshPath);
+                        faceMesh.meshPath.bundlePath = GenerateAssetPath(meshBundleName, faceMesh.meshPath.path);
                     }
 
                     EditorUtility.CopySerialized(character, character);
@@ -285,18 +288,18 @@ namespace Editor
                     enemyMap.Add(map);
 
                     var texturesBundleName = string.Format("{0}_{1}", bundleName, enemy.guid);
-                    AssetImporter.GetAtPath(enemy.texturePath).SetAssetBundleNameAndVariant(texturesBundleName, "");
-                    AssetImporter.GetAtPath(enemy.faceMeshTexturePath)
+                    AssetImporter.GetAtPath(enemy.texturePath.path).SetAssetBundleNameAndVariant(texturesBundleName, "");
+                    AssetImporter.GetAtPath(enemy.faceMeshTexturePath.path)
                         .SetAssetBundleNameAndVariant(texturesBundleName, "");
-                    AssetImporter.GetAtPath(enemy.armorTexturePath)
+                    AssetImporter.GetAtPath(enemy.armorTexturePath.path)
                         .SetAssetBundleNameAndVariant(texturesBundleName, "");
                     AssetImporter.GetAtPath(prefabBonePath).SetAssetBundleNameAndVariant(texturesBundleName, "");
-                    AssetImporter.GetAtPath(enemy.materialPath).SetAssetBundleNameAndVariant(texturesBundleName, "");
+                    AssetImporter.GetAtPath(enemy.materialPath.path).SetAssetBundleNameAndVariant(texturesBundleName, "");
 
-                    enemy.textureBundlePath = GenerateAssetPath(texturesBundleName, enemy.texturePath);
-                    enemy.faceMeshTextureBundlePath = GenerateAssetPath(texturesBundleName, enemy.faceMeshTexturePath);
-                    enemy.armorTextureBundlePath = GenerateAssetPath(texturesBundleName, enemy.armorTexturePath);
-                    enemy.materialBundlePath = GenerateAssetPath(texturesBundleName, enemy.materialPath);
+                    enemy.texturePath.bundlePath = GenerateAssetPath(texturesBundleName, enemy.texturePath.path);
+                    enemy.faceMeshTexturePath.bundlePath = GenerateAssetPath(texturesBundleName, enemy.faceMeshTexturePath.path);
+                    enemy.armorTexturePath.bundlePath = GenerateAssetPath(texturesBundleName, enemy.armorTexturePath.path);
+                    enemy.materialPath.bundlePath = GenerateAssetPath(texturesBundleName, enemy.materialPath.path);
 
                     EditorUtility.CopySerialized(enemy, enemy);
                     AssetDatabase.SaveAssets();

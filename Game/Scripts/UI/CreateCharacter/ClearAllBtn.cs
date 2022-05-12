@@ -17,7 +17,7 @@ namespace CharacterEditor
 
         private TextureType[] textures;
         private MeshType[] meshes;
-        private SkinnedMeshRenderer[] skinMeshes;
+        private Renderer[] skinMeshes;
         private IConfigManager _configManager;
 
         void Awake()
@@ -88,7 +88,7 @@ namespace CharacterEditor
         {
             var configData = _configManager.ConfigData;
 
-            var list = new List<SkinnedMeshRenderer>();
+            var list = new List<Renderer>();
             foreach (var enumValue in Enum.GetValues(typeof(SkinMeshType)))
             {
                 int checkBit = (int) skinedMeshesMask & (int) enumValue;
