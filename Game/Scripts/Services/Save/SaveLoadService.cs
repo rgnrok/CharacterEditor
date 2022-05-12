@@ -202,8 +202,8 @@ namespace CharacterEditor
                 if (!needLoad) continue;
 
                 var config = await _loaderService.PlayableNpcLoader.LoadData(point.Id);
-                var skinTexture = await _loaderService.TextureLoader.LoadByPath(_loaderService.DataPathProvider.GetPath(config.texturePath));
-                var faceTexture = await _loaderService.TextureLoader.LoadByPath(_loaderService.DataPathProvider.GetPath(config.faceMeshTexturePath));
+                var skinTexture = await _loaderService.TextureLoader.LoadByPath(_loaderService.PathDataProvider.GetPath(config.texturePath));
+                var faceTexture = await _loaderService.TextureLoader.LoadByPath(_loaderService.PathDataProvider.GetPath(config.faceMeshTexturePath));
                 var portraitIcon = await _loaderService.SpriteLoader.LoadPortrait(config.portraitIconName);
 
                 var playerNpcCharacter = await _gameFactory.CreatePlayableNpc(config, skinTexture, faceTexture, portraitIcon, point.Position);
@@ -255,9 +255,9 @@ namespace CharacterEditor
 
         private async Task<Enemy> LoadEnemy(string guid, EnemyConfig config, Vector3 position)
         {
-            var skinTextureTask = _loaderService.TextureLoader.LoadByPath(_loaderService.DataPathProvider.GetPath(config.texturePath));
-            var faceTextureTask = _loaderService.TextureLoader.LoadByPath(_loaderService.DataPathProvider.GetPath(config.faceMeshTexturePath));
-            var armorTextureTask = _loaderService.TextureLoader.LoadByPath(_loaderService.DataPathProvider.GetPath(config.armorTexturePath));
+            var skinTextureTask = _loaderService.TextureLoader.LoadByPath(_loaderService.PathDataProvider.GetPath(config.texturePath));
+            var faceTextureTask = _loaderService.TextureLoader.LoadByPath(_loaderService.PathDataProvider.GetPath(config.faceMeshTexturePath));
+            var armorTextureTask = _loaderService.TextureLoader.LoadByPath(_loaderService.PathDataProvider.GetPath(config.armorTexturePath));
             var portraitIconTask = _loaderService.SpriteLoader.LoadPortrait(config.portraitIconName);
 
             await Task.WhenAll(skinTextureTask, faceTextureTask, armorTextureTask, portraitIconTask);
@@ -266,7 +266,7 @@ namespace CharacterEditor
             var armorTexture = armorTextureTask.Result;
             var portraitIcon = portraitIconTask.Result;
            
-            var material = await _loaderService.MaterialLoader.LoadByPath(_loaderService.DataPathProvider.GetPath(config.materialPath));
+            var material = await _loaderService.MaterialLoader.LoadByPath(_loaderService.PathDataProvider.GetPath(config.materialPath));
 
             return await _gameFactory.CreateEnemy(guid, config, material, skinTexture, faceTexture, armorTexture, portraitIcon, position);
         }

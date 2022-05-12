@@ -1,6 +1,6 @@
 ﻿namespace CharacterEditor
 {
-    public interface IDataPathProvider
+    public interface IPathDataProvider
     {
         string GetPath(PathData pathData);
     }

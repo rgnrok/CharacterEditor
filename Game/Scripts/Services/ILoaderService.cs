@@ -17,7 +17,7 @@ namespace CharacterEditor.Services
         IDataLoader<ContainerConfig> ContainerLoader { get; }
         ICommonLoader<GameObject> GameObjectLoader { get; }
         ICommonLoader<Material> MaterialLoader { get; }
-        IDataPathProvider DataPathProvider { get; }
+        IPathDataProvider PathDataProvider { get; }
         Task Initialize();
     }
 }

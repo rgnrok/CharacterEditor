@@ -35,7 +35,7 @@ namespace CharacterEditor.Services
         {
             if (config.CreateGamePrefab == null)
             {
-                var gamePrefabPath = _loaderService.DataPathProvider.GetPath(config.createGamePrefabPath);
+                var gamePrefabPath = _loaderService.PathDataProvider.GetPath(config.createGamePrefabPath);
                 config.CreateGamePrefab = await _loaderService.GameObjectLoader.LoadByPath(gamePrefabPath);
             }
 
@@ -114,7 +114,7 @@ namespace CharacterEditor.Services
         {
             if (config.characterConfig.Prefab == null)
             {
-                var prefabPath = _loaderService.DataPathProvider.GetPath(config.characterConfig.prefabPath);
+                var prefabPath = _loaderService.PathDataProvider.GetPath(config.characterConfig.prefabPath);
                 config.characterConfig.Prefab = await _loaderService.GameObjectLoader.LoadByPath(prefabPath);
             }
 
@@ -134,7 +134,7 @@ namespace CharacterEditor.Services
             }
 
             foreach (var faceMesh in config.faceMeshs)
-                faceMeshItems[faceMesh.meshType] = new FaceMesh(_loaderService.MeshLoader, faceMesh.meshType, _loaderService.DataPathProvider.GetPath(faceMesh.meshPath));
+                faceMeshItems[faceMesh.meshType] = new FaceMesh(_loaderService.MeshLoader, faceMesh.meshType, _loaderService.PathDataProvider.GetPath(faceMesh.meshPath));
 
             await EquipItems(character, equipItems, faceMeshItems);
 
@@ -146,7 +146,7 @@ namespace CharacterEditor.Services
         {
             if (config.entityConfig.EnemyPrefab == null)
             {
-                var prefabPath = _loaderService.DataPathProvider.GetPath(config.entityConfig.enemyPrefabPath);
+                var prefabPath = _loaderService.PathDataProvider.GetPath(config.entityConfig.enemyPrefabPath);
                 config.entityConfig.EnemyPrefab = await _loaderService.GameObjectLoader.LoadByPath(prefabPath);
             }
 
@@ -168,9 +168,9 @@ namespace CharacterEditor.Services
 
             var prefabPaths = new List<string>();
             foreach (var bone in config.prefabBoneData.armorBones)
-                prefabPaths.Add(bone.prefabBundlePath);
+                prefabPaths.Add(_loaderService.PathDataProvider.GetPath(bone.prefabPath));
             foreach (var bone in config.prefabBoneData.faceBones)
-                prefabPaths.Add(bone.prefabBundlePath);
+                prefabPaths.Add(_loaderService.PathDataProvider.GetPath(bone.prefabPath));
 
             var prefabs = await _loaderService.GameObjectLoader.LoadByPath(prefabPaths);
 
@@ -229,12 +229,12 @@ namespace CharacterEditor.Services
         }
 
 
-        private static void InstantiateItemsToBones(PrefabBoneData.BoneData[] bones, Dictionary<string, GameObject> objects, GameObject go,
+        private void InstantiateItemsToBones(PrefabBoneData.BoneData[] bones, Dictionary<string, GameObject> objects, GameObject go,
             Material armorMaterial)
         {
             foreach (var bone in bones)
             {
-                if (!objects.TryGetValue(bone.prefabBundlePath, out var prefabGo)) continue;
+                if (!objects.TryGetValue(_loaderService.PathDataProvider.GetPath(bone.prefabPath), out var prefabGo)) continue;
 
                 var rootBone = go.transform.FindTransform(bone.bone);
                 if (rootBone == null) continue;

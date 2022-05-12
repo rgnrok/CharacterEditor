@@ -21,7 +21,7 @@ namespace CharacterEditor.Services
         public IDataLoader<ContainerConfig> ContainerLoader { get; }
         public ICommonLoader<GameObject> GameObjectLoader { get; }
         public ICommonLoader<Material> MaterialLoader { get; }
-        public IDataPathProvider DataPathProvider { get; }
+        public IPathDataProvider PathDataProvider { get; }
 
         public LoaderService(IStaticDataService staticDataService, ICoroutineRunner coroutineRunner)
         {
@@ -38,7 +38,7 @@ namespace CharacterEditor.Services
             ContainerLoader = _loaderFactory.CreateContainerLoader();
             GameObjectLoader = _loaderFactory.CreateGameObjectLoader();
             MaterialLoader = _loaderFactory.CreateMaterialLoader();
-            DataPathProvider = _loaderFactory.CreateDataPathProvider();
+            PathDataProvider = _loaderFactory.CreateDataPathProvider();
         }
 
         private void Initialize(LoaderType loaderType, MeshAtlasType meshAtlasType)

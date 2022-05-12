@@ -9,11 +9,13 @@ namespace CharacterEditor
         public string bundlePath;
         public string addressPath;
 
-        public PathData(string mPath)
+        public PathData()
+        {
+        }
+
+        public PathData(string mPath) : this()
         {
             path = mPath;
-            bundlePath = null;
-            addressPath = null;
         }
     }
 }

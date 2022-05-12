@@ -51,8 +51,8 @@ namespace CharacterEditor
             public ICommonLoader<Material> CreateMaterialLoader() => 
                 new CommonLoader<Material>(_coroutineRunner);
 
-            public IDataPathProvider CreateDataPathProvider() => 
-                new DataPathProvider();
+            public IPathDataProvider CreateDataPathProvider() => 
+                new PathDataProvider();
 
             public async Task Prepare()
             {

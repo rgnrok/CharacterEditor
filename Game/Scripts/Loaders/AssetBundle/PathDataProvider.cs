@@ -2,7 +2,7 @@
 {
     namespace AssetBundleLoader
     {
-        public class DataPathProvider : IDataPathProvider
+        public class PathDataProvider : IPathDataProvider
         {
             public string GetPath(PathData pathData)
             {

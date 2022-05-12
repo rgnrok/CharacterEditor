@@ -1,4 +1,5 @@
 ﻿using System;
+using CharacterEditor;
 using UnityEngine;
 
 [Serializable]
@@ -8,8 +9,7 @@ public class PrefabBoneData : ScriptableObject
     public class BoneData
     {
         public string bone;
-        public string prefabPath;
-        public string prefabBundlePath;
+        public PathData prefabPath;
     }
 
     public BoneData[] armorBones;

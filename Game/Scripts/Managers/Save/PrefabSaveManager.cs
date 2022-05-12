@@ -100,7 +100,7 @@ namespace CharacterEditor
                 var boneData = new PrefabBoneData.BoneData();
                 boneData.bone = bone.name;
                 //                boneData.prefabPath = AssetDatabase.GetAssetPath(prefab);
-                boneData.prefabBundlePath = mesh.MeshPath;
+                boneData.prefabPath = new PathData {bundlePath = mesh.MeshPath};
                 boneList.Add(boneData);
             }
             bones.armorBones = boneList.ToArray();
@@ -113,7 +113,7 @@ namespace CharacterEditor
 
                 var boneData = new PrefabBoneData.BoneData();
                 boneData.bone = bone.name;
-                boneData.prefabBundlePath = mesh.MeshPath;
+                boneData.prefabPath = new PathData { bundlePath = mesh.MeshPath };
                 boneList.Add(boneData);
             }
             bones.faceBones = boneList.ToArray();
