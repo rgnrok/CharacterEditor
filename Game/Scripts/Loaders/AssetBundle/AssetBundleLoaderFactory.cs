@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.IO;
+using System.Threading.Tasks;
 using AssetBundles;
 using CharacterEditor.CharacterInventory;
 using CharacterEditor.Services;
@@ -60,18 +61,21 @@ namespace CharacterEditor
             private async Task InitializeAssetBundles()
             {
 #if UNITY_EDITOR
-                // AssetBundleManager.SetSourceAssetBundleURL(Path.Combine(Application.streamingAssetsPath, Utility.AssetBundlesOutputPath) + "/");
                 AssetBundleManager.SetDevelopmentAssetBundleServer();
+
 #else
-            AssetBundleManager.SetSourceAssetBundleURL(Path.Combine(Application.streamingAssetsPath, Utility.AssetBundlesOutputPath) + "/");
+             AssetBundleManager.SetSourceAssetBundleURL(Path.Combine(Application.streamingAssetsPath, Utility.AssetBundlesOutputPath) + "/");
             // Or customize the URL based on your deployment or configuration
             //AssetBundleManager.SetSourceAssetBundleURL("http://www.MyWebsite/MyAssetBundles");
 #endif
+
+#if UNITY_EDITOR
                 if (AssetBundleManager.SimulateAssetBundleInEditor)
                 {
                     AssetBundleManager.Initialize();
                     return;
                 }
+#endif
                 // Initialize AssetBundleManifest which loads the AssetBundleManifest object.
                 var request = AssetBundleManager.Initialize();
                 while (!request.IsDone())
