@@ -13,30 +13,30 @@ MonoBehaviour:
   m_Name: 833a388b-6760-4567-989d-b5fa8f5c9d4d
   m_EditorClassIdentifier: 
   guid: 833a388b-6760-4567-989d-b5fa8f5c9d4d
-  folderName: HumanMale
-  prefabPath: 
-  bundlePrefabPath: 
+  prefabPath:
+    path: Assets/Game/Prefabs/Characters/HumanMale/HumanMale_Enemy.prefab
+    bundlePath: Prefabs_Characters_HumanMale/HumanMale_Enemy
+    addressPath: 
   skinnedMeshes:
   - HumanMale_Mesh_LOD0
   - HumanMale_Mesh_LOD1
   - HumanMale_Mesh_LOD2
-  entityConfig: {fileID: 11400000, guid: 6b7a210257ce1b3419c035891239b8aa, type: 2}
   prefabBoneData: {fileID: 11400000, guid: 4a9125ea6e5d7e546973a25edbb4ac26, type: 2}
   texturePath:
     path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_20191029153345369/HumanMale_CharacterSkin.png
-    bundlePath: 
+    bundlePath: Enemies_833a388b-6760-4567-989d-b5fa8f5c9d4d/HumanMale_CharacterSkin
     addressPath: 
   faceMeshTexturePath:
     path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_20191029153345369/HumanMale_Face.png
-    bundlePath: 
+    bundlePath: Enemies_833a388b-6760-4567-989d-b5fa8f5c9d4d/HumanMale_Face
     addressPath: 
   armorTexturePath:
     path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_20191029153345369/HumanMale_Armor.png
-    bundlePath: 
+    bundlePath: Enemies_833a388b-6760-4567-989d-b5fa8f5c9d4d/HumanMale_Armor
     addressPath: 
   materialPath:
     path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_20191029153345369/HumanMale_SkinMat.mat
-    bundlePath: 
+    bundlePath: Enemies_833a388b-6760-4567-989d-b5fa8f5c9d4d/HumanMale_SkinMat
     addressPath: 
   portraitIconPath: Assets/Packages/Character_Editor/Sprites/portraits.png
   portraitIconName: portraits_14

@@ -13,19 +13,23 @@ MonoBehaviour:
   m_Name: HumanFemale
   m_EditorClassIdentifier: 
   guid: e35559d2-7325-4285-92d2-a4b31a907e4c
-  folderName: HumanFemale
-  prefabPath: Assets/Game/Prefabs/Characters/HumanFemale/HumanFamale_Game.prefab
-  bundlePrefabPath: manFemale/HumanFamale_Game
+  prefabPath:
+    path: Assets/Game/Prefabs/Characters/HumanFemale/HumanFamale_Game.prefab
+    bundlePath: Prefabs_Characters_HumanFemale/HumanFamale_Game
+    addressPath: 
   skinnedMeshes:
   - HumanFemale_Mesh_LOD0
   - HumanFemale_Mesh_LOD1
   - HumanFemale_Mesh_LOD2
-  previewPrefabPath: Assets/Game/Prefabs/Characters/HumanFemale/HumanFamale_Preview.prefab
-  previewBundlePrefabPath: manFemale/HumanFamale_Preview
-  createGamePrefabPath: Assets/Game/Prefabs/Characters/HumanFemale/HumanFamale_Create.prefab
-  createGameBundlePrefabPath: manFemale/HumanFamale_Create
-  enemyPrefabPath: 
-  enemyBundlePrefabPath: 
+  folderName: HumanFemale
+  previewPrefabPath:
+    path: Assets/Game/Prefabs/Characters/HumanFemale/HumanFamale_Preview.prefab
+    bundlePath: Prefabs_Characters_HumanFemale/HumanFamale_Preview
+    addressPath: 
+  createGamePrefabPath:
+    path: Assets/Game/Prefabs/Characters/HumanFemale/HumanFamale_Create.prefab
+    bundlePath: Prefabs_Characters_HumanFemale/HumanFamale_Create
+    addressPath: 
   headBone: Bip01_Head
   shortRobeMeshes:
   - Short_Robe_LOD0

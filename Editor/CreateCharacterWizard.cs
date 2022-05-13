@@ -11,7 +11,6 @@ namespace Editor
         public GameObject gameModel;
         public GameObject createGameModel;
         public GameObject previewModel;
-        public GameObject enemyModel;
         public string headBone;
 
         public SkinnedMeshRenderer[] skinnedMeshes;
@@ -114,8 +113,6 @@ namespace Editor
             config.prefabPath = new PathData(gameModel.GetObjectPath());
             config.createGamePrefabPath = new PathData(createGameModel.GetObjectPath());
             config.previewPrefabPath = new PathData(previewModel.GetObjectPath());
-            config.enemyPrefabPath = new PathData(enemyModel.GetObjectPath());
-
 
             config.folderName = folderName;
             config.availableMeshes = availableMeshes;

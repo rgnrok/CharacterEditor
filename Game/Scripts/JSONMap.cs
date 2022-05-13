@@ -33,7 +33,6 @@ namespace CharacterEditor
             public string prefabPath;
             public string previewPrefabPath;
             public string createGamePrefabPath;
-            public string enemyPrefabPath;
         }
 
         #region Mesh

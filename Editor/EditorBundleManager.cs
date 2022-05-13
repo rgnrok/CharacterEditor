@@ -15,6 +15,7 @@ namespace Editor
     {
         private const string GAME_DATA_PATH = "Assets/Game/Data/";
         private static readonly string ROOT_PATH = $"{AssetsConstants.CharacterEditorRootPath}/";
+        private static readonly string GAME_ROOT_PATH = $"{AssetsConstants.GameRootPath}/";
         private static readonly string PREFAB_PATH_PREFIX = $"{AssetsConstants.CharacterEditorRootPath}/Prefabs/";
 
         private static readonly string TEXTURE_PATH_PREFIX =
@@ -91,7 +92,6 @@ namespace Editor
                     prefabPath = ParsePrefabPath(configs[i].prefabPath.path),
                     previewPrefabPath = ParsePrefabPath(configs[i].previewPrefabPath.path),
                     createGamePrefabPath = ParsePrefabPath(configs[i].createGamePrefabPath.path),
-                    enemyPrefabPath = ParsePrefabPath(configs[i].enemyPrefabPath.path),
                     configGuid = configs[i].guid,
                     textures = ParseBundleTextures(raceName),
                     meshes = ParseBundleMeshes(raceName),
@@ -102,7 +102,6 @@ namespace Editor
                 configs[i].prefabPath.bundlePath = raceMap.prefabPath;
                 configs[i].previewPrefabPath.bundlePath = raceMap.previewPrefabPath;
                 configs[i].createGamePrefabPath.bundlePath = raceMap.createGamePrefabPath;
-                configs[i].enemyPrefabPath.bundlePath = raceMap.enemyPrefabPath;
                 EditorUtility.CopySerialized(configs[i], configs[i]);
             }
 
@@ -301,6 +300,9 @@ namespace Editor
                     enemy.armorTexturePath.bundlePath = GenerateAssetPath(texturesBundleName, enemy.armorTexturePath.path);
                     enemy.materialPath.bundlePath = GenerateAssetPath(texturesBundleName, enemy.materialPath.path);
 
+
+                    enemy.prefabPath.bundlePath = ParsePrefabPath(enemy.prefabPath.path);
+
                     EditorUtility.CopySerialized(enemy, enemy);
                     AssetDatabase.SaveAssets();
                 }
@@ -355,7 +357,12 @@ namespace Editor
         {
             if (string.IsNullOrEmpty(prefabPath)) return prefabPath;
 
-            var bundlePath = prefabPath.Substring(ROOT_PATH.Length);
+            var bundlePath = prefabPath;
+            if (prefabPath.IndexOf(ROOT_PATH, StringComparison.Ordinal) == 0)
+                bundlePath = prefabPath.Substring(ROOT_PATH.Length);
+            if (prefabPath.IndexOf(GAME_ROOT_PATH, StringComparison.Ordinal) == 0)
+                bundlePath = prefabPath.Substring(GAME_ROOT_PATH.Length);
+
             ParsePathToBundle(bundlePath, out var bundleName, out var assetPath);
 
             AssetImporter.GetAtPath(prefabPath).SetAssetBundleNameAndVariant(bundleName, "");

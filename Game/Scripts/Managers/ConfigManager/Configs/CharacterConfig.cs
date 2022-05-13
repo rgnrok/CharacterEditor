@@ -10,13 +10,10 @@ namespace CharacterEditor
 
         public PathData previewPrefabPath;
         public PathData createGamePrefabPath;
-        public PathData enemyPrefabPath;
 
         public GameObject PreviewPrefab { get; set; }
         public GameObject CreateGamePrefab { get; set; }
-        public GameObject EnemyPrefab { get; set; }
-
-
+        
         public string headBone;
 
         public string[] shortRobeMeshes;

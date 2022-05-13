@@ -220,9 +220,6 @@ namespace CharacterEditor
             foreach (var enemySpawner in levelData.EnemySpawners)
             {
                 var enemyConfig = await _loaderService.EnemyLoader.LoadData(enemySpawner.Id);
-                var raceConfig = await _loaderService.ConfigLoader.LoadConfig(enemyConfig.entityConfig.guid);
-
-                enemyConfig.entityConfig = raceConfig;
 
                 var guid = enemyConfig.guid; //todo {1}_{2}
                 var enemy = await LoadEnemy(guid, enemyConfig, enemySpawner.Position);

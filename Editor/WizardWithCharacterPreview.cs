@@ -37,6 +37,7 @@ public abstract class WizardWithCharacterPreview : ScriptableWizard
 
         foreach (var itemModelObj in _itemModelPreviews.Values)
         {
+            if (itemModelObj == null) continue;
             itemModelObj.SetActive(false);
         }
         UpdateCharacterMeshes();

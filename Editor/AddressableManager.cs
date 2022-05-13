@@ -82,7 +82,6 @@ namespace Editor
                     prefabPath = SetupAddressable(configs[i].prefabPath.path, PREFABS_GROUP_NAME),
                     createGamePrefabPath = SetupAddressable(configs[i].createGamePrefabPath.path, PREFABS_GROUP_NAME),
                     previewPrefabPath = SetupAddressable(configs[i].previewPrefabPath.path, PREFABS_GROUP_NAME),
-                    enemyPrefabPath = SetupAddressable(configs[i].enemyPrefabPath.path, PREFABS_GROUP_NAME),
                     configGuid = configs[i].guid,
                     textures = ParseTextures(raceName),
                     meshes = ParseMeshes(raceName),
@@ -93,7 +92,6 @@ namespace Editor
                 configs[i].prefabPath.addressPath = raceMap.prefabPath;
                 configs[i].previewPrefabPath.addressPath = raceMap.previewPrefabPath;
                 configs[i].createGamePrefabPath.addressPath = raceMap.createGamePrefabPath;
-                configs[i].enemyPrefabPath.addressPath = raceMap.enemyPrefabPath;
                 EditorUtility.CopySerialized(configs[i], configs[i]);
             }
 

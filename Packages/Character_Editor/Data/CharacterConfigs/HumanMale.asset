@@ -13,19 +13,23 @@ MonoBehaviour:
   m_Name: HumanMale
   m_EditorClassIdentifier: 
   guid: 2c5cab39-f8c4-4ee7-b8db-67c40ae2a27d
-  folderName: HumanMale
-  prefabPath: Assets/Game/Prefabs/Characters/HumanMale/HumanMale_Game.prefab
-  bundlePrefabPath: manMale/HumanMale_Game
+  prefabPath:
+    path: Assets/Game/Prefabs/Characters/HumanMale/HumanMale_Game.prefab
+    bundlePath: Prefabs_Characters_HumanMale/HumanMale_Game
+    addressPath: 
   skinnedMeshes:
   - HumanMale_Mesh_LOD0
   - HumanMale_Mesh_LOD1
   - HumanMale_Mesh_LOD2
-  previewPrefabPath: Assets/Game/Prefabs/Characters/HumanMale/HumanMale_Preview.prefab
-  previewBundlePrefabPath: manMale/HumanMale_Preview
-  createGamePrefabPath: Assets/Game/Prefabs/Characters/HumanMale/HumanMale_Create.prefab
-  createGameBundlePrefabPath: manMale/HumanMale_Create
-  enemyPrefabPath: Assets/Game/Prefabs/Characters/HumanMale/HumanMale_Enemy.prefab
-  enemyBundlePrefabPath: manMale/HumanMale_Enemy
+  folderName: HumanMale
+  previewPrefabPath:
+    path: Assets/Game/Prefabs/Characters/HumanMale/HumanMale_Preview.prefab
+    bundlePath: Prefabs_Characters_HumanMale/HumanMale_Preview
+    addressPath: 
+  createGamePrefabPath:
+    path: Assets/Game/Prefabs/Characters/HumanMale/HumanMale_Create.prefab
+    bundlePath: Prefabs_Characters_HumanMale/HumanMale_Create
+    addressPath: 
   headBone: Bip01_Head
   shortRobeMeshes:
   - Short_Robe_LOD0

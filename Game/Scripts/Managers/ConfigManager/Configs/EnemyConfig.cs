@@ -6,7 +6,6 @@ namespace CharacterEditor
     [Serializable]
     public class EnemyConfig : EntityConfig, IData
     {
-        public CharacterConfig entityConfig;
         public PrefabBoneData prefabBoneData;
 
         public PathData texturePath;

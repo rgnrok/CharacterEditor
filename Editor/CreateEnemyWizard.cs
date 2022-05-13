@@ -8,7 +8,7 @@ namespace Editor
 {
     public class CreateEnemyWizard : ScriptableWizard
     {
-        public CharacterConfig entityConfig;
+        public GameObject prefab;
         public PrefabBoneData prefabBoneData;
         public Texture2D skinTexture;
         public Texture2D faceTexture;
@@ -77,15 +77,10 @@ namespace Editor
         private void SetValues(EnemyConfig config)
         {
             config.prefabBoneData = prefabBoneData;
-            config.entityConfig = entityConfig;
+            config.prefabPath = new PathData(prefab.GetObjectPath());
 
             config.portraitIconName = portrait.name;
-            config.portraitIconPath = AssetDatabase.GetAssetPath(portrait);
-            if (config.portraitIconPath == "")
-            {
-                var prefab = PrefabUtility.GetCorrespondingObjectFromSource(portrait);
-                config.portraitIconPath = AssetDatabase.GetAssetPath(prefab);
-            }
+            config.portraitIconPath = portrait.GetObjectPath();
 
             config.texturePath = new PathData(skinTexture.GetObjectPath());
             config.faceMeshTexturePath = new PathData(faceTexture.GetObjectPath());
@@ -100,7 +95,7 @@ namespace Editor
         private void InitValues(EnemyConfig config)
         {
             prefabBoneData = config.prefabBoneData;
-            entityConfig = config.entityConfig;
+            prefab = AssetDatabase.LoadAssetAtPath<GameObject>(config.prefabPath.path);
             skinTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(config.texturePath.path);
             faceTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(config.faceMeshTexturePath.path);
             armorTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(config.armorTexturePath.path);
