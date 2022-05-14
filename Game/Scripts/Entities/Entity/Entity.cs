@@ -47,9 +47,6 @@ namespace CharacterEditor
             GameObjectData = gameObjectData;
             Texture = texture;
             StatCollection = new DefaultStatCollection(data.currentHealthValue, data.currentManaValue, data.stats);
-
-            gameObjectData.Entity.transform.position = data.position;
-            gameObjectData.Entity.transform.rotation = data.rotation;
         }
 
         protected Entity(string guid, TGoData gameObjectData, Texture2D texture) : this()

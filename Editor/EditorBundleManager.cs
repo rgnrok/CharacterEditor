@@ -51,8 +51,8 @@ namespace Editor
             DisplayProgressBar("Parse Items", "", 0.3f);
             bundleMap.items = ParseItemPath();
 
-            DisplayProgressBar("Parse players", "", 0.4f);
-            bundleMap.playerCharacters = ParsePlayerCharacterPath();
+            DisplayProgressBar("Parse npc", "", 0.4f);
+            bundleMap.payableNpc = ParsePlayableNpcPath();
 
             DisplayProgressBar("Parse enemies", "", 0.8f);
             bundleMap.enemies = ParseEnemiesPath();
@@ -218,10 +218,10 @@ namespace Editor
 
         }
 
-        protected static List<GuidPathMap> ParsePlayerCharacterPath()
+        protected static List<GuidPathMap> ParsePlayableNpcPath()
         {
             var characterMap = new List<GuidPathMap>();
-            var loader = new PlayerCharacterLoader();
+            var loader = new PlayableNpcLoader();
             loader.LoadData(characters =>
             {
                 foreach (var character in characters.Values)

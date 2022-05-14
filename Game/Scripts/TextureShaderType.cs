@@ -2,6 +2,7 @@
 {
     public enum TextureShaderType
     {
+        Custom,
         Unlit,
         Diffuse,
         Standard,

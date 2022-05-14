@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class EntityGameObjectData<TConfig> where TConfig: EntityConfig
 {
-    public TConfig Config { get; private set; }
-    public Renderer[] SkinMeshes { get; private set; }
-    public GameObject Entity { get; private set; }
+    public TConfig Config { get; }
+    public Renderer[] SkinMeshes { get; }
+    public GameObject Entity { get; }
 
-    public Animator Animator { get; private set; }
+    public Animator Animator { get; }
 
     public EntityGameObjectData(TConfig config, GameObject entityObject)
     {
@@ -19,7 +19,7 @@ public class EntityGameObjectData<TConfig> where TConfig: EntityConfig
         SkinMeshes = ParseSkinMeshes(Entity.transform, Config.skinnedMeshes);
     }
 
-    protected Renderer[] ParseSkinMeshes(Transform transform, string[] skinnedMeshes)
+    protected Renderer[] ParseSkinMeshes(Transform transform, IEnumerable<string> skinnedMeshes)
     {
         var skinList = new List<Renderer>();
 

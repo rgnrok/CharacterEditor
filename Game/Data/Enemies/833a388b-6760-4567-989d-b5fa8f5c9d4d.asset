@@ -21,22 +21,22 @@ MonoBehaviour:
   - HumanMale_Mesh_LOD0
   - HumanMale_Mesh_LOD1
   - HumanMale_Mesh_LOD2
-  prefabBoneData: {fileID: 11400000, guid: 4a9125ea6e5d7e546973a25edbb4ac26, type: 2}
+  prefabBoneData: {fileID: 11400000, guid: 3b012ccb7ccd79048a434868f211b6dd, type: 2}
   texturePath:
-    path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_20191029153345369/HumanMale_CharacterSkin.png
-    bundlePath: Enemies_833a388b-6760-4567-989d-b5fa8f5c9d4d/HumanMale_CharacterSkin
+    path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_2022_05_14_130027/tex_Skin.png
+    bundlePath: Enemies_833a388b-6760-4567-989d-b5fa8f5c9d4d/tex_Skin
     addressPath: 
   faceMeshTexturePath:
-    path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_20191029153345369/HumanMale_Face.png
-    bundlePath: Enemies_833a388b-6760-4567-989d-b5fa8f5c9d4d/HumanMale_Face
+    path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_2022_05_14_130027/tex_Face.png
+    bundlePath: Enemies_833a388b-6760-4567-989d-b5fa8f5c9d4d/tex_Face
     addressPath: 
   armorTexturePath:
-    path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_20191029153345369/HumanMale_Armor.png
-    bundlePath: Enemies_833a388b-6760-4567-989d-b5fa8f5c9d4d/HumanMale_Armor
+    path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_2022_05_14_130027/tex_Armor.png
+    bundlePath: Enemies_833a388b-6760-4567-989d-b5fa8f5c9d4d/tex_Armor
     addressPath: 
   materialPath:
-    path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_20191029153345369/HumanMale_SkinMat.mat
-    bundlePath: Enemies_833a388b-6760-4567-989d-b5fa8f5c9d4d/HumanMale_SkinMat
+    path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_2022_05_14_130027/mat_Skin.mat
+    bundlePath: Enemies_833a388b-6760-4567-989d-b5fa8f5c9d4d/mat_Skin
     addressPath: 
   portraitIconPath: Assets/Packages/Character_Editor/Sprites/portraits.png
   portraitIconName: portraits_14

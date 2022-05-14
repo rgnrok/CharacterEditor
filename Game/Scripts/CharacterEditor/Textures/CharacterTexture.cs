@@ -9,7 +9,6 @@ namespace CharacterEditor
 
         public bool IsReady { get; private set; }
         
-        public event Action OnTextureLoaded;
 
         public Texture2D Current { get; private set; }
 
@@ -33,6 +32,8 @@ namespace CharacterEditor
 
         private string _prevTexturePath;
         private string _lastLoadPath;
+
+        public event Action OnTextureLoaded;
 
         public CharacterTexture(ITextureLoader loader, string[][] texturePaths, TextureType type = TextureType.Undefined)
         {
@@ -156,11 +157,6 @@ namespace CharacterEditor
             _selectedTexture = textNum;
             _selectedColor = colorNum;
             LoadTexture();
-        }
-
-        public Color32[] GetPixels32()
-        {
-            return Current.GetPixels32();
         }
     }
 }

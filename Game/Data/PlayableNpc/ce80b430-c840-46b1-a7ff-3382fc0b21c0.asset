@@ -16,11 +16,11 @@ MonoBehaviour:
   characterConfig: {fileID: 11400000, guid: 6b7a210257ce1b3419c035891239b8aa, type: 2}
   texturePath:
     path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_20191209091008894/HumanMale_CharacterSkin.png
-    bundlePath: PlayerCharacters_ce80b430-c840-46b1-a7ff-3382fc0b21c0/HumanMale_CharacterSkin
+    bundlePath: PlayableNpc_ce80b430-c840-46b1-a7ff-3382fc0b21c0/HumanMale_CharacterSkin
     addressPath: 
   faceMeshTexturePath:
     path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_20191209091008894/HumanMale_Face.png
-    bundlePath: PlayerCharacters_ce80b430-c840-46b1-a7ff-3382fc0b21c0/HumanMale_Face
+    bundlePath: PlayableNpc_ce80b430-c840-46b1-a7ff-3382fc0b21c0/HumanMale_Face
     addressPath: 
   portraitIconPath: Assets/Packages/Character_Editor/Sprites/portraits.png
   portraitIconName: portraits_69

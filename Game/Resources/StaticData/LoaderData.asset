@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: LoaderData
   m_EditorClassIdentifier: 
   LoaderType: 1
-  MeshAtlasType: 1
+  MeshAtlasType: 0

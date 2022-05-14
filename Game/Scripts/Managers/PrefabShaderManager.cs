@@ -162,11 +162,5 @@ namespace CharacterEditor
         {
             return GetShaderMaterial(CurrentCharacterShader);
         }
-
-        public void UpdateCloakMaterial(Material mat)
-        {
-            foreach (var render in _cloakRenderers)
-                render.material = mat;
-        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using CharacterEditor.Services;
 using UnityEngine;
 
 namespace CharacterEditor
@@ -11,6 +12,7 @@ namespace CharacterEditor
         private ISaveLoadService _saveLoadService;
         private IConfigManager _configManager;
         private IFSM _gameStateMachine;
+        private Transform _canvas;
 
         public static SaveManager Instance { get; private set; }
       
@@ -22,6 +24,8 @@ namespace CharacterEditor
             _saveLoadService = AllServices.Container.Single<ISaveLoadService>();
             _configManager = AllServices.Container.Single<IConfigManager>();
             _gameStateMachine = AllServices.Container.Single<IFSM>();
+
+            _canvas = GameObject.Find("Canvas").transform;
         }
 
         public void TogglePopup(SaveLoadPopup.SaveLoadPopupMode mode)
@@ -38,7 +42,7 @@ namespace CharacterEditor
 
         private void CreateSaveLoadPopup(SaveLoadPopup.SaveLoadPopupMode mode)
         {
-            _saveLoadPopupInstance = Instantiate(saveLoadPopup, GameObject.Find("Canvas").transform)
+            _saveLoadPopupInstance = Instantiate(saveLoadPopup, _canvas)
                 .GetComponent<SaveLoadPopup>();
 
             _saveLoadPopupInstance.SetMode(mode);
@@ -47,7 +51,8 @@ namespace CharacterEditor
         public void OnSavePrefabClick()
         {
 #if UNITY_EDITOR
-            var prefabSaveManager = new PrefabSaveManager();
+            var staticDataService = AllServices.Container.Single<IStaticDataService>();
+            var prefabSaveManager = new PrefabSaveManager(TextureManager.Instance, MeshManager.Instance, staticDataService, _configManager.Config, _configManager.ConfigData);
             prefabSaveManager.Save();
 #endif
         }

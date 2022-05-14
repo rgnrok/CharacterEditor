@@ -1,7 +1,7 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.IO;
-using CharacterEditor.Mesh;
+using System.Linq;
 using CharacterEditor.Services;
 using UnityEditor;
 using UnityEngine;
@@ -11,168 +11,172 @@ namespace CharacterEditor
 {
     public class PrefabSaveManager
     {
+        private readonly TextureManager _textureManager;
+        private readonly MeshManager _meshManager;
         private readonly IStaticDataService _staticDataService;
-        private readonly IConfigManager _configManager;
+        private readonly CharacterConfig _config;
+        private readonly CharacterGameObjectData _goData;
 
-        public PrefabSaveManager() //todo move as parameter
+        public PrefabSaveManager(TextureManager textureManager, MeshManager meshManager, IStaticDataService staticDataService, CharacterConfig config, CharacterGameObjectData goData)
         {
-            _staticDataService = AllServices.Container.Single<IStaticDataService>();
-            _configManager = AllServices.Container.Single<IConfigManager>();
+            _textureManager = textureManager;
+            _meshManager = meshManager;
+            _staticDataService = staticDataService;
+            _config = config;
+            _goData = goData;
         }
 
-        /*
-         * Create Prefab folder for a character
-         */
-        private string CreateFolder()
+        private string CreateCharacterFolder()
         {
-            var config = _configManager.Config;
-            var prefabNum = System.DateTime.Now.ToString("yyyyMMddHHmmssfff");
+            var prefabNum = System.DateTime.Now.ToString("yyyy_MM_dd_HHmmss");
 
-            if (!System.IO.Directory.Exists(Application.dataPath + "/Packages/Character_Editor/NewCharacter"))
-                AssetDatabase.CreateFolder(AssetsConstants.CharacterEditorRootPath, "/NewCharacter");
+            var folderName = $"{_config.folderName}_{prefabNum}";
+            var folderPath = $"{AssetsConstants.CharacterEditorRootPath}/NewCharacter/{_config.folderName}/{folderName}";
 
-            if (!System.IO.Directory.Exists(
-                Application.dataPath + "/Packages/Character_Editor/NewCharacter/" + config.folderName))
-                AssetDatabase.CreateFolder(AssetsConstants.CharacterEditorRootPath + "/NewCharacter", config.folderName);
+            CreateFolder(folderPath);
 
-            var folderPath = AssetsConstants.CharacterEditorRootPath + "/NewCharacter/" + config.folderName;
-            var folderName = config.folderName + "_" + prefabNum;
-
-            AssetDatabase.CreateFolder(folderPath, folderName);
-
-            folderPath += '/' + folderName;
-            AssetDatabase.CreateFolder(folderPath, "Mesh");
+            // folderPath += '/' + folderName;
+            // AssetDatabase.CreateFolder(folderPath, "Mesh");
             return folderPath;
+        }
+
+        private bool CreateFolder(string dir)
+        {
+            if (AssetDatabase.IsValidFolder(dir)) return true;
+
+            var folderParts = dir.Split('/');
+            var rootFolder = folderParts[0];
+            for (var i = 1; i < folderParts.Length; i++)
+            {
+                var folder = $"{rootFolder}/{folderParts[i]}";
+                if (!AssetDatabase.IsValidFolder(folder))
+                {
+                    var guid = AssetDatabase.CreateFolder(rootFolder, folderParts[i]);
+                    if (string.IsNullOrEmpty(guid)) return false;
+                }
+                rootFolder = folder;
+            }
+            return true;
         }
 
         public void Save()
         {
-            var folderName = CreateFolder();
+            var folder = CreateCharacterFolder();
 
-            if (_staticDataService.LoaderType == LoaderType.AssetDatabase &&
-                _staticDataService.MeshAtlasType == MeshAtlasType.Dynamic)
+            if (_staticDataService.MeshAtlasType != MeshAtlasType.Dynamic)
             {
-                CreateArmorAtlas(folderName);
-                CreateFaceAtlas(folderName);
-                CreateCloakAtlas(folderName);
-                CreateSkinAtlas(folderName);
+                SaveCharacterPrefab(folder);
+                return;
+            }
 
-                // quit the editor because the mesh you export have now new UW'S and quitting the editor play mode will remove the new UW's 
-                EditorApplication.isPlaying = false;
-            }
-            else
-            {
-                CreatePrefab(folderName);
-            }
+            CreateArmorAtlas(folder);
+            CreateFaceAtlas(folder);
+            CreateCloakAtlas(folder);
+            CreateSkinAtlas(folder);
+            CreatePrefab(folder, _config.folderName);
+
+
+            // quit the editor because the mesh you export have now new UW'S and quitting the editor play mode will remove the new UW's 
+            EditorApplication.isPlaying = false;
         }
 
-        private void CreateSkinAtlas(string folderName)
+        private void SaveCharacterPrefab(string folder)
         {
-            var config = _configManager.Config;
-            var race = _configManager.Config.folderName;
-            var materialSkin = GetObjectMaterial();
-            AssetDatabase.CreateAsset(materialSkin, folderName + "/" + race + "_SkinMat.mat");
+            SetupPrefabMaterial(folder, "Armor", _meshManager.ArmorTexture, GetRenderers(_meshManager.SelectedArmorMeshes));
+            SetupPrefabMaterial(folder, "Face", _meshManager.FaceTexture, GetRenderers(_meshManager.SelectedSkinMeshes));
 
-            Texture2D mergedTexture = TextureManager.Instance.CharacterTexture;
+            CreateCloakAtlas(folder);
+            CreateSkinAtlas(folder);
+            SaveBoneData(folder);
 
-            var texturPath = folderName + "/" + race + "_CharacterSkin.png";
-            File.WriteAllBytes(texturPath, mergedTexture.EncodeToPNG());
+            CreatePrefab(folder, _config.folderName);
+
+        }
+
+        private void CreatePrefab(string folder, string name)
+        {
+            PrefabUtility.SaveAsPrefabAsset(_goData.CharacterObject, $"{folder}/{name}.prefab");
+        }
+
+        private void SetupPrefabMaterial(string folder, string matName, Texture2D texture, IEnumerable<Renderer> renderers)
+        {
+            var material = GetObjectMaterial();
+            AssetDatabase.CreateAsset(material, $"{folder}/mat_{matName}.mat");
+
+            var texturePath = $"{folder}/tex_{matName}.png";
+            File.WriteAllBytes(texturePath, texture.EncodeToPNG());
+
             AssetDatabase.Refresh();
-            materialSkin.mainTexture = AssetDatabase.LoadAssetAtPath(texturPath, typeof(Texture2D)) as Texture2D;
 
-            TextureManager.Instance.UpdateMaterial(materialSkin);
+            material.mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath);
 
-
-            PrefabUtility.SaveAsPrefabAsset(_configManager.ConfigData.CharacterObject, folderName + "/" + race + ".prefab");
+            foreach (var renderer in renderers)
+                UpdateMeshMaterials(renderer, material);
         }
 
-        private void SaveBoneData(string folderName)
+        private void CreateCloakAtlas(string folder)
         {
-            var goData = _configManager.ConfigData;
+            var cloakTexture = _textureManager.CloakTexture;
+            if (cloakTexture == null) return;
+
+            if (!_goData.CloakMeshes.Any(mesh => mesh.gameObject.activeSelf))
+                return;
+
+            SetupPrefabMaterial(folder, "Cloak", cloakTexture, _goData.CloakMeshes);
+        }
+
+        private void CreateSkinAtlas(string folder)
+        {
+            var modelRenderers = _goData.SkinMeshes
+                .Concat(_goData.ShortRobeMeshes)
+                .Concat(_goData.LongRobeMeshes);
+          
+            SetupPrefabMaterial(folder, "Skin", _textureManager.CharacterTexture, modelRenderers);
+        }
+
+        private void SaveBoneData(string folder)
+        {
             var bones = ScriptableObject.CreateInstance<PrefabBoneData>();
-            var boneList = new List<PrefabBoneData.BoneData>();
 
-            foreach (var meshWrapper in MeshManager.Instance.SelectedArmorMeshes)
-            {
-                var mesh = meshWrapper.Mesh;
-                if (!goData.meshBones.TryGetValue(mesh.MeshType, out var bone)) return;
+            bones.armorBones = GetBoneData(_meshManager.SelectedArmorMeshes);
+            bones.faceBones = GetBoneData(_meshManager.SelectedSkinMeshes);
 
-                var boneData = new PrefabBoneData.BoneData();
-                boneData.bone = bone.name;
-                //                boneData.prefabPath = AssetDatabase.GetAssetPath(prefab);
-                boneData.prefabPath = new PathData {bundlePath = mesh.MeshPath};
-                boneList.Add(boneData);
-            }
-            bones.armorBones = boneList.ToArray();
-
-            boneList.Clear();
-            foreach (var meshWrapper in MeshManager.Instance.SelectedSkinMeshes)
-            {
-                var mesh = meshWrapper.Mesh;
-                if (!goData.meshBones.TryGetValue(mesh.MeshType, out var bone)) return;
-
-                var boneData = new PrefabBoneData.BoneData();
-                boneData.bone = bone.name;
-                boneData.prefabPath = new PathData { bundlePath = mesh.MeshPath };
-                boneList.Add(boneData);
-            }
-            bones.faceBones = boneList.ToArray();
-
-
-            AssetDatabase.CreateAsset(bones, folderName + "/prefabBones.asset");
+            AssetDatabase.CreateAsset(bones, folder + "/prefabBones.asset");
             AssetDatabase.SaveAssets();
 
         }
 
-        /*
-         * Create prefab for static atlas
-         */
-        private void CreatePrefab(string folderName)
+        private PrefabBoneData.BoneData[] GetBoneData(IReadOnlyCollection<CharacterMeshWrapper> meshWrappers)
         {
-            var config = _configManager.Config;
-            var materialArmor = GetObjectMaterial();
-            var a = 1;
-            //            return;
-            AssetDatabase.CreateAsset(materialArmor, folderName + "/" + config.folderName + "_ArmorMat.mat");
-            var armorAtlas = MeshManager.Instance.ArmorTexture;
-            var texturPath = folderName + "/" + config.folderName + "_Armor.png";
-            File.WriteAllBytes(texturPath, armorAtlas.EncodeToPNG());
-            AssetDatabase.Refresh();
-            materialArmor.mainTexture = AssetDatabase.LoadAssetAtPath(texturPath, typeof(Texture2D)) as Texture2D;
-            SetMeshesMaterial(materialArmor, MeshManager.Instance.SelectedArmorMeshes);
-
-            var materialFace = GetObjectMaterial();
-            AssetDatabase.CreateAsset(materialFace, folderName + "/" + config.folderName + "_FaceMat.mat");
-            var faceAtlas = MeshManager.Instance.FaceTexture;
-            var faceTexturPath = folderName + "/" + config.folderName + "_Face.png";
-            File.WriteAllBytes(faceTexturPath, faceAtlas.EncodeToPNG());
-            AssetDatabase.Refresh();
-            materialFace.mainTexture = AssetDatabase.LoadAssetAtPath(faceTexturPath, typeof(Texture2D)) as Texture2D;
-            SetMeshesMaterial(materialFace, MeshManager.Instance.SelectedSkinMeshes);
-
-            CreateCloakAtlas(folderName);
-            CreateSkinAtlas(folderName);
-            SaveBoneData(folderName);
-        }
-
-        private void SetMeshesMaterial(Material material, IEnumerable<CharacterMeshWrapper> mesheWrapperss)
-        {
-            foreach (var meshWrapper in mesheWrapperss)
+            var boneList = new List<PrefabBoneData.BoneData>(meshWrappers.Count);
+            foreach (var meshWrapper in meshWrappers)
             {
-                if (meshWrapper == null) continue;
-                foreach (var meshRenderer in meshWrapper.MeshInstance.GetComponentsInChildren<MeshRenderer>())
-                    UpdateMeshMaterials(meshRenderer, material);
+                var mesh = meshWrapper.Mesh;
+                if (!_goData.meshBones.TryGetValue(mesh.MeshType, out var bone)) continue;
+
+                var assetPath = AssetDatabase.GetAssetPath(mesh.LoadedMeshObject);
+                var fileName = Path.GetFileName(assetPath);
+                fileName = fileName.Substring(0, fileName.IndexOf('.'));
+                var bundleName = AssetImporter.GetAtPath(assetPath).assetBundleName;
+
+                var boneData = new PrefabBoneData.BoneData();
+                boneData.bone = bone.name;
+                boneData.prefabPath = new PathData
+                {
+                    path = assetPath,
+                    bundlePath = $"{bundleName}/{fileName}"
+                };
+                boneList.Add(boneData);
             }
+
+            return boneList.ToArray();
         }
 
-        /*
-         * Forming a dynamic atlas for armor. Convert a model UV
-         */
+
         private void CreateArmorAtlas(string folderName)
         {
-            var config = _configManager.Config;
             var materialArmor = GetObjectMaterial();
-            AssetDatabase.CreateAsset(materialArmor, folderName + "/" + config.folderName + "_ArmorMat.mat");
+            AssetDatabase.CreateAsset(materialArmor, folderName + "/" + _config.folderName + "_ArmorMat.mat");
             AssetDatabase.Refresh();
 
             var armorAtlas = MeshManager.Instance.ArmorTexture;
@@ -224,27 +228,16 @@ namespace CharacterEditor
                     }
                 }
             }
-            var texturPath = folderName + "/" + config.folderName + "_Armor.png";
+            var texturPath = folderName + "/" + _config.folderName + "_Armor.png";
             File.WriteAllBytes(texturPath, armorAtlas.EncodeToPNG());
             AssetDatabase.Refresh();
             materialArmor.mainTexture = AssetDatabase.LoadAssetAtPath(texturPath, typeof(Texture2D)) as Texture2D;
         }
 
-        private void UpdateMeshMaterials(Renderer render, Material armorMat)
-        {
-            var materials = new List<Material>();
-            render.GetMaterials(materials);
-            for (var i = 0; i < materials.Count; i++)
-                materials[i] = armorMat;
-
-            render.materials = materials.ToArray();
-        }
-
         private void CreateFaceAtlas(string folderName)
         {
-            var config = _configManager.Config;
             var material = GetObjectMaterial();
-            AssetDatabase.CreateAsset(material, folderName + "/" + config.folderName + "_FaceMat.mat");
+            AssetDatabase.CreateAsset(material, folderName + "/" + _config.folderName + "_FaceMat.mat");
             AssetDatabase.Refresh();
 
             var faceAtlas = MeshManager.Instance.FaceTexture;
@@ -295,30 +288,10 @@ namespace CharacterEditor
                     }
                 }
             }
-            var texturPath = folderName + "/" + config.folderName + "_Face.png";
-            File.WriteAllBytes(texturPath, faceAtlas.EncodeToPNG());
+            var texturePath = folderName + "/" + _config.folderName + "_Face.png";
+            File.WriteAllBytes(texturePath, faceAtlas.EncodeToPNG());
             AssetDatabase.Refresh();
-            material.mainTexture = AssetDatabase.LoadAssetAtPath(texturPath, typeof(Texture2D)) as Texture2D;
-        }
-
-        protected void CreateCloakAtlas(string folderName)
-        {
-            var config = _configManager.Config;
-            Texture2D cloak = TextureManager.Instance.CloakTexture;
-            if (cloak == null) return;
-
-            var cloakText = new Texture2D(cloak.width, cloak.height);
-            cloakText.SetPixels32(cloak.GetPixels32());
-            cloakText.Apply();
-
-            var materialCloak = GetObjectMaterial();
-            AssetDatabase.CreateAsset(materialCloak, folderName + "/" + config.folderName + "_Cloak.mat");
-            var texturPath = folderName + "/" + config.folderName + "_Cloak.png";
-
-            File.WriteAllBytes(texturPath, cloakText.EncodeToPNG());
-            AssetDatabase.Refresh();
-            materialCloak.mainTexture = AssetDatabase.LoadAssetAtPath(texturPath, typeof(Texture2D)) as Texture2D;
-            PrefabShaderManager.Instance.UpdateCloakMaterial(materialCloak);
+            material.mainTexture = AssetDatabase.LoadAssetAtPath(texturePath, typeof(Texture2D)) as Texture2D;
         }
 
         private Material GetObjectMaterial()
@@ -327,6 +300,20 @@ namespace CharacterEditor
             return new Material(material.GetMaterial(MaterialType.Skin));
         }
 
+        private IEnumerable<MeshRenderer> GetRenderers(IEnumerable<CharacterMeshWrapper> meshWrappers)
+        {
+            return meshWrappers.Where(meshWrapper => meshWrapper != null)
+                .SelectMany(meshWrapper => meshWrapper.MeshInstance.GetComponentsInChildren<MeshRenderer>());
+        }
+
+        private void UpdateMeshMaterials(Renderer render, Material newMaterial)
+        {
+            var materials = render.materials;
+            for (var i = 0; i < materials.Length; i++)
+                materials[i] = newMaterial;
+
+            render.materials = materials;
+        }
     }
 }
 #endif

@@ -26,7 +26,7 @@ namespace CharacterEditor
                 Races = map.races.ToDictionary(x => x.race, x => x);
 
                 Items = map.items.ToDictionary(x => x.guid, x => x);
-                PlayerCharacters = map.playerCharacters.ToDictionary(x => x.guid, x => x);
+                PlayerCharacters = map.payableNpc.ToDictionary(x => x.guid, x => x);
                 Containers = map.containers.ToDictionary(x => x.guid, x => x);
                 Enemies = map.enemies.ToDictionary(x => x.guid, x => x);
 

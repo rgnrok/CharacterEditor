@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using CharacterEditor.Services;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace CharacterEditor
@@ -7,8 +8,10 @@ namespace CharacterEditor
     {
         private void Start()
         {
-//            if (LoaderManager.Instance.Type == LoaderType.AssetBundle)
-//                transform.parent.gameObject.SetActive(false);
+            var staticDataService = AllServices.Container.Single<IStaticDataService>();
+
+            if (staticDataService.LoaderType == LoaderType.AssetBundle)
+                transform.gameObject.SetActive(false);
         }
 
         public void OnPointerClick(PointerEventData eventData)

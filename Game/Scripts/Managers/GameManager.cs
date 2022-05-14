@@ -55,20 +55,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
     public ContainerPopup ContainerPopup { get { return containerPopup; } }
     #endregion
 
-    #region SpawnPoints
-
-    [SerializeField] private PlayerCharacterSpawnPoint[] _playerCharacterSpawnPoints;
-    public PlayerCharacterSpawnPoint[] PlayerCharacterSpawnPoints { get { return _playerCharacterSpawnPoints ?? new PlayerCharacterSpawnPoint[0]; } }
-
-    [SerializeField] private EnemySpawnPoint[] _enemySpawnPoints;
-    public EnemySpawnPoint[] EnemySpawnPoints { get { return _enemySpawnPoints ?? new EnemySpawnPoint[0]; } }
-
-    [SerializeField] private ContainerSpawnPoint[] _containerSpawnPoints;
     private ISaveLoadService _saveLoadService;
-    public ContainerSpawnPoint[] ContainerSpawnPoints => 
-        _containerSpawnPoints ?? new ContainerSpawnPoint[0];
-
-    #endregion
 
     // private GameStateMachine _gameStateMachine;
 

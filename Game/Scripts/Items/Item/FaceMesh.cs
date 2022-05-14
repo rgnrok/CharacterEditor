@@ -23,8 +23,7 @@ namespace CharacterEditor
 
             public void Equip(Dictionary<MeshType, Transform> meshBones, Dictionary<MeshType, Transform> previewMeshBones)
             {
-                Transform anchor;
-                if (meshBones.TryGetValue(ItemMesh.MeshType, out anchor))
+                if (meshBones.TryGetValue(ItemMesh.MeshType, out var anchor))
                     MeshInstance = ItemMesh.InstanceMesh(anchor, 0, true);
 
                 if (previewMeshBones != null)

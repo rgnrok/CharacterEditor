@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using CharacterEditor;
 using CharacterEditor.AssetDatabaseLoader;
-using CharacterEditor.CharacterInventory;
-using CharacterEditor.Mesh;
 using UnityEditor;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Editor
 {
@@ -39,25 +36,19 @@ namespace Editor
 
                 var meshPaths = new SortedDictionary<int, string>()
                 {
-                    {MeshFactory.GetMeshMergeOrder(MeshType.ArmRight), armorMeshFolderPath + "Armor_Arm/ArmRight"},
-                    {MeshFactory.GetMeshMergeOrder(MeshType.ArmLeft), armorMeshFolderPath + "Armor_Arm/ArmLeft"},
-                    {MeshFactory.GetMeshMergeOrder(MeshType.Belt), armorMeshFolderPath + "Armor_Belt"},
-                    {MeshFactory.GetMeshMergeOrder(MeshType.BeltAdd), armorMeshFolderPath + "Armor_BeltAdd"},
-                    {MeshFactory.GetMeshMergeOrder(MeshType.Helm), armorMeshFolderPath + "Armor_Helm"},
-                    {MeshFactory.GetMeshMergeOrder(MeshType.LegRight), armorMeshFolderPath + "Armor_Leg/LegRight"},
-                    {MeshFactory.GetMeshMergeOrder(MeshType.LegLeft), armorMeshFolderPath + "Armor_Leg/LegLeft"},
-                    {
-                        MeshFactory.GetMeshMergeOrder(MeshType.ShoulderRight),
-                        armorMeshFolderPath + "Armor_Shoulder/ShoulderRight"
-                    },
-                    {
-                        MeshFactory.GetMeshMergeOrder(MeshType.ShoulderLeft),
-                        armorMeshFolderPath + "Armor_Shoulder/ShoulderLeft"
-                    },
-                    {MeshFactory.GetMeshMergeOrder(MeshType.Torso), armorMeshFolderPath + "Armor_Torso"},
-                    {MeshFactory.GetMeshMergeOrder(MeshType.TorsoAdd), armorMeshFolderPath + "Armor_TorsoAdd"},
-                    {MeshFactory.GetMeshMergeOrder(MeshType.HandRight), weaponMeshFolderPath + "HandRight"},
-                    {MeshFactory.GetMeshMergeOrder(MeshType.HandLeft), weaponMeshFolderPath + "HandLeft"}
+                    {GetMeshMergeOrder(MeshType.ArmRight), armorMeshFolderPath + "Armor_Arm/ArmRight"},
+                    {GetMeshMergeOrder(MeshType.ArmLeft), armorMeshFolderPath + "Armor_Arm/ArmLeft"},
+                    {GetMeshMergeOrder(MeshType.Belt), armorMeshFolderPath + "Armor_Belt"},
+                    {GetMeshMergeOrder(MeshType.BeltAdd), armorMeshFolderPath + "Armor_BeltAdd"},
+                    {GetMeshMergeOrder(MeshType.Helm), armorMeshFolderPath + "Armor_Helm"},
+                    {GetMeshMergeOrder(MeshType.LegRight), armorMeshFolderPath + "Armor_Leg/LegRight"},
+                    {GetMeshMergeOrder(MeshType.LegLeft), armorMeshFolderPath + "Armor_Leg/LegLeft"},
+                    {GetMeshMergeOrder(MeshType.ShoulderRight), armorMeshFolderPath + "Armor_Shoulder/ShoulderRight"},
+                    {GetMeshMergeOrder(MeshType.ShoulderLeft), armorMeshFolderPath + "Armor_Shoulder/ShoulderLeft"},
+                    {GetMeshMergeOrder(MeshType.Torso), armorMeshFolderPath + "Armor_Torso"},
+                    {GetMeshMergeOrder(MeshType.TorsoAdd), armorMeshFolderPath + "Armor_TorsoAdd"},
+                    {GetMeshMergeOrder(MeshType.HandRight), weaponMeshFolderPath + "HandRight"},
+                    {GetMeshMergeOrder(MeshType.HandLeft), weaponMeshFolderPath + "HandLeft"}
                 };
 
                 UpdatePathsUVs(config.folderName, meshPaths.Values, 4); // 2048/512 px
@@ -169,7 +160,7 @@ namespace Editor
             }
         }
 
-        private static T CreateOrReplaceAsset<T>(T asset, string path) where T : Object
+        private static T CreateOrReplaceAsset<T>(T asset, string path) where T : UnityEngine.Object
         {
             T existingAsset = AssetDatabase.LoadAssetAtPath<T>(path);
 
@@ -184,6 +175,50 @@ namespace Editor
             }
 
             return existingAsset;
+        }
+
+        private static int GetMeshMergeOrder(MeshType type)
+        {
+            switch (type)
+            {
+                //Face
+                case MeshType.Hair:
+                    return 0;
+                case MeshType.Beard:
+                    return 1;
+                case MeshType.FaceFeature:
+                    return 2;
+
+                //Armor
+                case MeshType.HandLeft:
+                    return 0;
+                case MeshType.HandRight:
+                    return 1;
+                case MeshType.Torso:
+                    return 2;
+                case MeshType.TorsoAdd:
+                    return 3;
+                case MeshType.ShoulderLeft:
+                    return 4;
+                case MeshType.ShoulderRight:
+                    return 5;
+                case MeshType.ArmLeft:
+                    return 6;
+                case MeshType.ArmRight:
+                    return 7;
+                case MeshType.Helm:
+                    return 8;
+                case MeshType.Belt:
+                    return 9;
+                case MeshType.BeltAdd:
+                    return 10;
+                case MeshType.LegLeft:
+                    return 11;
+                case MeshType.LegRight:
+                    return 12;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
         }
     }
 }

@@ -5,6 +5,15 @@ namespace CharacterEditor
 {
     public static class Logger
     {
+        static Logger()
+        {
+#if UNITY_EDITOR
+            Debug.logger.logEnabled = true;
+#else
+            Debug.logger.logEnabled = false;
+#endif
+        }
+
         public static void Log(string str)
         {
             Debug.Log(PrepareMessage(str));

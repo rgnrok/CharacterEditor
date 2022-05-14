@@ -195,13 +195,7 @@ namespace CharacterEditor
             foreach (var render in _cloakRenderers)
                 render.material.mainTexture = CloakTexture;
         }
-        
-        public void UpdateMaterial(Material mat)
-        {
-            foreach (var render in _modelRenderers)
-                render.material = mat;
-        }
-
+    
   
         public void OnPrevTexture(TextureType[] types, TextureType[] clearTypes = null)
         {

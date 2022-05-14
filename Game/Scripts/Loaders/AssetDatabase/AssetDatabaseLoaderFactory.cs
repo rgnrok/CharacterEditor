@@ -26,7 +26,7 @@ namespace CharacterEditor
                 new ItemLoader();
 
             public IDataLoader<PlayableNpcConfig> CreatePlayerCharacterLoader() => 
-                new PlayerCharacterLoader();
+                new PlayableNpcLoader();
 
             public IDataLoader<EnemyConfig> CreateEnemyLoader() => 
                 new EnemyLoader();

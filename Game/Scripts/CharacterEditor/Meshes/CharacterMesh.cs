@@ -8,7 +8,6 @@ namespace CharacterEditor
     {
         public class CharacterMesh
         {
-            public readonly int MergeOrder; //Order in static atlas
             public readonly MeshType MeshType;
             public readonly bool IsFaceMesh;
 
@@ -60,11 +59,10 @@ namespace CharacterEditor
             private CharacterTexture _prevMeshTexture;
       
             
-            public CharacterMesh(IMeshLoader loader, Dictionary<string, string[][]> meshAndTexturesPaths, MeshType type, int order, bool isFace)
+            public CharacterMesh(IMeshLoader loader, Dictionary<string, string[][]> meshAndTexturesPaths, MeshType type, bool isFace)
             {
                 _meshLoader = loader;
                 MeshType = type;
-                MergeOrder = order;
                 IsFaceMesh = isFace;
 
 

@@ -10,7 +10,7 @@ namespace CharacterEditor
         {
             public List<RaceMap> races = new List<RaceMap>();
             public List<GuidPathMap> items = new List<GuidPathMap>();
-            public List<GuidPathMap> playerCharacters = new List<GuidPathMap>();
+            public List<GuidPathMap> payableNpc = new List<GuidPathMap>();
             public List<GuidPathMap> enemies = new List<GuidPathMap>();
             public List<GuidPathMap> containers = new List<GuidPathMap>();
         }

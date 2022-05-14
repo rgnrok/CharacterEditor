@@ -40,7 +40,6 @@ namespace CharacterEditor
             MeshInstance = null;
 
             Mesh.ClearPrevMesh();
-
         }
     }
 }

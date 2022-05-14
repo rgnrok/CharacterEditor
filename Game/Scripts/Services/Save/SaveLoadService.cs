@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CharacterEditor.AssetBundleLoader;
 using CharacterEditor.CharacterInventory;
 using CharacterEditor.Mesh;
 using CharacterEditor.Services;
@@ -164,6 +162,7 @@ namespace CharacterEditor
 
         private async Task<bool> LoadCharacters(SaveData saveData, LevelStaticData levelData)
         {
+
             if (saveData == null) return false;
 
             var characters = new List<Character>(saveData.characters.Length);

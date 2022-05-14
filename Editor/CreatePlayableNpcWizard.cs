@@ -34,7 +34,7 @@ namespace Editor
         }
     }
 
-    public class CreatePlayerCharacterWizard : WizardWithCharacterPreview
+    public class CreatePlayableNpcWizard : WizardWithCharacterPreview
     {
         public CharacterConfig characterConfig;
         public EquipItemSlotItemData[] equipItems;
@@ -49,7 +49,7 @@ namespace Editor
         [MenuItem("Tools/Character Editor/Create Player Character Wizard...")]
         static void CreateWizard()
         {
-            ScriptableWizard.DisplayWizard<CreatePlayerCharacterWizard>("Create Player Character", "Save new",
+            ScriptableWizard.DisplayWizard<CreatePlayableNpcWizard>("Create Player Character", "Save new",
                 "Update selected");
         }
 
