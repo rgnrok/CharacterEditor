@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 using CharacterEditor;
 using UnityEditor;
 
@@ -26,7 +27,7 @@ namespace Editor
         private CharacterConfig _selectedObject;
 
 
-        [MenuItem("Tools/Character Editor/Create Character Wizard...")]
+        [MenuItem("Tools/Character Editor/Create/Character Wizard...")]
         static void CreateWizard()
         {
             DisplayWizard<CreateCharacterWizard>("Create Character", "Save new", "Update selected");
@@ -47,7 +48,7 @@ namespace Editor
 
         void OnWizardCreate()
         {
-            var config = ScriptableObject.CreateInstance<CharacterConfig>();
+            var config = CreateInstance<CharacterConfig>();
 
             SetValues(config);
 
@@ -119,27 +120,15 @@ namespace Editor
             config.availableTextures = _availableTextures;
             config.headBone = headBone;
 
-            config.skinnedMeshes = new string[skinnedMeshes.Length];
-            for (var i = 0; i < skinnedMeshes.Length; i++)
-                config.skinnedMeshes[i] = skinnedMeshes[i].name;
-
-            config.cloakMeshes = new string[cloakMeshes.Length];
-            for (var i = 0; i < cloakMeshes.Length; i++)
-                config.cloakMeshes[i] = cloakMeshes[i].name;
-
-            config.shortRobeMeshes = new string[shortRobeMeshes.Length];
-            for (var i = 0; i < shortRobeMeshes.Length; i++)
-                config.shortRobeMeshes[i] = shortRobeMeshes[i].name;
-
-            config.longRobeMeshes = new string[longRobeMeshes.Length];
-            for (var i = 0; i < longRobeMeshes.Length; i++)
-                config.longRobeMeshes[i] = longRobeMeshes[i].name;
-
+            config.skinnedMeshes = skinnedMeshes.Select(x => x.name).ToArray();
+            config.shortRobeMeshes = shortRobeMeshes.Select(x => x.name).ToArray();
+            config.longRobeMeshes = longRobeMeshes.Select(x => x.name).ToArray();
+            config.cloakMeshes = cloakMeshes.Select(x => x.name).ToArray();
+       
             if (string.IsNullOrEmpty(config.guid))
                 config.guid = System.Guid.NewGuid().ToString();
         }
 
- 
 
         private void InitValues(CharacterConfig config)
         {
@@ -152,9 +141,9 @@ namespace Editor
             _availableTextures = config.availableTextures;
 
             InitSkinnedMeshes(config.skinnedMeshes, ref skinnedMeshes);
-            InitSkinnedMeshes(config.cloakMeshes, ref cloakMeshes);
             InitSkinnedMeshes(config.shortRobeMeshes, ref shortRobeMeshes);
             InitSkinnedMeshes(config.longRobeMeshes, ref longRobeMeshes);
+            InitSkinnedMeshes(config.cloakMeshes, ref cloakMeshes);
 
             InitTextureMask();
         }

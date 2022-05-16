@@ -206,7 +206,6 @@ namespace CharacterEditor
         private void BuildTexture(List<CharacterMeshWrapper> meshWrappers, Material material, RenderTexture renderTexture, Texture2D resultTexture)
         {
             var mergeTextures = new Dictionary<string, Texture2D>();
-            var baseTexture = Texture2D.whiteTexture;
             foreach (var meshWrapper in meshWrappers)
             {
                 var mesh = meshWrapper.Mesh;
@@ -214,12 +213,9 @@ namespace CharacterEditor
                 if (textureName == null) continue;
 
                 mergeTextures[textureName] = mesh.Texture.Current;
-
-                if (mesh.MeshType == MeshType.Hair)
-                    baseTexture = mesh.Texture.Current;
             }
 
-            _mergeTextureService.MergeTextures(material, renderTexture, baseTexture, mergeTextures);
+            _mergeTextureService.MergeTextures(material, renderTexture, mergeTextures);
             RenderTexture.active = renderTexture;
             resultTexture.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
         }

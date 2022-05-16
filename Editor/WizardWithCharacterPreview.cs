@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CharacterEditor;
 using CharacterEditor.CharacterInventory;
+using CharacterEditor.Services;
 using Editor;
 using UnityEditor;
 using UnityEngine;
@@ -9,29 +11,37 @@ using UnityEngine;
 public abstract class WizardWithCharacterPreview : ScriptableWizard
 {
 
-
-    protected int _currentModelAndTextureHash;
-    protected int _prevModelAndTextureHash;
     protected Rect prect = new Rect();
-    protected Preview p;
+    protected Preview preview;
     protected GameObject _currentCharacterPreview;
     protected Vector2 scrollPos;
     protected bool _updateCharacterPreview;
 
     private Dictionary<string, GameObject> _itemModelPreviews = new Dictionary<string, GameObject>();
+    private MergeTextureService _mergeTextureService;
+    private Material _mergeMat;
+    private RenderTexture _renderClothTexture;
+    private Texture2D _characterTexture;
+    private Material _meshMaterial;
 
-
-
-
-
-    protected abstract void GenerateCharacterPreview();
 
     protected abstract CharacterConfig GetSelectedCharacterConfig();
     protected abstract EquipModelData[] GetSelectedCharacterMeshes();
     protected abstract EquipTextureData[] GetSelectedCharacterTextures();
 
-    protected void UpdateCharacterTexturesAndMeshes()
+    protected void Initialize()
     {
+        _mergeTextureService = new MergeTextureService();
+        _mergeMat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Editor/Materials/SkinAndClothRenderMaterial.mat");
+        _meshMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/Editor/Materials/Unlit.mat");
+        _renderClothTexture = new RenderTexture(Constants.SKIN_TEXTURE_ATLAS_SIZE, Constants.SKIN_TEXTURE_ATLAS_SIZE, 1, RenderTextureFormat.ARGB32);
+        _characterTexture = new Texture2D(Constants.SKIN_TEXTURE_ATLAS_SIZE, Constants.SKIN_TEXTURE_ATLAS_SIZE, TextureFormat.RGB24, false);
+    }
+
+    protected void UpdateCharacterTexturesAndMeshes(GameObject previewGameObject)
+    {
+        _currentCharacterPreview = previewGameObject;
+
         if (_currentCharacterPreview == null) return;
 
 
@@ -44,6 +54,7 @@ public abstract class WizardWithCharacterPreview : ScriptableWizard
         UpdateCharacterTextures();
     }
 
+
     private void UpdateCharacterMeshes()
     {
         var selectedConfig = GetSelectedCharacterConfig();
@@ -54,83 +65,68 @@ public abstract class WizardWithCharacterPreview : ScriptableWizard
             var availableMeshes = model.availableMeshes;
             if (availableMeshes.Length == 0) continue;
 
-            MeshTypeBone meshBone = null;
-            foreach (var avMesh in selectedConfig.availableMeshes)
-            {
-                if (avMesh.mesh != availableMeshes[0]) continue;
-                meshBone = avMesh;
-                break;
-            }
-
+            var meshBone = selectedConfig.availableMeshes.FirstOrDefault(avMesh => avMesh.mesh == availableMeshes[0]);
             if (meshBone == null) continue;
 
             var uvModelPath = model.prefabPath;
-//            if (!(Array.IndexOf(model.availableMeshes, MeshType.Beard) != -1 || Array.IndexOf(model.availableMeshes, MeshType.Hair) != -1) || Array.IndexOf(model.availableMeshes, MeshType.FaceFeature) != -1)
+            var faceTypes = new[] {MeshType.Beard, MeshType.Hair, MeshType.FaceFeature};
+            if (!model.availableMeshes.Any(type => faceTypes.Contains(type)))
                 uvModelPath = uvModelPath.Replace("/StaticModel/", "/Model/");
 
-            GameObject uvPrefab;
-            if (_itemModelPreviews.ContainsKey(uvModelPath))
-            {
-                uvPrefab = _itemModelPreviews[uvModelPath];
-                uvPrefab.SetActive(true);
-            }
-            else
-            {
-                var uvModel = AssetDatabase.LoadAssetAtPath<GameObject>(uvModelPath);
-                uvPrefab = (GameObject) PrefabUtility.InstantiatePrefab(uvModel);
-                _itemModelPreviews[uvModelPath] = uvPrefab;
-            }
+            var bone = _currentCharacterPreview.transform.FindTransform(meshBone.boneName);
+            if (bone == null) continue;
 
+            var uvPrefab = GetMeshPrefab(uvModelPath);
+            var meshMaterial = new Material(_meshMaterial);
             foreach (var meshRender in uvPrefab.GetComponentsInChildren<MeshRenderer>())
             {
-                meshRender.sharedMaterial.mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(model.texturePath);
+                meshMaterial.mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(model.texturePath);
+                meshRender.material = meshMaterial;
             }
 
-            var bone = Helper.FindTransform(_currentCharacterPreview.transform, meshBone.boneName);
-            if (bone != null)
-            {
-                uvPrefab.transform.parent = bone;
-                uvPrefab.transform.localPosition = Vector3.zero;
-                uvPrefab.transform.localRotation = Quaternion.identity;
-            }
+            uvPrefab.transform.parent = bone;
+            uvPrefab.transform.localPosition = Vector3.zero;
+            uvPrefab.transform.localRotation = Quaternion.identity;
         }
+    }
+
+    private GameObject GetMeshPrefab(string uvModelPath)
+    {
+        GameObject uvPrefab;
+        if (_itemModelPreviews.ContainsKey(uvModelPath))
+        {
+            uvPrefab = _itemModelPreviews[uvModelPath];
+            uvPrefab.SetActive(true);
+        }
+        else
+        {
+            var uvModel = AssetDatabase.LoadAssetAtPath<GameObject>(uvModelPath);
+            uvPrefab = (GameObject) PrefabUtility.InstantiatePrefab(uvModel);
+            _itemModelPreviews[uvModelPath] = uvPrefab;
+        }
+
+        return uvPrefab;
     }
 
     private void UpdateCharacterTextures()
     {
         var textures = GetSelectedCharacterTextures();
-        var renderClothTexture = new RenderTexture(1024, 1024, 1, RenderTextureFormat.ARGB32);
-
-        var emptyText = new Texture2D(1, 1, TextureFormat.RGBA32, false);
-        emptyText.SetPixel(0, 0, new Color(1, 1, 1, 0));
-        emptyText.Apply();
-        var mat = AssetDatabase.LoadAssetAtPath<Material>(
-            "Assets/Editor/SkinAndClothRenderMaterial.mat");
-
-        foreach (TextureType type in Enum.GetValues(typeof(TextureType)))
-        {
-            mat.SetTexture(Helper.GetShaderTextureName(type), emptyText);
-        }
+        var textureDic = new Dictionary<string, Texture2D>(textures.Length);
 
         foreach (var texture in textures)
         {
-            mat.SetTexture(Helper.GetShaderTextureName(texture.textureType),
-                AssetDatabase.LoadAssetAtPath<Texture2D>(texture.texturePath));
+            var key = Helper.GetShaderTextureName(texture.textureType);
+            textureDic[key] = AssetDatabase.LoadAssetAtPath<Texture2D>(texture.texturePath);
         }
 
-        Graphics.Blit(Texture2D.blackTexture, renderClothTexture, mat);
+        _mergeTextureService.MergeTextures(_mergeMat, _renderClothTexture, textureDic);
 
-        RenderTexture.active = renderClothTexture;
-        var characterTexture = new Texture2D(Constants.SKIN_TEXTURE_ATLAS_SIZE, Constants.SKIN_TEXTURE_ATLAS_SIZE,
-            TextureFormat.RGB24, false);
-        characterTexture.ReadPixels(new Rect(0, 0, renderClothTexture.width, renderClothTexture.height), 0, 0);
-        characterTexture.Apply();
+        RenderTexture.active = _renderClothTexture;
+        _characterTexture.ReadPixels(new Rect(0, 0, _renderClothTexture.width, _renderClothTexture.height), 0, 0);
+        _characterTexture.Apply();
 
         foreach (var render in _currentCharacterPreview.GetComponentsInChildren<SkinnedMeshRenderer>())
-        {
-            render.sharedMaterial.mainTexture = characterTexture;
-        }
-
+            render.sharedMaterial.mainTexture = _characterTexture;
     }
 
     private MeshType[] GetAvailableMeshes(MeshType meshMask)

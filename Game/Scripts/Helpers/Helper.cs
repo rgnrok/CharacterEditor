@@ -3,7 +3,7 @@ using CharacterEditor;
 using CharacterEditor.CharacterInventory;
 using UnityEngine;
 
-public static class Helper
+public static partial class Helper
 {
     public static Transform FindTransform(this Transform parent, string childName)
     {

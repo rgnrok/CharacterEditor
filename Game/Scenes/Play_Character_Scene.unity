@@ -452,7 +452,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 1
-  entityGuid: 6f64c262-8c41-482c-ada7-33bd6f452b2f
+  entityGuid: 26b8545b-6268-4f3b-9599-f5c794336bd7
 --- !u!1 &160395961
 GameObject:
   m_ObjectHideFlags: 0
@@ -7517,7 +7517,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 1
-  entityGuid: ce80b430-c840-46b1-a7ff-3382fc0b21c0
+  entityGuid: ce220174-f807-446d-8fa1-49557274d25e
 --- !u!1 &1935317449
 GameObject:
   m_ObjectHideFlags: 0

@@ -104,7 +104,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _PantsTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 0d890325daef8254697545fd271725dc, type: 3}
         m_Scale: {x: 2, y: 1.77777}
         m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
@@ -132,7 +132,7 @@ Material:
         m_Scale: {x: 2.66666, y: 2.28571}
         m_Offset: {x: 0, y: 0}
     - _SkinTex:
-        m_Texture: {fileID: 2800000, guid: ecb807fcc5fa5e74683b29fec0ac9c06, type: 3}
+        m_Texture: {fileID: 2800000, guid: c1d632e400b99f14a93c7c0bd1e5a131, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SkinText:
@@ -148,7 +148,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TorsoTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 2315a977843de9d4884aa9da9b3ec86f, type: 3}
         m_Scale: {x: 1, y: 2}
         m_Offset: {x: 0, y: 1}
     m_Floats:

@@ -227,7 +227,6 @@ namespace Editor
                 foreach (var character in characters.Values)
                 {
                     var characterPath = AssetDatabase.GetAssetPath(character);
-
                     var bundlePath = characterPath.Substring(GAME_DATA_PATH.Length);
                     ParsePathToBundle(bundlePath, out var bundleName, out var assetPath);
 
@@ -237,16 +236,15 @@ namespace Editor
                     map.guid = character.guid;
                     characterMap.Add(map);
 
-                    var texturesBundleName = string.Format("{0}_{1}", bundleName, character.guid);
                     AssetImporter.GetAtPath(character.texturePath.path)
-                        .SetAssetBundleNameAndVariant(texturesBundleName, "");
+                        .SetAssetBundleNameAndVariant(bundleName, "");
 
                     AssetImporter.GetAtPath(character.faceMeshTexturePath.path)
-                        .SetAssetBundleNameAndVariant(texturesBundleName, "");
+                        .SetAssetBundleNameAndVariant(bundleName, "");
 
-                    character.texturePath.bundlePath = GenerateAssetPath(texturesBundleName, character.texturePath.path);
+                    character.texturePath.bundlePath = GenerateAssetPath(bundleName, character.texturePath.path);
                     character.faceMeshTexturePath.bundlePath =
-                        GenerateAssetPath(texturesBundleName, character.faceMeshTexturePath.path);
+                        GenerateAssetPath(bundleName, character.faceMeshTexturePath.path);
 
                     for (int i = 0; i < character.faceMeshs.Length; i++)
                     {

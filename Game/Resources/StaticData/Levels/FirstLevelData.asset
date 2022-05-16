@@ -15,13 +15,13 @@ MonoBehaviour:
   LevelKey: Play_Character_Scene
   EnemySpawners:
   - Id: 833a388b-6760-4567-989d-b5fa8f5c9d4d
-    Position: {x: 13.5, y: 0, z: -13.14}
-  - Id: 833a388b-6760-4567-989d-b5fa8f5c9d4d
     Position: {x: -11, y: 0, z: 13.73}
+  - Id: 833a388b-6760-4567-989d-b5fa8f5c9d4d
+    Position: {x: 13.5, y: 0, z: -13.14}
   PlayableNpcSpawners:
-  - Id: 6f64c262-8c41-482c-ada7-33bd6f452b2f
+  - Id: 26b8545b-6268-4f3b-9599-f5c794336bd7
     Position: {x: 5.73, y: 0, z: -1.87}
-  - Id: ce80b430-c840-46b1-a7ff-3382fc0b21c0
+  - Id: ce220174-f807-446d-8fa1-49557274d25e
     Position: {x: -3.6, y: 0, z: 0}
   ContainerSpawners:
   - Id: Container_1

@@ -8,9 +8,9 @@ namespace CharacterEditor
         static Logger()
         {
 #if UNITY_EDITOR
-            Debug.logger.logEnabled = true;
+            Debug.unityLogger.logEnabled = true;
 #else
-            Debug.logger.logEnabled = false;
+            Debug.unityLogger.logEnabled = false;
 #endif
         }
 

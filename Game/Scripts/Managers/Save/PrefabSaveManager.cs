@@ -33,30 +33,11 @@ namespace CharacterEditor
             var folderName = $"{_config.folderName}_{prefabNum}";
             var folderPath = $"{AssetsConstants.CharacterEditorRootPath}/NewCharacter/{_config.folderName}/{folderName}";
 
-            CreateFolder(folderPath);
+            Helper.TryCreateFolder(folderPath);
 
             // folderPath += '/' + folderName;
             // AssetDatabase.CreateFolder(folderPath, "Mesh");
             return folderPath;
-        }
-
-        private bool CreateFolder(string dir)
-        {
-            if (AssetDatabase.IsValidFolder(dir)) return true;
-
-            var folderParts = dir.Split('/');
-            var rootFolder = folderParts[0];
-            for (var i = 1; i < folderParts.Length; i++)
-            {
-                var folder = $"{rootFolder}/{folderParts[i]}";
-                if (!AssetDatabase.IsValidFolder(folder))
-                {
-                    var guid = AssetDatabase.CreateFolder(rootFolder, folderParts[i]);
-                    if (string.IsNullOrEmpty(guid)) return false;
-                }
-                rootFolder = folder;
-            }
-            return true;
         }
 
         public void Save()
@@ -82,15 +63,14 @@ namespace CharacterEditor
 
         private void SaveCharacterPrefab(string folder)
         {
-            SetupPrefabMaterial(folder, "Armor", _meshManager.ArmorTexture, GetRenderers(_meshManager.SelectedArmorMeshes));
-            SetupPrefabMaterial(folder, "Face", _meshManager.FaceTexture, GetRenderers(_meshManager.SelectedSkinMeshes));
+            SetupPrefabMaterialAndTexture(folder, "Armor", _meshManager.ArmorTexture, GetRenderers(_meshManager.SelectedArmorMeshes));
+            SetupPrefabMaterialAndTexture(folder, "Face", _meshManager.FaceTexture, GetRenderers(_meshManager.SelectedSkinMeshes));
 
             CreateCloakAtlas(folder);
             CreateSkinAtlas(folder);
             SaveBoneData(folder);
 
             CreatePrefab(folder, _config.folderName);
-
         }
 
         private void CreatePrefab(string folder, string name)
@@ -98,7 +78,7 @@ namespace CharacterEditor
             PrefabUtility.SaveAsPrefabAsset(_goData.CharacterObject, $"{folder}/{name}.prefab");
         }
 
-        private void SetupPrefabMaterial(string folder, string matName, Texture2D texture, IEnumerable<Renderer> renderers)
+        private void SetupPrefabMaterialAndTexture(string folder, string matName, Texture2D texture, IEnumerable<Renderer> renderers)
         {
             var material = GetObjectMaterial();
             AssetDatabase.CreateAsset(material, $"{folder}/mat_{matName}.mat");
@@ -122,7 +102,7 @@ namespace CharacterEditor
             if (!_goData.CloakMeshes.Any(mesh => mesh.gameObject.activeSelf))
                 return;
 
-            SetupPrefabMaterial(folder, "Cloak", cloakTexture, _goData.CloakMeshes);
+            SetupPrefabMaterialAndTexture(folder, "Cloak", cloakTexture, _goData.CloakMeshes);
         }
 
         private void CreateSkinAtlas(string folder)
@@ -131,7 +111,7 @@ namespace CharacterEditor
                 .Concat(_goData.ShortRobeMeshes)
                 .Concat(_goData.LongRobeMeshes);
           
-            SetupPrefabMaterial(folder, "Skin", _textureManager.CharacterTexture, modelRenderers);
+            SetupPrefabMaterialAndTexture(folder, "Skin", _textureManager.CharacterTexture, modelRenderers);
         }
 
         private void SaveBoneData(string folder)

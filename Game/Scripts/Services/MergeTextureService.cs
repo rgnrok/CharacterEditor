@@ -16,7 +16,7 @@ namespace CharacterEditor.Services
         /*
          * Combining the texture of the character with shader
          */
-        public void MergeTextures(Material skinRenderShaderMaterial, RenderTexture renderSkinTexture, Texture2D baseTexture, Dictionary<string, Texture2D> textures)
+        public void MergeTextures(Material skinRenderShaderMaterial, RenderTexture renderSkinTexture, Dictionary<string, Texture2D> textures)
         {
             var textureNames = GetTexturesName(skinRenderShaderMaterial.shader);
             foreach (var textureName in textureNames)
@@ -28,8 +28,7 @@ namespace CharacterEditor.Services
             foreach (var texturePair in textures)
                 skinRenderShaderMaterial.SetTexture(texturePair.Key, texturePair.Value);
 
-            Graphics.Blit(Texture2D.whiteTexture, renderSkinTexture);
-            Graphics.Blit(baseTexture, renderSkinTexture, skinRenderShaderMaterial);
+            Graphics.Blit(Texture2D.whiteTexture, renderSkinTexture, skinRenderShaderMaterial);
         }
 
 

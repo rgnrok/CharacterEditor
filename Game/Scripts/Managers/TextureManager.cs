@@ -159,7 +159,7 @@ namespace CharacterEditor
                 mergeTextures[textureName] = texture.Current;
             }
 
-            _mergeTextureService.MergeTextures(_tmpSkinRenderMaterial, renderSkinTexture, CurrentCharacterTextures[TextureType.Skin].Current, mergeTextures);
+            _mergeTextureService.MergeTextures(_tmpSkinRenderMaterial, renderSkinTexture, mergeTextures);
 
             RenderTexture.active = renderSkinTexture;
             CharacterTexture.ReadPixels(new Rect(0, 0, renderSkinTexture.width, renderSkinTexture.height), 0, 0);

@@ -23,8 +23,8 @@ MonoBehaviour:
     configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanMale.asset
     textures:
     - textureType: 128
-      texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/HeadAdd/headAdd3.png
-      textureBundlePath: HumanMale_Clothes_HeadAdd/headAdd3
+      texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Head/headAdd3.png
+      textureBundlePath: HumanMale_Clothes_Head/headAdd3
     models:
     - availableMeshes: 08000000
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Head/1/StaticModel/A_Helm_HumanMale_1.prefab
@@ -39,8 +39,8 @@ MonoBehaviour:
     configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanFemale.asset
     textures:
     - textureType: 128
-      texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanFemale/Clothes/HeadAdd/headAdd3.png
-      textureBundlePath: HumanFemale_Clothes_HeadAdd/headAdd3
+      texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanFemale/Clothes/Head/headAdd3.png
+      textureBundlePath: HumanFemale_Clothes_Head/headAdd3
     models:
     - availableMeshes: 08000000
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Head/1/StaticModel/A_HumanFemale_Armor_helm_1.prefab
@@ -51,13 +51,6 @@ MonoBehaviour:
       textureBundlePath: HumanFemale_Head_1/A_Humanfemale_ArmorHead1
       additionalTexturePath: 
       additionalTextureBundlePath: 
-  - configGuid: 304cac1d-bbd5-40dd-9689-8047ac7bfdab
-    configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanMale_Sample.asset
-    textures:
-    - textureType: 128
-      texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale_Sample/Clothes/HeadAdd/headAdd8.png
-      textureBundlePath: HumanMale_Sample_Clothes_HeadAdd/headAdd8
-    models: []
   hidedMeshTypes: 01000000
   itemType: 8
   itemSubType: 0

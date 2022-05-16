@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using CharacterEditor;
+﻿using CharacterEditor;
 using UnityEditor;
 using UnityEngine;
 
@@ -18,7 +16,7 @@ namespace Editor
 
         private EnemyConfig _selectedObject;
 
-        [MenuItem("Tools/Character Editor/Create Enemy Wizard...")]
+        [MenuItem("Tools/Character Editor/Create/Enemy Wizard...")]
         static void CreateWizard()
         {
             ScriptableWizard.DisplayWizard<CreateEnemyWizard>("Create Enemy", "Save new",
@@ -28,25 +26,20 @@ namespace Editor
         void Awake()
         {
             var selectedObject = Selection.activeObject;
-            if (selectedObject != null && selectedObject is EnemyConfig)
+            if (selectedObject != null && selectedObject is EnemyConfig enemyConfig)
             {
-                _selectedObject = selectedObject as EnemyConfig;
+                _selectedObject = enemyConfig;
                 InitValues(_selectedObject);
             }
         }
 
         void OnWizardCreate()
         {
-            var config = ScriptableObject.CreateInstance<EnemyConfig>();
+            var config = CreateInstance<EnemyConfig>();
 
             SetValues(config);
 
-            if (!System.IO.Directory.Exists(Application.dataPath + "/Game/Data"))
-                AssetDatabase.CreateFolder("Assets/Game", "Data");
-
-            if (!System.IO.Directory.Exists(Application.dataPath + "/Game/Data/Enemies"))
-                AssetDatabase.CreateFolder("Assets/Game/Data", "Enemies");
-
+            if (!Helper.TryCreateFolder("Assets/Game/Data/Enemies")) return;
 
             AssetDatabase.CreateAsset(config, GetAssetPath(config.guid));
             AssetDatabase.SaveAssets();
@@ -107,11 +100,10 @@ namespace Editor
                 foreach (var go in portraitSprites)
                 {
                     var sprite = go as Sprite;
-                    if (sprite != null && sprite.name == config.portraitIconName)
-                    {
-                        portrait = sprite;
-                        break;
-                    }
+                    if (sprite == null || sprite.name != config.portraitIconName) continue;
+
+                    portrait = sprite;
+                    break;
                 }
             }
         }

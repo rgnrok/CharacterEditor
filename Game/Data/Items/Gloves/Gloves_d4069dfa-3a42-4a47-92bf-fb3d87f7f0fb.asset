@@ -69,13 +69,6 @@ MonoBehaviour:
       textureBundlePath: HumanFemale_Arm_R_4/A_humanFemal_ArmorGlove1_1a
       additionalTexturePath: 
       additionalTextureBundlePath: 
-  - configGuid: 304cac1d-bbd5-40dd-9689-8047ac7bfdab
-    configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanMale_Sample.asset
-    textures:
-    - textureType: 2048
-      texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale_Sample/Clothes/Glove/Glove1.png
-      textureBundlePath: HumanMale_Sample_Clothes_Glove/Glove1
-    models: []
   hidedMeshTypes: 
   itemType: 4
   itemSubType: 0

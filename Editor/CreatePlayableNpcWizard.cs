@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using CharacterEditor;
 using CharacterEditor.CharacterInventory;
 using UnityEditor;
@@ -38,7 +40,7 @@ namespace Editor
     {
         public CharacterConfig characterConfig;
         public EquipItemSlotItemData[] equipItems;
-        public MeshTypeFaceMeshObject[] faceMeshs;
+        public MeshTypeFaceMeshObject[] faceMeshes;
         public Sprite portrait;
         public Texture2D texture;
         public Texture2D faceMeshTexture;
@@ -46,59 +48,73 @@ namespace Editor
         private PlayableNpcConfig _selectedObject;
 
 
-        [MenuItem("Tools/Character Editor/Create Player Character Wizard...")]
+        [MenuItem("Tools/Character Editor/Create/Playable Npc Wizard...")]
         static void CreateWizard()
         {
-            ScriptableWizard.DisplayWizard<CreatePlayableNpcWizard>("Create Player Character", "Save new",
-                "Update selected");
+            DisplayWizard<CreatePlayableNpcWizard>("Create Playable Npc", "Save new", "Update selected");
         }
 
-        void Awake()
+        private void Awake()
+        {
+            Initialize();
+            InitWizard();
+        }
+
+        private void OnSelectionChange()
+        {
+            var newTarget = Selection.activeObject as PlayableNpcConfig;
+            if (newTarget != null && _selectedObject != newTarget)
+            {
+                InitWizard();
+                OnValidate();
+            }
+        }
+
+        private void OnValidate()
+        {
+            _updateCharacterPreview = true;
+        }
+
+        private void InitWizard()
         {
             var selectedObject = Selection.activeObject;
-            if (selectedObject != null && selectedObject is PlayableNpcConfig)
+            if (selectedObject != null && selectedObject is PlayableNpcConfig npcConfig)
             {
-                _selectedObject = selectedObject as PlayableNpcConfig;
+                _selectedObject = npcConfig;
                 InitValues(_selectedObject);
             }
+
+            _updateCharacterPreview = true;
         }
 
         void OnWizardCreate()
         {
-            var config = ScriptableObject.CreateInstance<PlayableNpcConfig>();
+            var config = CreateInstance<PlayableNpcConfig>();
 
             SetValues(config);
-
-            if (!System.IO.Directory.Exists(Application.dataPath + "/Game/Data"))
-                AssetDatabase.CreateFolder("Assets/Game", "Data");
-
-            if (!System.IO.Directory.Exists(Application.dataPath + "/Game/Data/PlayerCharacters"))
-                AssetDatabase.CreateFolder("Assets/Game/Data", "PlayerCharacters");
+            if (!Helper.TryCreateFolder(GetAssetTexturesDir(config.guid))) return;
 
             AssetDatabase.CreateAsset(config, GetAssetPath(config.guid));
             AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
             EditorUtility.FocusProjectWindow();
             Selection.activeObject = config;
-            _updateCharacterPreview = true;
         }
 
         void OnWizardOtherButton()
         {
-            if (_selectedObject == null)
-                return;
+            if (_selectedObject == null) return;
 
             SetValues(_selectedObject);
 
             EditorUtility.CopySerialized(_selectedObject, _selectedObject);
             AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
 
+            _updateCharacterPreview = true;
             EditorUtility.FocusProjectWindow();
             Selection.activeObject = _selectedObject;
-        }
-
-        void OnValidate()
-        {
-            _updateCharacterPreview = true;
         }
 
 
@@ -125,41 +141,33 @@ namespace Editor
 
         private void DrawCharacterPreview()
         {
-            if (p == null) p = CreateInstance<Preview>();
+            if (characterConfig == null) return;
+            if (preview == null) preview = CreateInstance<Preview>();
 
             prect.height = position.height;
             prect.width = position.width;
-
-
 
             if (_updateCharacterPreview)
             {
                 _updateCharacterPreview = false;
 
                 GenerateCharacterPreview();
-                p.InitInstance(_currentCharacterPreview);
-                p.ResetPreviewFocus();
-
-                //update for preview
-                if (_currentCharacterPreview == null) return;
-                _currentCharacterPreview.SetActive(false);
-                _currentCharacterPreview.SetActive(true);
+                preview.InitInstance(_currentCharacterPreview);
+                preview.ResetPreviewFocus();
 
                 Focus();
             }
 
             if (_currentCharacterPreview == null) return;
-            p.OnPreviewGUI(GUILayoutUtility.GetRect(100, position.height / 2.5f), GUIStyle.none);
+            preview.OnPreviewGUI(GUILayoutUtility.GetRect(100, position.height / 2.5f), GUIStyle.none);
         }
 
-        protected override void GenerateCharacterPreview()
+        private void GenerateCharacterPreview()
         {
-            if (characterConfig == null) return;
-
             var configModel = AssetDatabase.LoadAssetAtPath<GameObject>(characterConfig.previewPrefabPath.path);
                 _currentCharacterPreview = (GameObject) PrefabUtility.InstantiatePrefab(configModel);
 
-            UpdateCharacterTexturesAndMeshes();
+            UpdateCharacterTexturesAndMeshes(_currentCharacterPreview);
         }
 
         protected override CharacterConfig GetSelectedCharacterConfig()
@@ -170,20 +178,27 @@ namespace Editor
         protected override EquipModelData[] GetSelectedCharacterMeshes()
         {
             var meshes = new List<EquipModelData>();
-            foreach (var faceMesh in faceMeshs)
+            foreach (var faceMesh in faceMeshes)
             {
-                var mesh = new EquipModelData();
-                mesh.prefabPath = AssetDatabase.GetAssetPath(faceMesh.meshObject);
-                mesh.availableMeshes = new MeshType[] { faceMesh.meshType};
-                mesh.texturePath = AssetDatabase.GetAssetPath(faceMeshTexture);
+                if (faceMesh.meshObject == null) continue;
+
+                var mesh = new EquipModelData
+                {
+                    prefabPath = AssetDatabase.GetAssetPath(faceMesh.meshObject),
+                    availableMeshes = new[] {faceMesh.meshType},
+                    texturePath = AssetDatabase.GetAssetPath(faceMeshTexture)
+                };
                 meshes.Add(mesh);
             }
 
 
             foreach (var item in equipItems)
             {
+                if (item?.item == null) continue;
+
                 foreach (var configItems in item.item.configsItems)
                 {
+                    if (configItems.configGuid != characterConfig.guid) continue;
                     meshes.AddRange(configItems.models);
                 }
             }
@@ -194,17 +209,21 @@ namespace Editor
         protected override EquipTextureData[] GetSelectedCharacterTextures()
         {
             var textures = new List<EquipTextureData>();
-            var skinTexture = new EquipTextureData();
-            skinTexture.texturePath = AssetDatabase.GetAssetPath(texture);
-            skinTexture.textureType = TextureType.Skin;
+            var skinTexture = new EquipTextureData
+            {
+                texturePath = AssetDatabase.GetAssetPath(texture),
+                textureType = TextureType.Skin
+            };
             textures.Add(skinTexture);
 
             foreach (var item in equipItems)
             {
+                if (item?.item == null) continue;
+
                 foreach (var configItems in item.item.configsItems)
                 {
+                    if (configItems.configGuid != characterConfig.guid) continue;
                     textures.AddRange(configItems.textures);
-
                 }
             }
 
@@ -214,33 +233,46 @@ namespace Editor
 
         void OnWizardUpdate()
         {
-            helpString = "Enter character details";
+            helpString = "Enter npc details";
         }
 
         private void SetValues(PlayableNpcConfig config)
         {
+            if (string.IsNullOrEmpty(config.guid))
+                config.guid = Guid.NewGuid().ToString();
+
             config.portraitIconName = portrait.name;
             config.portraitIconPath = portrait.GetObjectPath();
 
-            config.texturePath = new PathData(texture.GetObjectPath());
-            config.faceMeshTexturePath = new PathData(faceMeshTexture.GetObjectPath());
+            var textureName = SaveTexture(config.guid, texture);
+            config.texturePath = new PathData(textureName);
+
+            if (faceMeshes.Length != 0)
+            {
+                textureName = SaveTexture(config.guid, faceMeshTexture);
+                config.faceMeshTexturePath = new PathData(textureName);
+            }
 
             config.characterConfig = characterConfig;
 
             config.equipItems = new EquipItemSlotItem[equipItems.Length];
             for (var i = 0; i < equipItems.Length; i++)
-            {
                 config.equipItems[i] = new EquipItemSlotItem(equipItems[i].itemSlot, equipItems[i].item);
-            }
 
-            config.faceMeshs = new MeshTypeFaceMeshPath[faceMeshs.Length];
-            for (var i = 0; i < faceMeshs.Length; i++)
-            {
-                config.faceMeshs[i] = new MeshTypeFaceMeshPath(faceMeshs[i].meshType, AssetDatabase.GetAssetPath(faceMeshs[i].meshObject));
-            }
+            config.faceMeshs = new MeshTypeFaceMeshPath[faceMeshes.Length];
+            for (var i = 0; i < faceMeshes.Length; i++)
+                config.faceMeshs[i] = new MeshTypeFaceMeshPath(faceMeshes[i].meshType, AssetDatabase.GetAssetPath(faceMeshes[i].meshObject));
+        }
 
-            if (string.IsNullOrEmpty(config.guid))
-                config.guid = Guid.NewGuid().ToString();
+        private string SaveTexture(string guid, Texture2D mTexture)
+        {
+            var directory = GetAssetTexturesDir(guid);
+            Helper.TryCreateFolder(directory);
+
+            var path = $"{directory}/{mTexture.name}.png";
+            File.WriteAllBytes(path, mTexture.DeCompress().EncodeToPNG());
+
+            return path;
         }
 
         private void InitValues(PlayableNpcConfig config)
@@ -248,18 +280,7 @@ namespace Editor
             texture = AssetDatabase.LoadAssetAtPath<Texture2D>(config.texturePath.path);
             faceMeshTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(config.faceMeshTexturePath.path);
             var portraitSprites = AssetDatabase.LoadAllAssetsAtPath(config.portraitIconPath);
-            if (portraitSprites != null && portraitSprites.Length > 0)
-            {
-                foreach (var go in portraitSprites)
-                {
-                    var sprite = go as Sprite;
-                    if (sprite != null && sprite.name == config.portraitIconName)
-                    {
-                        portrait = sprite;
-                        break;
-                    }
-                }
-            }
+            portrait = portraitSprites.FirstOrDefault(sprite => sprite is Sprite && sprite.name == config.portraitIconName) as Sprite;
             
             characterConfig = config.characterConfig;
 
@@ -270,16 +291,19 @@ namespace Editor
                 equipItems[i] = new EquipItemSlotItemData(equipItem.itemSlot, equipItem.item as EquipItemData);
             }
 
-            faceMeshs = new MeshTypeFaceMeshObject[config.faceMeshs.Length];
+            faceMeshes = new MeshTypeFaceMeshObject[config.faceMeshs.Length];
             for (var i = 0; i < config.faceMeshs.Length; i++)
             {
                 var faceMesh = config.faceMeshs[i];
                 var obj = AssetDatabase.LoadAssetAtPath<GameObject>(faceMesh.meshPath.path);
-                faceMeshs[i] = new MeshTypeFaceMeshObject(faceMesh.meshType, obj);
+                faceMeshes[i] = new MeshTypeFaceMeshObject(faceMesh.meshType, obj);
             }
         }
 
         private string GetAssetPath(string guid) =>
-            $"Assets/Game/Data/PlayerCharacters/{guid}.asset";
+            $"{GetAssetTexturesDir(guid)}/{guid}.asset";
+
+        private string GetAssetTexturesDir(string guid) =>
+            $"Assets/Game/Data/PlayableNpc/{guid}";
     }
 }

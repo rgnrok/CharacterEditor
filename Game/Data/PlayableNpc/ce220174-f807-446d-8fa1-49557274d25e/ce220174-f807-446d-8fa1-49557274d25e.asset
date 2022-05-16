@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c8075b8ec5602f54fa3c3557fe68f4e8, type: 3}
-  m_Name: ce80b430-c840-46b1-a7ff-3382fc0b21c0
+  m_Name: ce220174-f807-446d-8fa1-49557274d25e
   m_EditorClassIdentifier: 
-  guid: ce80b430-c840-46b1-a7ff-3382fc0b21c0
+  guid: ce220174-f807-446d-8fa1-49557274d25e
   characterConfig: {fileID: 11400000, guid: 6b7a210257ce1b3419c035891239b8aa, type: 2}
   texturePath:
-    path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_20191209091008894/HumanMale_CharacterSkin.png
-    bundlePath: PlayableNpc_ce80b430-c840-46b1-a7ff-3382fc0b21c0/HumanMale_CharacterSkin
+    path: Assets/Game/Data/PlayableNpc/ce220174-f807-446d-8fa1-49557274d25e/HumanMale_CharacterSkin.png
+    bundlePath: PlayableNpc_ce220174-f807-446d-8fa1-49557274d25e/HumanMale_CharacterSkin
     addressPath: 
   faceMeshTexturePath:
-    path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_20191209091008894/HumanMale_Face.png
-    bundlePath: PlayableNpc_ce80b430-c840-46b1-a7ff-3382fc0b21c0/HumanMale_Face
+    path: Assets/Game/Data/PlayableNpc/ce220174-f807-446d-8fa1-49557274d25e/HumanMale_Face.png
+    bundlePath: PlayableNpc_ce220174-f807-446d-8fa1-49557274d25e/HumanMale_Face
     addressPath: 
   portraitIconPath: Assets/Packages/Character_Editor/Sprites/portraits.png
   portraitIconName: portraits_69
@@ -29,6 +29,10 @@ MonoBehaviour:
     item: {fileID: 11400000, guid: 8e3f0e4d5d4ccb049a22cbf9de55d14c, type: 2}
   - itemSlot: 2
     item: {fileID: 11400000, guid: 9fc7b604579ccef42a017e8624f95109, type: 2}
+  - itemSlot: 6
+    item: {fileID: 11400000, guid: 7217663b97e036f4ab5c540130f8aff7, type: 2}
+  - itemSlot: 7
+    item: {fileID: 11400000, guid: dd2cd4ead09c05a4c89c0b1a988b1b9b, type: 2}
   faceMeshs:
   - meshType: 1
     meshPath:
