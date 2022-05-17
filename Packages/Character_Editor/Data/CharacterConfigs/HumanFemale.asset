@@ -16,7 +16,7 @@ MonoBehaviour:
   prefabPath:
     path: Assets/Game/Prefabs/Characters/HumanFemale/HumanFamale_Game.prefab
     bundlePath: Prefabs_Characters_HumanFemale/HumanFamale_Game
-    addressPath: 
+    addressPath: Prefabs/Characters/HumanFemale/HumanFamale_Game.prefab
   skinnedMeshes:
   - HumanFemale_Mesh_LOD0
   - HumanFemale_Mesh_LOD1
@@ -25,11 +25,11 @@ MonoBehaviour:
   previewPrefabPath:
     path: Assets/Game/Prefabs/Characters/HumanFemale/HumanFamale_Preview.prefab
     bundlePath: Prefabs_Characters_HumanFemale/HumanFamale_Preview
-    addressPath: 
+    addressPath: Prefabs/Characters/HumanFemale/HumanFamale_Preview.prefab
   createGamePrefabPath:
     path: Assets/Game/Prefabs/Characters/HumanFemale/HumanFamale_Create.prefab
     bundlePath: Prefabs_Characters_HumanFemale/HumanFamale_Create
-    addressPath: 
+    addressPath: Prefabs/Characters/HumanFemale/HumanFamale_Create.prefab
   headBone: Bip01_Head
   shortRobeMeshes:
   - Short_Robe_LOD0

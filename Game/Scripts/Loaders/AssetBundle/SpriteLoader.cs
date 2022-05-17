@@ -10,8 +10,8 @@ namespace CharacterEditor
     {
         public class SpriteLoader : CommonLoader<SpriteAtlas>, ISpriteLoader
         {
-            protected const string ITEM_ICON_ATLAS_BUNDLE_NAME = "item_icons/ItemIcons";
-            protected const string PORTRAIT_ICON_ATLAS_BUNDLE_NAME = "portraits/Portraits";
+            private const string ITEM_ICON_ATLAS_BUNDLE_NAME = "item_icons/ItemIcons";
+            private const string PORTRAIT_ICON_ATLAS_BUNDLE_NAME = "portraits/Portraits";
 
             public SpriteLoader(ICoroutineRunner coroutineRunner) : base(coroutineRunner)
             {

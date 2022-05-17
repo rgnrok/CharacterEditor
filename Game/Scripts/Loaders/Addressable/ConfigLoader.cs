@@ -1,15 +1,14 @@
 ﻿using System.Threading.Tasks;
-using Game;
 
 namespace CharacterEditor
 {
-    namespace AssetBundleLoader
+    namespace AddressableLoader
     {
         public class ConfigLoader : CommonLoader<CharacterConfig>, IConfigLoader
         {
             private readonly RemoteDataManager _dataManager;
 
-            public ConfigLoader(ICoroutineRunner coroutineRunner, RemoteDataManager dataManager) : base(coroutineRunner)
+            public ConfigLoader(RemoteDataManager dataManager)
             {
                 _dataManager = dataManager;
             }

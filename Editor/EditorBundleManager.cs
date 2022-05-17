@@ -14,11 +14,9 @@ namespace Editor
     public class EditorBundleManager
     {
         private const string GAME_DATA_PATH = "Assets/Game/Data/";
-        private static readonly string ROOT_PATH = $"{AssetsConstants.CharacterEditorRootPath}/";
-        private static readonly string GAME_ROOT_PATH = $"{AssetsConstants.GameRootPath}/";
-        private static readonly string PREFAB_PATH_PREFIX = $"{AssetsConstants.CharacterEditorRootPath}/Prefabs/";
+        private static readonly string PrefabPathPrefix = $"{AssetsConstants.CharacterEditorRootPath}/Prefabs/";
 
-        private static readonly string TEXTURE_PATH_PREFIX =
+        private static readonly string TexturePathPrefix =
             $"{AssetsConstants.CharacterEditorRootPath}/Textures/Character";
 
         [MenuItem("Tools/Character Editor/Update AssetsBundle")]
@@ -143,8 +141,8 @@ namespace Editor
             if (itemData.prefabPath == null || itemData.prefabPath.Equals("")) return;
 
             var length = 0;
-            if (itemData.prefabPath.IndexOf(PREFAB_PATH_PREFIX, StringComparison.Ordinal) != -1)
-                length = PREFAB_PATH_PREFIX.Length;
+            if (itemData.prefabPath.IndexOf(PrefabPathPrefix, StringComparison.Ordinal) != -1)
+                length = PrefabPathPrefix.Length;
 
             ParsePathToBundle(itemData.prefabPath.Substring(length), out var prefabBundleName, out var prefabAssetPath,
                 2, "prefabObj");
@@ -172,8 +170,8 @@ namespace Editor
                     var textureInfo = equipItemData.configsItems[i].textures[j];
                     if (textureInfo.texturePath != null && !textureInfo.texturePath.Equals(""))
                     {
-                        if (textureInfo.texturePath.IndexOf(TEXTURE_PATH_PREFIX, StringComparison.Ordinal) != -1)
-                            length = TEXTURE_PATH_PREFIX.Length;
+                        if (textureInfo.texturePath.IndexOf(TexturePathPrefix, StringComparison.Ordinal) != -1)
+                            length = TexturePathPrefix.Length;
 
                         ParsePathToBundle(textureInfo.texturePath.Substring(length), out var textureBundleName,
                             out var textureAssetPath, 1);
@@ -210,8 +208,8 @@ namespace Editor
             if (string.IsNullOrEmpty(prefabPath)) return null;
 
             var length = 0;
-            if (prefabPath.IndexOf(PREFAB_PATH_PREFIX, StringComparison.Ordinal) != -1)
-                length = PREFAB_PATH_PREFIX.Length;
+            if (prefabPath.IndexOf(PrefabPathPrefix, StringComparison.Ordinal) != -1)
+                length = PrefabPathPrefix.Length;
 
             ParsePathToBundle(prefabPath.Substring(length), out var prefabBundleName, out var prefabAssetPath, 2);
             return prefabAssetPath;
@@ -344,7 +342,7 @@ namespace Editor
         {
             var configPath = AssetDatabase.GetAssetPath(config);
 
-            var bundlePath = configPath.Substring(ROOT_PATH.Length);
+            var bundlePath = configPath.Substring(AssetsConstants.CharacterEditorRootPath.Length).Trim('/');
             ParsePathToBundle(bundlePath, out var bundleName, out var assetPath);
 
             AssetImporter.GetAtPath(configPath).SetAssetBundleNameAndVariant(bundleName, "");
@@ -356,10 +354,10 @@ namespace Editor
             if (string.IsNullOrEmpty(prefabPath)) return prefabPath;
 
             var bundlePath = prefabPath;
-            if (prefabPath.IndexOf(ROOT_PATH, StringComparison.Ordinal) == 0)
-                bundlePath = prefabPath.Substring(ROOT_PATH.Length);
-            if (prefabPath.IndexOf(GAME_ROOT_PATH, StringComparison.Ordinal) == 0)
-                bundlePath = prefabPath.Substring(GAME_ROOT_PATH.Length);
+            if (prefabPath.IndexOf(AssetsConstants.CharacterEditorRootPath, StringComparison.Ordinal) == 0)
+                bundlePath = prefabPath.Substring(AssetsConstants.CharacterEditorRootPath.Length).Trim('/');
+            if (prefabPath.IndexOf(AssetsConstants.GameRootPath, StringComparison.Ordinal) == 0)
+                bundlePath = prefabPath.Substring(AssetsConstants.GameRootPath.Length).Trim('/');
 
             ParsePathToBundle(bundlePath, out var bundleName, out var assetPath);
 
@@ -372,7 +370,7 @@ namespace Editor
             var dataManager = new DataManager(MeshAtlasType.Static);
             var bundleMeshList = new List<MeshesMap>();
 
-            int substringLength = PREFAB_PATH_PREFIX.Length;
+            int substringLength = PrefabPathPrefix.Length;
 
             foreach (MeshType meshType in Enum.GetValues(typeof(MeshType)))
             {
@@ -458,7 +456,7 @@ namespace Editor
                     int i = 0;
                     foreach (var colorPath in texturePaths)
                     {
-                        var bundlePath = colorPath.Substring(TEXTURE_PATH_PREFIX.Length);
+                        var bundlePath = colorPath.Substring(TexturePathPrefix.Length);
                         ParsePathToBundle(bundlePath, out var bundleName, out var assetPath);
                         AssetImporter.GetAtPath(colorPath).SetAssetBundleNameAndVariant(bundleName, "");
 

@@ -16,7 +16,7 @@ MonoBehaviour:
   prefabPath:
     path: Assets/Game/Prefabs/Characters/HumanMale/HumanMale_Game.prefab
     bundlePath: Prefabs_Characters_HumanMale/HumanMale_Game
-    addressPath: 
+    addressPath: Prefabs/Characters/HumanMale/HumanMale_Game.prefab
   skinnedMeshes:
   - HumanMale_Mesh_LOD0
   - HumanMale_Mesh_LOD1
@@ -25,11 +25,11 @@ MonoBehaviour:
   previewPrefabPath:
     path: Assets/Game/Prefabs/Characters/HumanMale/HumanMale_Preview.prefab
     bundlePath: Prefabs_Characters_HumanMale/HumanMale_Preview
-    addressPath: 
+    addressPath: Prefabs/Characters/HumanMale/HumanMale_Preview.prefab
   createGamePrefabPath:
     path: Assets/Game/Prefabs/Characters/HumanMale/HumanMale_Create.prefab
     bundlePath: Prefabs_Characters_HumanMale/HumanMale_Create
-    addressPath: 
+    addressPath: Prefabs/Characters/HumanMale/HumanMale_Create.prefab
   headBone: Bip01_Head
   shortRobeMeshes:
   - Short_Robe_LOD0

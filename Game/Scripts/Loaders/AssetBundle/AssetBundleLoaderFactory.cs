@@ -13,9 +13,9 @@ namespace CharacterEditor
         public class AssetBundleLoaderFactory : ILoaderFactory
         {
             private readonly ICoroutineRunner _coroutineRunner;
-            private readonly DataManager _dataManager;
+            private readonly RemoteDataManager _dataManager;
 
-            public AssetBundleLoaderFactory(DataManager dataManager, ICoroutineRunner coroutineRunner)
+            public AssetBundleLoaderFactory(RemoteDataManager dataManager, ICoroutineRunner coroutineRunner)
             {
                 _coroutineRunner = coroutineRunner;
                 _dataManager = dataManager;
@@ -28,7 +28,7 @@ namespace CharacterEditor
                 new TextureLoader(_coroutineRunner);
 
             public IConfigLoader CreateConfigLoader() => 
-                new ConfigLoader(_dataManager);
+                new ConfigLoader(_coroutineRunner, _dataManager);
 
             public ISpriteLoader CreateIconLoader() => 
                 new SpriteLoader(_coroutineRunner);
@@ -65,7 +65,6 @@ namespace CharacterEditor
             {
 #if UNITY_EDITOR
                 AssetBundleManager.SetDevelopmentAssetBundleServer();
-
 #else
              AssetBundleManager.SetSourceAssetBundleURL(Path.Combine(Application.streamingAssetsPath, Utility.AssetBundlesOutputPath) + "/");
             // Or customize the URL based on your deployment or configuration

@@ -70,7 +70,7 @@ namespace Editor
 
             var configsCount = configs.Length;
             var races = new List<RaceMap>(configsCount);
-            for (int i = 0; i < configsCount; i++)
+            for (var i = 0; i < configsCount; i++)
             {
                 var raceName = configs[i].folderName;
                 DisplayProgressBar("ParseRacesConfigs", raceName, (float) i / configsCount);
@@ -136,8 +136,12 @@ namespace Editor
             return SetupAddressable(assetPath, groupName);
         }
 
-        private static string SetupAddressable(string assetPath, string groupName,
-            string addressableSkipFolder = AssetsConstants.CharacterEditorRootPath)
+        private static string SetupAddressable(string assetPath, string groupName)
+        {
+            return SetupAddressable(assetPath, groupName, AssetsConstants.CharacterEditorRootPath, AssetsConstants.GameRootPath);
+        }
+
+        private static string SetupAddressable(string assetPath, string groupName, params string[] addressableSkipFolders)
         {
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             var addressableGroup = settings.FindGroup(groupName);
@@ -147,8 +151,14 @@ namespace Editor
 
             var entriesAdded = new List<AddressableAssetEntry>();
             var guid = AssetDatabase.AssetPathToGUID(assetPath);
-            var addressableAddress = assetPath.Substring(addressableSkipFolder.Length).Trim('/');
 
+            foreach (var skipFolder in addressableSkipFolders)
+            {
+                if (assetPath.IndexOf(skipFolder, StringComparison.Ordinal) == 0)
+                    assetPath = assetPath.Substring(skipFolder.Length);
+            }
+          
+            var addressableAddress = assetPath.Trim('/');
             var entry = settings.CreateOrMoveEntry(guid, addressableGroup, readOnly: false, postEvent: false);
             entry.address = addressableAddress;
             entriesAdded.Add(entry);
@@ -227,10 +237,11 @@ namespace Editor
                 var meshPaths = dataManager.ParseCharacterMeshes(raceName, meshType);
                 if (meshPaths == null || meshPaths.Count == 0) continue;
 
+                var addressableGroup = $"{MESH_GROUP_NAME}_{raceName}_{meshType}";
                 foreach (var meshPathPair in meshPaths)
                 {
                     var meshPath = meshPathPair.Key;
-                    var meshAddressablePath = SetupAddressable(meshPath, $"{MESH_GROUP_NAME}_{raceName}");
+                    var meshAddressablePath = SetupAddressable(meshPath, addressableGroup);
 
                     var mesh = new MapMesh();
                     mesh.modelPath = meshAddressablePath;
@@ -242,8 +253,7 @@ namespace Editor
                         var colorIndex = 0;
                         foreach (var colorPath in texturePath)
                         {
-                            var textureAddressablePath =
-                                SetupAddressable(colorPath, $"{MESH_GROUP_NAME}_{raceName}_{meshType}");
+                            var textureAddressablePath = SetupAddressable(colorPath, addressableGroup);
                             textures.colorPaths[colorIndex++] = textureAddressablePath;
                         }
 

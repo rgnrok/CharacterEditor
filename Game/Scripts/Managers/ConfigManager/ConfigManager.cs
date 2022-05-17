@@ -30,7 +30,8 @@ namespace CharacterEditor
         public async Task Init(CharacterGameObjectData[] configData)
         {
             _charactersGameObjectData = configData;
-            await ChangeCharacter();
+            //Preload all characters
+            for (var i = 0; i < configData.Length; i++) await OnNextCharacter();
         }
 
 

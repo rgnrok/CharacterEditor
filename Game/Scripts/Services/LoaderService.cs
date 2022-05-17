@@ -51,11 +51,13 @@ namespace CharacterEditor.Services
                     DataManager = new AssetDatabaseLoader.DataManager(meshAtlasType);
                     break;
 #endif
-                // case LoaderType.Addresable:
-                // _loaderFactory = new Addre
+                case LoaderType.Addresable:
+                    DataManager = new RemoteDataManager("addressablesInfo");
+                    _loaderFactory = new AddressableLoader.AddressableLoaderFactory((RemoteDataManager)DataManager);
+                    break;
                 default:
-                    DataManager = new AssetBundleLoader.DataManager("assetBundleInfo");
-                    _loaderFactory= new AssetBundleLoader.AssetBundleLoaderFactory((AssetBundleLoader.DataManager) DataManager, _coroutineRunner);
+                    DataManager = new RemoteDataManager("assetBundleInfo");
+                    _loaderFactory= new AssetBundleLoader.AssetBundleLoaderFactory((RemoteDataManager) DataManager, _coroutineRunner);
 
                     break;
             }

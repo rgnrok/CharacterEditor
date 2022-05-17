@@ -2,7 +2,7 @@
 
 namespace CharacterEditor
 {
-    public interface ITextureLoader : ICommonLoader<Texture2D>
+    public interface ITextureLoader : ICommonLoader<Texture2D> //as tag
     {
     }
 }
