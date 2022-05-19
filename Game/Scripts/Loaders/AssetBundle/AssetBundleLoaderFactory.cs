@@ -64,8 +64,11 @@ namespace CharacterEditor
             private async Task InitializeAssetBundles()
             {
 #if UNITY_EDITOR
-                AssetBundleManager.SetDevelopmentAssetBundleServer();
+                // AssetBundleManager.SetDevelopmentAssetBundleServer();
+                var absolutePath = Path.Combine(Application.streamingAssetsPath, Utility.AssetBundlesOutputPath) + "/";
+                AssetBundleManager.SetSourceAssetBundleURL(absolutePath);
 #else
+
              AssetBundleManager.SetSourceAssetBundleURL(Path.Combine(Application.streamingAssetsPath, Utility.AssetBundlesOutputPath) + "/");
             // Or customize the URL based on your deployment or configuration
             //AssetBundleManager.SetSourceAssetBundleURL("http://www.MyWebsite/MyAssetBundles");
@@ -80,11 +83,12 @@ namespace CharacterEditor
 #endif
                 // Initialize AssetBundleManifest which loads the AssetBundleManifest object.
                 var request = AssetBundleManager.Initialize();
+
                 while (!request.IsDone())
-                    await Task.Delay(100);
+                    await Task.Yield();
 
                 while (request.GetAsset<AssetBundleManifest>() == null)
-                    await Task.Delay(100);
+                    await Task.Yield();
 
             }
         }

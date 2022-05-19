@@ -8,7 +8,7 @@ namespace CharacterEditor.Services
     class LoaderService : ILoaderService
     {
         private readonly ICoroutineRunner _coroutineRunner;
-        private ILoaderFactory _loaderFactory;
+        private readonly ILoaderFactory _loaderFactory;
 
         public IDataManager DataManager { get; private set; }
         public IMeshLoader MeshLoader { get; }
@@ -23,10 +23,29 @@ namespace CharacterEditor.Services
         public ICommonLoader<Material> MaterialLoader { get; }
         public IPathDataProvider PathDataProvider { get; }
 
+        public Task Initialize()
+        {
+            return _loaderFactory.Prepare();
+        }
+
+        public void CleanUp()
+        {
+            MeshLoader.CleanUp();
+            TextureLoader.CleanUp();
+            ConfigLoader.CleanUp();
+            SpriteLoader.CleanUp();
+            ItemLoader.CleanUp();
+            PlayableNpcLoader.CleanUp();
+            EnemyLoader.CleanUp();
+            ContainerLoader.CleanUp();
+            GameObjectLoader.CleanUp();
+            MaterialLoader.CleanUp();
+        }
+
         public LoaderService(IStaticDataService staticDataService, ICoroutineRunner coroutineRunner)
         {
             _coroutineRunner = coroutineRunner;
-            Initialize(staticDataService.LoaderType, staticDataService.MeshAtlasType);
+            _loaderFactory = InitLoaderFactory(staticDataService.LoaderType, staticDataService.MeshAtlasType);
 
             MeshLoader = _loaderFactory.CreateMeshLoader();
             TextureLoader = _loaderFactory.CreateTextureLoader();
@@ -41,31 +60,22 @@ namespace CharacterEditor.Services
             PathDataProvider = _loaderFactory.CreateDataPathProvider();
         }
 
-        private void Initialize(LoaderType loaderType, MeshAtlasType meshAtlasType)
+        private ILoaderFactory InitLoaderFactory(LoaderType loaderType, MeshAtlasType meshAtlasType)
         {
             switch (loaderType)
             {
 #if UNITY_EDITOR
                 case LoaderType.AssetDatabase:
-                    _loaderFactory = new AssetDatabaseLoader.AssetDatabaseLoaderFactory();
                     DataManager = new AssetDatabaseLoader.DataManager(meshAtlasType);
-                    break;
+                    return new AssetDatabaseLoader.AssetDatabaseLoaderFactory();
 #endif
                 case LoaderType.Addresable:
                     DataManager = new RemoteDataManager("addressablesInfo");
-                    _loaderFactory = new AddressableLoader.AddressableLoaderFactory((RemoteDataManager)DataManager);
-                    break;
+                    return new AddressableLoader.AddressableLoaderFactory((RemoteDataManager)DataManager);
                 default:
                     DataManager = new RemoteDataManager("assetBundleInfo");
-                    _loaderFactory= new AssetBundleLoader.AssetBundleLoaderFactory((RemoteDataManager) DataManager, _coroutineRunner);
-
-                    break;
+                    return new AssetBundleLoader.AssetBundleLoaderFactory((RemoteDataManager) DataManager, _coroutineRunner);
             }
-        }
-
-        public Task Initialize()
-        {
-            return _loaderFactory.Prepare();
         }
     }
 }

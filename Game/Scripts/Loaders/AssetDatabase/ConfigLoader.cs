@@ -1,18 +1,14 @@
 ﻿#if UNITY_EDITOR
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using UnityEngine;
 using UnityEditor;
+using UnityEngine;
 
 namespace CharacterEditor
 {
     namespace AssetDatabaseLoader
     {
-        /*
-         * Parse and Load Configs (Only editor)
-         */
         public class ConfigLoader : IConfigLoader
         {
             private static readonly string CONFIG_PATHS = $"{AssetsConstants.CharacterStaticDataPath}/CharacterConfigs";
@@ -40,6 +36,11 @@ namespace CharacterEditor
                     _configCache[config.guid] = config;
                 }
             }
+            public void CleanUp()
+            {
+                Resources.UnloadUnusedAssets();
+            }
+
         }
     }
 }

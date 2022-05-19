@@ -40,6 +40,11 @@ namespace CharacterEditor
                 Resources.UnloadUnusedAssets();
             }
 
+            public void CleanUp()
+            {
+                Resources.UnloadUnusedAssets();
+            }
+
             private T InnerLoadByPath(string path)
             {
                 if (_cache.TryGetValue(path, out var asset))

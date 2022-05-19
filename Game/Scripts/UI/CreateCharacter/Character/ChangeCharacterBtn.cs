@@ -11,19 +11,25 @@ namespace CharacterEditor
 
     public abstract class ChangeCharacterBtn : MonoBehaviour, IPointerClickHandler
     {
-        protected abstract CharacterChangeType _type { get; }
+        protected abstract CharacterChangeType Type { get; }
 
         private bool _isProcess;
         private IConfigManager _configManager; //todo ?
 
-        void Awake()
+        private void Awake()
         {
             _configManager = AllServices.Container.Single<IConfigManager>();
         }
 
-        void Start()
+        private void Start()
         {
             _configManager.OnChangeCharacter += CharacterChangedHandler;
+        }
+
+        void OnDestroy()
+        {
+            if (_configManager != null)
+                _configManager.OnChangeCharacter -= CharacterChangedHandler;
         }
 
         public async void OnPointerClick(PointerEventData eventData)
@@ -31,7 +37,7 @@ namespace CharacterEditor
             if (_isProcess || _configManager == null) return;
 
             _isProcess = true;
-            if (_type == CharacterChangeType.Forward)
+            if (Type == CharacterChangeType.Forward)
                 await _configManager.OnNextCharacter();
             else
                 await _configManager.OnPrevCharacter();

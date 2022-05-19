@@ -83,8 +83,8 @@ namespace Editor
                     createGamePrefabPath = SetupAddressable(configs[i].createGamePrefabPath.path, PREFABS_GROUP_NAME),
                     previewPrefabPath = SetupAddressable(configs[i].previewPrefabPath.path, PREFABS_GROUP_NAME),
                     configGuid = configs[i].guid,
-                    textures = ParseTextures(raceName),
-                    meshes = ParseMeshes(raceName),
+                    textures = ParseTextures(configs[i]),
+                    meshes = ParseMeshes(configs[i]),
                 };
 
                 races.Add(raceMap);
@@ -177,7 +177,7 @@ namespace Editor
                 addressableGroup.RemoveAssetEntry(oldEntry);
         }
 
-        protected static List<TexturesMap> ParseTextures(string raceName)
+        protected static List<TexturesMap> ParseTextures(CharacterConfig characterConfig)
         {
             var dataManager = new DataManager(MeshAtlasType.Static);
 
@@ -189,11 +189,12 @@ namespace Editor
                 var textureType = (TextureType) textureEnums.GetValue(i);
                 if (textureType == TextureType.Undefined) continue;
 
-                DisplayProgressBar("ParseTextures", $"{raceName} {textureType}", (float) i / textureTypesCount);
+                DisplayProgressBar("ParseTextures", $"{characterConfig.folderName} {textureType}", (float) i / textureTypesCount);
+                var textureTypeGroup = $"{TEXTURE_GROUP_NAME}_{characterConfig.folderName}_{textureType}";
 
                 var textures = new TexturesMap();
                 textures.type = textureType;
-                var paths = dataManager.ParseCharacterTextures(raceName, textureType);
+                var paths = dataManager.ParseCharacterTextures(characterConfig, textureType);
                 if (paths == null) continue;
 
                 foreach (string[] texturePaths in paths)
@@ -203,7 +204,7 @@ namespace Editor
                     var colorIndex = 0;
                     foreach (string colorPath in texturePaths)
                     {
-                        var assetPath = SetupAddressable(colorPath, $"{TEXTURE_GROUP_NAME}_{raceName}_{textureType}");
+                        var assetPath = SetupAddressable(colorPath, textureTypeGroup);
                         texture.colorPaths[colorIndex++] = assetPath;
                     }
 
@@ -217,7 +218,7 @@ namespace Editor
             return bundleTextures;
         }
 
-        private static List<MeshesMap> ParseMeshes(string raceName)
+        private static List<MeshesMap> ParseMeshes(CharacterConfig characterConfig)
         {
             var dataManager = new DataManager(MeshAtlasType.Static);
             var bundleMeshList = new List<MeshesMap>();
@@ -229,15 +230,15 @@ namespace Editor
                 var meshType = (MeshType) meshTypes.GetValue(i);
                 if (meshType == MeshType.Undefined) continue;
 
-                DisplayProgressBar("ParseMeshes", $"{raceName} {meshType}", (float) i / meshTypesCount);
+                DisplayProgressBar("ParseMeshes", $"{characterConfig.folderName} {meshType}", (float) i / meshTypesCount);
 
                 var meshesMap = new MeshesMap();
                 meshesMap.type = meshType;
 
-                var meshPaths = dataManager.ParseCharacterMeshes(raceName, meshType);
+                var meshPaths = dataManager.ParseCharacterMeshes(characterConfig, meshType);
                 if (meshPaths == null || meshPaths.Count == 0) continue;
 
-                var addressableGroup = $"{MESH_GROUP_NAME}_{raceName}_{meshType}";
+                var addressableGroup = $"{MESH_GROUP_NAME}_{characterConfig.folderName}_{meshType}";
                 foreach (var meshPathPair in meshPaths)
                 {
                     var meshPath = meshPathPair.Key;

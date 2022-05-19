@@ -45,12 +45,13 @@ namespace CharacterEditor
         private IMergeTextureService _mergeTextureService;
 
         private Material _tmpSkinRenderMaterial;
+        private IConfigManager _configManager;
 
         public static TextureManager Instance { get; private set; }
 
 
 
-        void Awake()
+        private void Awake()
         {
             if (Instance != null) Destroy(gameObject);
             Instance = this;
@@ -74,8 +75,14 @@ namespace CharacterEditor
             _textureLoader = loaderService.TextureLoader;
             _dataManager = loaderService.DataManager;
 
-            var configManager = AllServices.Container.Single<IConfigManager>();
-            configManager.OnChangeConfig += OnChangeConfigHandler;
+            _configManager = AllServices.Container.Single<IConfigManager>();
+            _configManager.OnChangeConfig += OnChangeConfigHandler;
+        }
+
+        private void OnDestroy()
+        {
+            if (_configManager != null)
+                _configManager.OnChangeConfig -= OnChangeConfigHandler;
         }
 
         private async Task OnChangeConfigHandler(CharacterGameObjectData data)
@@ -100,7 +107,7 @@ namespace CharacterEditor
                 foreach (var texture in data.Config.availableTextures)
                 {
                     if (Array.IndexOf(_canChangeTypes, texture) == -1) continue;
-                    _characterTextures[_characterRace][texture] = TextureFactory.Create(texture, _textureLoader, _dataManager, _characterRace);
+                    _characterTextures[_characterRace][texture] = TextureFactory.Create(texture, _textureLoader, _dataManager, data.Config);
                 }
             }
 
@@ -110,6 +117,11 @@ namespace CharacterEditor
 
             await UpdateTextures();
            
+            SetupPortrait();
+        }
+
+        private void SetupPortrait()
+        {
             if (portraits != null)
             {
                 if (!_characterPortraits.ContainsKey(_characterRace))
@@ -123,7 +135,7 @@ namespace CharacterEditor
             }
         }
 
-      
+
         public void LockUpdate(bool isLock)
         {
             _isLock = isLock;

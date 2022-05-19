@@ -15,12 +15,12 @@ namespace CharacterEditor
         public bool IsEmptyMesh =>
             Mesh.LoadedMeshObject == null;
 
-        public CharacterMeshWrapper(IMeshInstanceCreator meshFactory, IMeshLoader meshLoader, Transform meshBone, IDataManager dataManager, MeshType meshType, string characterRace)
+        public CharacterMeshWrapper(IMeshInstanceCreator meshFactory, IMeshLoader meshLoader, Transform meshBone, IDataManager dataManager, MeshType meshType, CharacterConfig characterConfig)
         {
             _meshFactory = meshFactory;
             _meshBone = meshBone;
 
-            Mesh = MeshFactory.Create(meshLoader, dataManager, meshType, characterRace);
+            Mesh = MeshFactory.Create(meshLoader, dataManager, meshType, characterConfig);
         }
 
         public GameObject CreateMeshInstance()

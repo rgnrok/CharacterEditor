@@ -1,12 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace CharacterEditor
 {
-    /*
-     * Loading and parsing character configs
-     */
-    public interface IConfigLoader : IService
+    public interface IConfigLoader : ICleanable
     {
         Task<CharacterConfig[]> LoadConfigs();
         Task<CharacterConfig> LoadConfig(string guid);

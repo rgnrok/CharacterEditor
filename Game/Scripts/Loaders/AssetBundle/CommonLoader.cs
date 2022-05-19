@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AssetBundles;
 using Game;
-using UnityEngine;
 
 namespace CharacterEditor
 {
@@ -62,13 +61,24 @@ namespace CharacterEditor
 
             public void Unload(string path)
             {
-                var (assetBundleName, _) = ParseAssetName(path);
+                UnloadFromBundle(path);
                 _cache.Remove(path);
+            }
 
+            public void CleanUp()
+            {
+                foreach (var path in _cache.Keys)
+                    UnloadFromBundle(path);
+
+                _cache.Clear();
+            }
+
+            private static void UnloadFromBundle(string path)
+            {
+                var (assetBundleName, _) = ParseAssetName(path);
                 if (!BundleUsageChecker.CheckUnload(assetBundleName)) return;
 
                 AssetBundleManager.UnloadAssetBundle(assetBundleName, true);
-                Resources.UnloadUnusedAssets();
             }
 
             private IEnumerator LoadByPathCoroutine(IList<string> paths, Action<Dictionary<string, T>> callback)

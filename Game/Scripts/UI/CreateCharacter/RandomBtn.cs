@@ -63,11 +63,6 @@ namespace CharacterEditor
         private MeshManager _meshManager;
         private TextureManager _textureManager;
 
-        public RandomBtn(MeshType[] randomMeshTypes)
-        {
-            _randomMeshTypes = randomMeshTypes;
-        }
-
         public void Awake()
         {
             _configManager = AllServices.Container.Single<IConfigManager>();
@@ -79,6 +74,18 @@ namespace CharacterEditor
         {
             PrepareMaskTypes();
             if (_configManager != null) _configManager.OnChangeCharacter += PrepareSkinMeshTypes;
+        }
+
+        private void OnDestroy()
+        {
+            if (_configManager != null)
+                _configManager.OnChangeCharacter -= PrepareSkinMeshTypes;
+
+            if (_textureManager != null)
+                _textureManager.OnTexturesChanged -= TexturesChangedHandler;
+
+            if (_meshManager != null)
+                _meshManager.OnMeshesChanged -= MeshesChangedHandler;
         }
 
         public void OnPointerClick(PointerEventData eventData)

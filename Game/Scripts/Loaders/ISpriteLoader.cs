@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace CharacterEditor
 {
-    public interface ISpriteLoader : IService
+    public interface ISpriteLoader : ICleanable
     {
         void LoadItemIcon(string iconName, Action<Sprite> callback);
         void LoadPortrait(string portraitName, Action<Sprite> callback);

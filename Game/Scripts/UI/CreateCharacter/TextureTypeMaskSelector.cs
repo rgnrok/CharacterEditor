@@ -50,6 +50,12 @@ namespace CharacterEditor
                 _configManager.OnChangeCharacter += DisableActionBtns;
         }
 
+        private void OnDestroy()
+        {
+            if (_configManager != null)
+                _configManager.OnChangeCharacter -= DisableActionBtns;
+        }
+
         private void DisableActionBtns()
         {
             var interactable = false;

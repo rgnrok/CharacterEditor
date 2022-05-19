@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using CharacterEditor.Services;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,7 +11,6 @@ namespace CharacterEditor
     {
         public class ItemManager : MonoBehaviour
         {
-
             private struct MeshInstanceInfo
             {
                 public MeshType meshType;
@@ -74,7 +74,6 @@ namespace CharacterEditor
             private readonly List<Renderer> _cloakRenders = new List<Renderer>();
 
             private TextureShaderType _currentShaderType;
-            private Texture2D _emptyAlphaTexture;
             private Shader _particleShader;
 
             private Coroutine _buildCoroutine;
@@ -96,6 +95,7 @@ namespace CharacterEditor
             public Material defaultMaterial;
             private Material faceMeshMaterial;
             private Dictionary<string, Dictionary<MaterialType, Material>> _characterMaterials;
+            private MergeTextureService _mergeTextureService;
 
 
             private void Awake()
@@ -112,12 +112,10 @@ namespace CharacterEditor
                 _meshInstances = new Dictionary<string, Dictionary<string, MeshInstanceInfo>>();
                 _particleShader = Shader.Find("Particles/Additive (Soft)");
 
-                _emptyAlphaTexture = new Texture2D(1,1);
-                _emptyAlphaTexture.SetPixel(0, 0, Color.clear);
-                _emptyAlphaTexture.Apply();
+                _mergeTextureService = new MergeTextureService();
             }
 
-         
+
             /*
             * Change Character. Update textures and skin meshes
             */
@@ -362,31 +360,29 @@ namespace CharacterEditor
              */
             private IEnumerator MergeClothTextures()
             {
-                foreach (var textureName in clothRenderShaderMaterial.GetTexturePropertyNames())
-                    clothRenderShaderMaterial.SetTexture(textureName, _emptyAlphaTexture);
-                
+                var mergeTextures = new Dictionary<string, Texture2D>(_currentCharacter.EquipItems.Count)
+                {
+                    ["_SkinTex"] = _currentCharacter.Texture
+                };
+
                 foreach (var equipItem in _currentCharacter.EquipItems.Values)
                 {
                     foreach (var texture in equipItem.ItemMesh.GetItemTextures(_currentCharacter.configGuid))
                     {
-                        if (texture.Type == TextureType.Cloak) continue;
-                        while (!texture.IsReady) yield return null;
-
                         var textureName = texture.GetShaderTextureName();
-                        if (textureName != null)
-                            clothRenderShaderMaterial.SetTexture(textureName, texture.Texture);
+                        if (textureName == null) continue;
+                
+                        while (!texture.IsReady) yield return null;
+                        mergeTextures[textureName] = texture.Texture;
                     }
                 }
-                clothRenderShaderMaterial.SetTexture("_SkinTex", _currentCharacter.Texture);
-
-                Graphics.Blit(Texture2D.whiteTexture, renderClothTexture);
-                Graphics.Blit(_currentCharacter.Texture, renderClothTexture, clothRenderShaderMaterial);
-
-                yield return null;
-
+                
+                _mergeTextureService.MergeTextures(clothRenderShaderMaterial, renderClothTexture, mergeTextures);
+                
                 RenderTexture.active = renderClothTexture;
                 CharacterTexture.ReadPixels(new Rect(0, 0, renderClothTexture.width, renderClothTexture.height), 0, 0);
                 CharacterTexture.Apply();
+
                 _clothCoroutine = null;
             }
 

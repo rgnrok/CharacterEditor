@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace CharacterEditor
 {
-    public interface IDataLoader<T> : IService where T : UnityEngine.Object
+    public interface IDataLoader<T> : ICleanable where T : UnityEngine.Object
     {
         void LoadData(string guid, Action<T> callback);
         void LoadData(IList<string> guid, Action<Dictionary<string, T>> callback);

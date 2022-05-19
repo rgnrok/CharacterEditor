@@ -17,15 +17,15 @@ namespace CharacterEditor
                 _meshAtlasType = atlasType;
             }
 
-            public string[][] ParseCharacterTextures(string race, TextureType textureType)
+            public string[][] ParseCharacterTextures(CharacterConfig characterConfig, TextureType textureType)
             {
-                return ParseTextures(GetFolderPath(race, textureType));
+                return ParseTextures(GetFolderPath(characterConfig.folderName, textureType));
             }
 
 
-            public Dictionary<string, string[][]> ParseCharacterMeshes(string race, MeshType meshType)
+            public Dictionary<string, string[][]> ParseCharacterMeshes(CharacterConfig characterConfig, MeshType meshType)
             {
-                var folderPath = GetFolderPath(race, meshType);
+                var folderPath = GetFolderPath(characterConfig.folderName, meshType);
                 if (folderPath == null) return null;
 
                 var dirPath = Path.Combine(Application.dataPath, folderPath.Substring(7));

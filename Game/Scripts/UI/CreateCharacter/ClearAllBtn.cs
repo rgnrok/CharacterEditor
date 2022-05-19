@@ -20,7 +20,7 @@ namespace CharacterEditor
         private Renderer[] skinMeshes;
         private IConfigManager _configManager;
 
-        void Awake()
+        private void Awake()
         {
             _configManager = AllServices.Container.Single<IConfigManager>();
         }
@@ -33,6 +33,13 @@ namespace CharacterEditor
             if (_configManager != null)
                 _configManager.OnChangeCharacter += PrepareSkinMeshTypes;
         }
+
+        private  void OnDestroy()
+        {
+            if (_configManager != null)
+                _configManager.OnChangeCharacter -= PrepareSkinMeshTypes;
+        }
+
 
         public void OnPointerClick(PointerEventData eventData)
         {

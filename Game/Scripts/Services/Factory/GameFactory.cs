@@ -54,7 +54,6 @@ namespace CharacterEditor.Services
             if (config.Prefab == null)
                 config.Prefab = await LoadConfigPrefab(config.prefabPath);
 
-
             //Setup config
             var previewInstance = Object.Instantiate(config.PreviewPrefab);
             previewInstance.transform.position = Vector3.zero;
@@ -62,7 +61,6 @@ namespace CharacterEditor.Services
 
             var characterInstance = Object.Instantiate(config.Prefab, position, characterData.rotation);
             characterInstance.SetActive(false);
-
 
             var gameObjectData = new CharacterGameObjectData(config, characterInstance, previewInstance);
             var character = new Character(characterData, gameObjectData, skinTexture, faceTexture, portraitIcon);
@@ -258,7 +256,7 @@ namespace CharacterEditor.Services
                 while (!faceMeshPair.ItemMesh.IsReady) await Task.Yield();
                 character.AddFaceMesh(faceMeshPair);
             }
-
+            
             while (!ItemManager.Instance.IsReady) await Task.Yield();
             ItemManager.Instance.SetCharacter(character);
             ItemManager.Instance.EquipItems(equipItems);

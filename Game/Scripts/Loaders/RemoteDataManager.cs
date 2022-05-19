@@ -21,7 +21,7 @@ namespace CharacterEditor
             var targetFile = Resources.Load<TextAsset>(mapConfigPath);
 
             var map = JsonUtility.FromJson<BundleMap>(targetFile.text);
-            Races = map.races.ToDictionary(x => x.race, x => x);
+            Races = map.races.ToDictionary(x => x.configGuid, x => x);
 
             Items = map.items.ToDictionary(x => x.guid, x => x);
             PlayerCharacters = map.payableNpc.ToDictionary(x => x.guid, x => x);
@@ -39,9 +39,9 @@ namespace CharacterEditor
             Resources.UnloadAsset(targetFile);
         }
 
-        public string[][] ParseCharacterTextures(string characterRace, TextureType textureType)
+        public string[][] ParseCharacterTextures(CharacterConfig characterConfig, TextureType textureType)
         {
-            if (!RaceTextures.TryGetValue(characterRace, out var raceTexturesMaps)) return null;
+            if (!RaceTextures.TryGetValue(characterConfig.guid, out var raceTexturesMaps)) return null;
             if (!raceTexturesMaps.TryGetValue(textureType, out var texturesMap)) return null;
 
             var texturePaths = texturesMap.texturePaths;
@@ -52,9 +52,9 @@ namespace CharacterEditor
             return textures;
         }
 
-        public Dictionary<string, string[][]> ParseCharacterMeshes(string characterRace, MeshType meshType)
+        public Dictionary<string, string[][]> ParseCharacterMeshes(CharacterConfig characterConfig, MeshType meshType)
         {
-            if (!RaceMeshes.TryGetValue(characterRace, out var raceMeshesMap)) return null;
+            if (!RaceMeshes.TryGetValue(characterConfig.guid, out var raceMeshesMap)) return null;
             if (!raceMeshesMap.TryGetValue(meshType, out var meshesMap)) return null;
 
             return meshesMap.meshPaths.ToDictionary(

@@ -61,6 +61,11 @@ namespace CharacterEditor
 
                 return await _commonLoader.LoadByPath(paths);
             }
+
+            public void CleanUp()
+            {
+                _commonLoader.CleanUp();
+            }
         }
     }
 }

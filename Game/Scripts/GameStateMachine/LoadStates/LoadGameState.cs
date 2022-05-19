@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using CharacterEditor;
+﻿using CharacterEditor;
 using CharacterEditor.Services;
 using CharacterEditor.StaticData;
 using UnityEngine.SceneManagement;
@@ -16,7 +13,6 @@ namespace Game
         private readonly ILoaderService _loaderService;
         private readonly SceneLoader _sceneLoader;
         private readonly LoadingCurtain _loadingCurtain;
-        private readonly IGameFactory _gameFactory;
         private readonly ISaveLoadService _saveLoadService;
         private readonly IStaticDataService _staticData;
         private string _saveName;
@@ -25,19 +21,20 @@ namespace Game
             _staticData.ForLevel(SceneManager.GetActiveScene().name);
 
 
-        public LoadGameState(FSM fsm, SceneLoader sceneLoader, LoadingCurtain loadingCurtain, ILoaderService loaderService, IGameFactory gameFactory, ISaveLoadService saveLoadService, IStaticDataService staticData) 
+        public LoadGameState(FSM fsm, SceneLoader sceneLoader, LoadingCurtain loadingCurtain, ILoaderService loaderService, ISaveLoadService saveLoadService, IStaticDataService staticData) 
         {
             _fsm = fsm;
             _sceneLoader = sceneLoader;
             _loadingCurtain = loadingCurtain;
             _loaderService = loaderService;
-            _gameFactory = gameFactory;
             _saveLoadService = saveLoadService;
             _staticData = staticData;
         }
 
         public async void Enter(string saveName)
         {
+            _loaderService.CleanUp();
+
             _saveName = saveName;
             _loadingCurtain.SetLoading(0);
 
@@ -47,18 +44,16 @@ namespace Game
 
         public void Exit()
         {
+            _loadingCurtain.SetLoading(100);
+
         }
 
         private async void OnSceneLoaded()
         {
             _loadingCurtain.SetLoading(10);
             
-            var configs = await _loaderService.ConfigLoader.LoadConfigs(); //need?
-            _loadingCurtain.SetLoading(20);
-
             var levelData = LevelStaticData();
             var successLoad = await _saveLoadService.Load(_saveName, levelData, LoadProcessAction);
-
 
             if (!successLoad)
                 _fsm.SpawnEvent((int)GameStateMachine.GameStateType.CreateGame);

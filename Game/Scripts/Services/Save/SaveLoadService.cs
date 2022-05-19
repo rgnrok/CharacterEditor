@@ -130,10 +130,10 @@ namespace CharacterEditor
         {
             _loadTasks = new List<Task<bool>>
             {
-                LoadCharacters(saveData, levelData),
                 LoadPlayableNpc(saveData, levelData),
                 LoadEnemies(saveData, levelData),
-                LoadContainers(saveData, levelData)
+                LoadContainers(saveData, levelData),
+                LoadCharacters(saveData, levelData)
             };
 
             var completedTasks = 0;
@@ -162,7 +162,6 @@ namespace CharacterEditor
 
         private async Task<bool> LoadCharacters(SaveData saveData, LevelStaticData levelData)
         {
-
             if (saveData == null) return false;
 
             var characters = new List<Character>(saveData.characters.Length);
@@ -244,11 +243,6 @@ namespace CharacterEditor
             return true;
         }
 
-        private void UpdateLoadProcess(Action<int> loadProcessAction, int current, int total)
-        {
-            loadProcessAction(current * 100 / total);
-        }
-
         private async Task<Enemy> LoadEnemy(string guid, EnemyConfig config, Vector3 position)
         {
             var skinTextureTask = _loaderService.TextureLoader.LoadByPath(_loaderService.PathDataProvider.GetPath(config.texturePath));
@@ -265,6 +259,11 @@ namespace CharacterEditor
             var material = await _loaderService.MaterialLoader.LoadByPath(_loaderService.PathDataProvider.GetPath(config.materialPath));
 
             return await _gameFactory.CreateEnemy(guid, config, material, skinTexture, faceTexture, armorTexture, portraitIcon, position);
+        }
+
+        private void UpdateLoadProcess(Action<int> loadProcessAction, int current, int total)
+        {
+            loadProcessAction(current * 100 / total);
         }
     }
 }

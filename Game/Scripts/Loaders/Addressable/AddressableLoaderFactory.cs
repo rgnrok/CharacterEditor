@@ -52,16 +52,15 @@ namespace CharacterEditor
 
             public async Task Prepare()
             {
-                await InitializeAssetBundles();
-
+                await InitializeAddressable();
             }
 
-            private async Task InitializeAssetBundles()
+            private async Task InitializeAddressable()
             {
                 var request = Addressables.InitializeAsync();
 
                 while (!request.IsDone)
-                    await Task.Delay(100);
+                    await Task.Yield();
             }
         }
     }

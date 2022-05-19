@@ -55,6 +55,14 @@ namespace CharacterEditor
                 _completedHandles.Remove(path);
             }
 
+            public void CleanUp()
+            {
+                foreach (var operationHandler in _completedHandles.Values)
+                    Addressables.Release(operationHandler);
+
+                _completedHandles.Clear();
+            }
+
             private async Task<T> LoadWithCache<T>(AsyncOperationHandle<T> asyncOperationHandle, string cacheKey) where T : class
             {
                 _completedHandles[cacheKey] = asyncOperationHandle;

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace CharacterEditor.Services
 {
-    public interface ILoaderService : IService
+    public interface ILoaderService : IService, ICleanable
     {
         IDataManager DataManager { get; }
         IMeshLoader MeshLoader { get; }

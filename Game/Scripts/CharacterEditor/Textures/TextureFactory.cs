@@ -2,9 +2,9 @@
 {
     public class TextureFactory
     {
-        public static CharacterTexture Create(TextureType type, ITextureLoader loader, IDataManager dataManager, string characterRace)
+        public static CharacterTexture Create(TextureType type, ITextureLoader loader, IDataManager dataManager, CharacterConfig characterConfig)
         {
-            var textures = dataManager.ParseCharacterTextures(characterRace, type);
+            var textures = dataManager.ParseCharacterTextures(characterConfig, type);
             switch (type)
             {
                 case TextureType.RobeLong:

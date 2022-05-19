@@ -18,12 +18,12 @@ namespace CharacterEditor
 
         protected abstract void OnClick();
 
-        void Awake()
+        private void Awake()
         {
             _configManager = AllServices.Container.Single<IConfigManager>();
         }
 
-        public void Start()
+        private void Start()
         {
             button = GetComponent<Button>();
 
@@ -37,6 +37,12 @@ namespace CharacterEditor
 
             if (_configManager != null)
                 _configManager.OnChangeCharacter += DisableActionBtns;
+        }
+
+        private void OnDestroy()
+        {
+            if (_configManager != null)
+                _configManager.OnChangeCharacter -= DisableActionBtns;
         }
 
         private void DisableActionBtns()

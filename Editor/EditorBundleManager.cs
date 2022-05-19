@@ -91,8 +91,8 @@ namespace Editor
                     previewPrefabPath = ParsePrefabPath(configs[i].previewPrefabPath.path),
                     createGamePrefabPath = ParsePrefabPath(configs[i].createGamePrefabPath.path),
                     configGuid = configs[i].guid,
-                    textures = ParseBundleTextures(raceName),
-                    meshes = ParseBundleMeshes(raceName),
+                    textures = ParseBundleTextures(configs[i]),
+                    meshes = ParseBundleMeshes(configs[i]),
                 };
 
                 races.Add(raceMap);
@@ -365,7 +365,7 @@ namespace Editor
             return assetPath;
         }
 
-        private static List<MeshesMap> ParseBundleMeshes(string raceName)
+        private static List<MeshesMap> ParseBundleMeshes(CharacterConfig characterConfig)
         {
             var dataManager = new DataManager(MeshAtlasType.Static);
             var bundleMeshList = new List<MeshesMap>();
@@ -377,7 +377,7 @@ namespace Editor
                 var bundleMeshes = new MeshesMap();
                 bundleMeshes.type = meshType;
 
-                var meshPaths = dataManager.ParseCharacterMeshes(raceName, meshType);
+                var meshPaths = dataManager.ParseCharacterMeshes(characterConfig, meshType);
                 if (meshPaths == null || meshPaths.Count == 0) continue;
 
                 foreach (var meshPathPair in meshPaths)
@@ -437,7 +437,7 @@ namespace Editor
             return newName;
         }
 
-        protected static List<TexturesMap> ParseBundleTextures(string raceName)
+        protected static List<TexturesMap> ParseBundleTextures(CharacterConfig characterConfig)
         {
             var dataManager = new DataManager(MeshAtlasType.Static);
 
@@ -446,7 +446,7 @@ namespace Editor
             {
                 var textures = new TexturesMap();
                 textures.type = textureType;
-                var paths = dataManager.ParseCharacterTextures(raceName, textureType);
+                var paths = dataManager.ParseCharacterTextures(characterConfig, textureType);
                 if (paths == null) continue;
 
                 foreach (string[] texturePaths in paths)

@@ -42,9 +42,10 @@ namespace CharacterEditor
 
         private string _characterRace;
         private MeshManager _meshManager;
+        private IConfigManager _configManager;
 
 
-        void Awake()
+        private void Awake()
         {
             if (Instance != null) Destroy(gameObject);
             Instance = this;
@@ -57,8 +58,17 @@ namespace CharacterEditor
             _meshManager = MeshManager.Instance;
             _meshManager.OnMeshesTextureUpdated += OnMeshesTextureUpdatedHandler;
 
-            var configManager = AllServices.Container.Single<IConfigManager>();
-            configManager.OnChangeConfig += OnChangeConfigHandler;
+            _configManager = AllServices.Container.Single<IConfigManager>();
+            _configManager.OnChangeConfig += OnChangeConfigHandler;
+        }
+
+        private void OnDestroy()
+        {
+            if (_configManager != null)
+                _configManager.OnChangeConfig -= OnChangeConfigHandler;
+
+            if (_meshManager != null)
+                _meshManager.OnMeshesTextureUpdated -= OnMeshesTextureUpdatedHandler;
         }
 
         private Task OnChangeConfigHandler(CharacterGameObjectData data)

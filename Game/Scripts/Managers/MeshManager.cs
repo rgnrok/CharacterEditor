@@ -29,11 +29,11 @@ namespace CharacterEditor
         private Dictionary<MeshType, int> _defaultMeshValues;
 
         [SerializeField] private Material skinMeshRenderMaterial;
-        [SerializeField] private RenderTexture skinMeshRenderTexture;
+        private RenderTexture skinMeshRenderTexture;
         private Material _tmpSkinMeshRenderMaterial;
 
         [SerializeField] private Material armorMeshRenderMaterial;
-        [SerializeField] private RenderTexture armorMeshRenderTexture;
+        private RenderTexture armorMeshRenderTexture;
         private Material _tmpArmorMeshRenderMaterial;
 
         public Texture2D ArmorTexture { get; private set; }
@@ -58,8 +58,9 @@ namespace CharacterEditor
 
         public Action OnMeshesChanged;
         public Action OnMeshesTextureUpdated;
+        private IConfigManager _configManager;
 
-        void Awake()
+        private void Awake()
         {
             if (Instance != null) Destroy(gameObject);
             Instance = this;
@@ -78,6 +79,12 @@ namespace CharacterEditor
             _tmpSkinMeshRenderMaterial = new Material(skinMeshRenderMaterial);
             _tmpArmorMeshRenderMaterial = new Material(armorMeshRenderMaterial);
 
+            _tmpSkinMeshRenderMaterial = skinMeshRenderMaterial;
+            _tmpArmorMeshRenderMaterial = armorMeshRenderMaterial;
+
+            armorMeshRenderTexture = new RenderTexture(ArmorTexture.width, ArmorTexture.height, 0, RenderTextureFormat.ARGB32);
+            skinMeshRenderTexture = new RenderTexture(FaceTexture.width, FaceTexture.height, 0, RenderTextureFormat.ARGB32);
+
             var loaderService = AllServices.Container.Single<ILoaderService>();
             _meshLoader = loaderService.MeshLoader;
             _dataManager = loaderService.DataManager;
@@ -85,8 +92,14 @@ namespace CharacterEditor
             _meshInstanceCreator = AllServices.Container.Single<IMeshInstanceCreator>();
             _mergeTextureService = AllServices.Container.Single<IMergeTextureService>();
 
-            var configManager = AllServices.Container.Single<IConfigManager>();
-            configManager.OnChangeConfig += OnChangeConfigHandler;
+            _configManager = AllServices.Container.Single<IConfigManager>();
+            _configManager.OnChangeConfig += OnChangeConfigHandler;
+        }
+
+        private void OnDestroy()
+        {
+            if (_configManager != null)
+                _configManager.OnChangeConfig -= OnChangeConfigHandler;
         }
 
         private Task OnChangeConfigHandler(CharacterGameObjectData data)
@@ -116,7 +129,7 @@ namespace CharacterEditor
                 if (Array.IndexOf(CanChangeTypes, meshType) == -1) continue;
                 if (!data.meshBones.TryGetValue(meshType, out var bone)) continue;
 
-                var meshWrapper = new CharacterMeshWrapper(_meshInstanceCreator, _meshLoader, bone, _dataManager, meshType, data.Config.folderName);
+                var meshWrapper = new CharacterMeshWrapper(_meshInstanceCreator, _meshLoader, bone, _dataManager, meshType, data.Config);
                 if (_defaultMeshValues.TryGetValue(meshType, out var defaultMeshValue))
                 {
                     meshWrapper.Mesh.SetMesh(defaultMeshValue);
