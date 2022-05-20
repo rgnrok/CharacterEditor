@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CharacterEditor.Helpers;
 using CharacterEditor.Services;
 using UnityEngine;
-using UnityEngine.U2D;
 using UnityEngine.UI;
 
 namespace CharacterEditor
@@ -15,48 +15,42 @@ namespace CharacterEditor
         [SerializeField] private RawImage skinRawImage;
         [SerializeField] private RenderTexture renderSkinTexture;
         [SerializeField] private Image portrait;
-        [SerializeField] private SpriteAtlas portraits;
 
         [EnumFlag] public TextureType canChangeMask;
         private TextureType[] _canChangeTypes;
-        
-        public Dictionary<TextureType, CharacterTexture> CurrentCharacterTextures { get; private set; }
+
+        public static TextureManager Instance { get; private set; }
+
         public Texture2D CharacterTexture { get; private set; }
         public Texture2D CloakTexture { get; private set; }
+
+        private TwoWayArray<Sprite> _currentCharacterPortrait;
+        public Sprite CurrentCharacterPortrait => _currentCharacterPortrait.Current;
         public bool IsReady { get; private set; }
 
+        private ILoaderService _loaderService;
+        private IMergeTextureService _mergeTextureService;
+        private IConfigManager _configManager;
 
+        private Material _tmpSkinRenderMaterial;
         private List<Renderer> _modelRenderers;
         private List<Renderer> _cloakRenderers;
 
         private Dictionary<string, Dictionary<TextureType, CharacterTexture>> _characterTextures;
-
+        private Dictionary<TextureType, CharacterTexture> _currentCharacterTextures;
         private Dictionary<string, TwoWayArray<Sprite>> _characterPortraits;
-        public Sprite CharacterPortrait { get { return _characterPortraits[_characterRace].Current; } }
 
-        private string _characterRace;
-        private TextureType[] _ignoreTypes;
         private bool _isLock;
-        private ITextureLoader _textureLoader;
-        private IDataManager _dataManager;
+        private TextureType[] _ignoreTypes;
 
-        public Action OnTexturesChanged;
-        public Action OnTexturesLoaded;
-        private IMergeTextureService _mergeTextureService;
-
-        private Material _tmpSkinRenderMaterial;
-        private IConfigManager _configManager;
-
-        public static TextureManager Instance { get; private set; }
-
+        public event Action OnTexturesChanged;
+        public event Action OnTexturesUpdated;
 
 
         private void Awake()
         {
             if (Instance != null) Destroy(gameObject);
             Instance = this;
-
-            IsReady = false;
 
             _characterTextures = new Dictionary<string, Dictionary<TextureType, CharacterTexture>>();
             _modelRenderers = new List<Renderer>();
@@ -68,12 +62,9 @@ namespace CharacterEditor
             _tmpSkinRenderMaterial = new Material(skinRenderShaderMaterial);
 
             _canChangeTypes = canChangeMask.FlagToArray<TextureType>();
+
             _mergeTextureService = AllServices.Container.Single<IMergeTextureService>();
-
-
-            var loaderService = AllServices.Container.Single<ILoaderService>();
-            _textureLoader = loaderService.TextureLoader;
-            _dataManager = loaderService.DataManager;
+            _loaderService = AllServices.Container.Single<ILoaderService>();
 
             _configManager = AllServices.Container.Single<IConfigManager>();
             _configManager.OnChangeConfig += OnChangeConfigHandler;
@@ -90,9 +81,6 @@ namespace CharacterEditor
             await ApplyConfig(data);
         }
 
-        /*
-         * Change Character. Update textures and skin meshes
-         */
         private async Task ApplyConfig(CharacterGameObjectData data)
         {
             _modelRenderers.Clear();
@@ -100,115 +88,48 @@ namespace CharacterEditor
             _modelRenderers.AddRange(data.ShortRobeMeshes);
             _modelRenderers.AddRange(data.LongRobeMeshes);
 
-            _characterRace = data.Config.folderName;
-            if (!_characterTextures.ContainsKey(_characterRace))
-            {
-                _characterTextures[_characterRace] = new Dictionary<TextureType, CharacterTexture>(data.Config.availableTextures.Length, EnumComparer.TextureType);
-                foreach (var texture in data.Config.availableTextures)
-                {
-                    if (Array.IndexOf(_canChangeTypes, texture) == -1) continue;
-                    _characterTextures[_characterRace][texture] = TextureFactory.Create(texture, _textureLoader, _dataManager, data.Config);
-                }
-            }
-
-            CurrentCharacterTextures = _characterTextures[_characterRace];
             _cloakRenderers.Clear();
             _cloakRenderers.AddRange(data.CloakMeshes);
 
-            await UpdateTextures();
-           
-            SetupPortrait();
-        }
-
-        private void SetupPortrait()
-        {
-            if (portraits != null)
+            var characterKey = data.Config.folderName;
+            if (!_characterTextures.ContainsKey(characterKey))
             {
-                if (!_characterPortraits.ContainsKey(_characterRace))
+                _characterTextures[characterKey] = new Dictionary<TextureType, CharacterTexture>(data.Config.availableTextures.Length, EnumComparer.TextureType);
+                foreach (var texture in data.Config.availableTextures)
                 {
-                    var sprites = new Sprite[portraits.spriteCount];
-                    portraits.GetSprites(sprites);
-                    _characterPortraits[_characterRace] = new TwoWayArray<Sprite>(sprites);
+                    if (Array.IndexOf(_canChangeTypes, texture) == -1) continue;
+                    _characterTextures[characterKey][texture] = TextureFactory.Create(texture, _loaderService.TextureLoader, _loaderService.DataManager, data.Config);
                 }
-
-                portrait.sprite = _characterPortraits[_characterRace].Current;
             }
+            _currentCharacterTextures = _characterTextures[characterKey];
+ 
+            await UpdateTextures();
+            await SetupPortrait(characterKey);
         }
 
+        private async Task SetupPortrait(string characterKey)
+        {
+            if (!_characterPortraits.TryGetValue(characterKey, out _currentCharacterPortrait))
+            {
+                var portraits = await _loaderService.SpriteLoader.LoadPortraits();
+
+                var sprites = new Sprite[portraits.spriteCount];
+                portraits.GetSprites(sprites);
+                _characterPortraits[characterKey] = _currentCharacterPortrait = new TwoWayArray<Sprite>(sprites);
+            }
+
+            portrait.sprite = _currentCharacterPortrait.Current;
+        }
 
         public void LockUpdate(bool isLock)
         {
+            if (_isLock == isLock) return;
+
             _isLock = isLock;
-            UpdateModelTextures();
+            if (!isLock) ApplyTextures();
         }
 
-        private async Task UpdateTextures()
-        {
-            IsReady = false;
-
-            foreach (var texture in CurrentCharacterTextures.Values)
-                while (!texture.IsReady) await Task.Yield();
-
-            OnTexturesLoaded?.Invoke();
-            await MergeTextures();
-            await UpdateCloakTexture();
-        }
-
-        private async Task MergeTextures()
-        {
-            IsReady = false;
-
-            var mergeTextures = new Dictionary<string, Texture2D>();
-            foreach (var texture in CurrentCharacterTextures.Values)
-            {
-                var textureName = texture.GetShaderTextureName();
-                if (textureName == null) continue;
-
-                var isIgnoredType = _ignoreTypes != null && Array.IndexOf(_ignoreTypes, texture.Type) != -1;
-                if (isIgnoredType) continue;
-
-                while (!texture.IsReady) await Task.Yield();
-                mergeTextures[textureName] = texture.Current;
-            }
-
-            _mergeTextureService.MergeTextures(_tmpSkinRenderMaterial, renderSkinTexture, mergeTextures);
-
-            RenderTexture.active = renderSkinTexture;
-            CharacterTexture.ReadPixels(new Rect(0, 0, renderSkinTexture.width, renderSkinTexture.height), 0, 0);
-
-            UpdateModelTextures();
-
-            IsReady = true;
-            _ignoreTypes = null;
-            OnTexturesChanged?.Invoke();
-        }
-
-
-        private void UpdateModelTextures()
-        {
-            if (_isLock) return;
-
-            CharacterTexture.Apply();
-            foreach (var render in _modelRenderers)
-                render.material.mainTexture = CharacterTexture;
-
-            if (skinRawImage != null)
-                skinRawImage.texture = CharacterTexture;
-        }
-
-        private async Task UpdateCloakTexture()
-        {
-            CloakTexture = null;
-            if (!CurrentCharacterTextures.TryGetValue(TextureType.Cloak, out var cloak)) return;
-
-            while (!cloak.IsReady) await Task.Yield();
-            CloakTexture = cloak.Current;
-
-            foreach (var render in _cloakRenderers)
-                render.material.mainTexture = CloakTexture;
-        }
-    
-  
+        #region OnXXXTexure actions
         public void OnPrevTexture(TextureType[] types, TextureType[] clearTypes = null)
         {
             if (!IsReady) return;
@@ -216,17 +137,17 @@ namespace CharacterEditor
             CharacterTexture mainTexture = null;
             foreach (var type in types)
             {
-                if (!CurrentCharacterTextures.ContainsKey(type))
+                if (!_currentCharacterTextures.ContainsKey(type))
                     continue;
 
                 if (mainTexture == null)
                 {
-                    mainTexture = CurrentCharacterTextures[type];
+                    mainTexture = _currentCharacterTextures[type];
                     mainTexture.MovePrev();
                 }
                 else
                 {
-                    CurrentCharacterTextures[type].SetTexture(mainTexture.SelectedTexture);
+                    _currentCharacterTextures[type].SetTexture(mainTexture.SelectedTexture);
                 }
             }
 
@@ -241,17 +162,17 @@ namespace CharacterEditor
             CharacterTexture mainTexture = null;
             foreach (var type in types)
             {
-                if (!CurrentCharacterTextures.ContainsKey(type))
+                if (!_currentCharacterTextures.ContainsKey(type))
                     continue;
 
                 if (mainTexture == null)
                 {
-                    mainTexture = CurrentCharacterTextures[type];
+                    mainTexture = _currentCharacterTextures[type];
                     mainTexture.MovePrevColor();
                 }
                 else
                 {
-                    CurrentCharacterTextures[type].SetColor(mainTexture.SelectedColor);
+                    _currentCharacterTextures[type].SetColor(mainTexture.SelectedColor);
                 }
             }
 
@@ -265,17 +186,17 @@ namespace CharacterEditor
             CharacterTexture mainTexture = null;
             foreach (var type in types)
             {
-                if (!CurrentCharacterTextures.ContainsKey(type))
+                if (!_currentCharacterTextures.ContainsKey(type))
                     continue;
 
                 if (mainTexture == null)
                 {
-                    mainTexture = CurrentCharacterTextures[type];
+                    mainTexture = _currentCharacterTextures[type];
                     mainTexture.MoveNext();
                 }
                 else
                 {
-                    CurrentCharacterTextures[type].SetTexture(mainTexture.SelectedTexture);
+                    _currentCharacterTextures[type].SetTexture(mainTexture.SelectedTexture);
                 }
             }
 
@@ -290,42 +211,28 @@ namespace CharacterEditor
             CharacterTexture mainTexture = null;
             foreach (var type in types)
             {
-                if (!CurrentCharacterTextures.ContainsKey(type))
+                if (!_currentCharacterTextures.ContainsKey(type))
                     continue;
 
                 if (mainTexture == null)
                 {
-                    mainTexture = CurrentCharacterTextures[type];
+                    mainTexture = _currentCharacterTextures[type];
                     mainTexture.MoveNextColor();
                 }
                 else
                 {
-                    CurrentCharacterTextures[type].SetColor(mainTexture.SelectedColor);
+                    _currentCharacterTextures[type].SetColor(mainTexture.SelectedColor);
                 }
             }
 
             OnChangeTexture(types);
         }
 
-        public void OnResetTexure(TextureType[] types)
+        public void OnResetTexture(TextureType[] types)
         {
             if (!IsReady) return;
             ResetTexture(types);
             OnChangeTexture(types);
-        }
-
-        private void ResetTexture(TextureType[] types)
-        {
-            if (types == null)
-                return;
-
-            foreach (var type in types)
-            {
-                if (!CurrentCharacterTextures.ContainsKey(type))
-                    continue;
-
-                CurrentCharacterTextures[type].Reset();
-            }
         }
 
         public void OnResetColor(TextureType[] types)
@@ -333,10 +240,10 @@ namespace CharacterEditor
             if (!IsReady) return;
             foreach (var type in types)
             {
-                if (!CurrentCharacterTextures.ContainsKey(type))
+                if (!_currentCharacterTextures.ContainsKey(type))
                     continue;
 
-                CurrentCharacterTextures[type].ResetColor();
+                _currentCharacterTextures[type].ResetColor();
             }
 
             OnChangeTexture(types);
@@ -348,11 +255,11 @@ namespace CharacterEditor
 
             foreach (var type in types)
             {
-                if (!CurrentCharacterTextures.ContainsKey(type))
+                if (!_currentCharacterTextures.ContainsKey(type))
                     continue;
 
-                CurrentCharacterTextures[type].ResetColor();
-                CurrentCharacterTextures[type].Reset();
+                _currentCharacterTextures[type].ResetColor();
+                _currentCharacterTextures[type].Reset();
             }
 
             OnChangeTexture(types);
@@ -365,78 +272,155 @@ namespace CharacterEditor
             // Shuffle without same colors
             foreach (var type in types)
             {
-                if (!CurrentCharacterTextures.ContainsKey(type) || Array.IndexOf(sameColors, type) != -1)
+                if (!_currentCharacterTextures.ContainsKey(type) || Array.IndexOf(sameColors, type) != -1)
                     continue;
 
-                CurrentCharacterTextures[type].Shuffle(true);
+                _currentCharacterTextures[type].Shuffle(true);
             }
 
             var color = -1;
             foreach (var sameColorType in sameColors)
             {
-                if (!CurrentCharacterTextures.ContainsKey(sameColorType))
+                if (!_currentCharacterTextures.ContainsKey(sameColorType))
                     continue;
 
                 if (color == -1)
                 {
-                    CurrentCharacterTextures[sameColorType].Shuffle(true);
-                    color = CurrentCharacterTextures[sameColorType].SelectedColor;
+                    _currentCharacterTextures[sameColorType].Shuffle(true);
+                    color = _currentCharacterTextures[sameColorType].SelectedColor;
                     continue;
                 }
 
-                CurrentCharacterTextures[sameColorType].ShuffleWithColor(color);
+                _currentCharacterTextures[sameColorType].ShuffleWithColor(color);
             }
 
-            _ignoreTypes = ignoreTypes;
-            OnChangeTexture(types);
+            OnChangeTexture(types, ignoreTypes);
+        }
+        #endregion
+
+        private async Task UpdateTextures()
+        {
+            IsReady = false;
+
+            foreach (var texture in _currentCharacterTextures.Values)
+                while (!texture.IsReady) await Task.Yield();
+
+            MergeTextures();
+            UpdateCloakTexture();
+
+            OnTexturesChanged?.Invoke();
+
+            ApplyTextures();
+            IsReady = true;
         }
 
-        /*
-         * Prepare skin meshes and check merge texture
-         */
-        private async void OnChangeTexture(TextureType[] changedTypes)
+        private void MergeTextures()
         {
-            var types = new List<TextureType>(changedTypes.Length);
-            foreach (var type in changedTypes)
+            var mergeTextures = new Dictionary<string, Texture2D>();
+            foreach (var texture in _currentCharacterTextures.Values)
             {
-                if (CurrentCharacterTextures.ContainsKey(type))
-                    types.Add(type);
-            }
-            if (types.Count == 0) return;
+                var textureName = texture.GetShaderTextureName();
+                if (textureName == null) continue;
 
-            PrepareSkinMeshTextures(types);
+                var isIgnoredType = _ignoreTypes != null && Array.IndexOf(_ignoreTypes, texture.Type) != -1;
+                if (isIgnoredType) continue;
+
+                mergeTextures[textureName] = texture.Current;
+            }
+
+            _mergeTextureService.MergeTextures(_tmpSkinRenderMaterial, renderSkinTexture, mergeTextures);
+
+            RenderTexture.active = renderSkinTexture;
+            CharacterTexture.ReadPixels(new Rect(0, 0, renderSkinTexture.width, renderSkinTexture.height), 0, 0);
+
+            _ignoreTypes = null;
+        }
+
+        private void ApplyTextures()
+        {
+            if (_isLock) return;
+
+            CharacterTexture.Apply();
+            foreach (var render in _modelRenderers)
+                render.material.mainTexture = CharacterTexture;
+
+            if (skinRawImage != null)
+                skinRawImage.texture = CharacterTexture;
+
+            OnTexturesUpdated?.Invoke();
+        }
+
+        private void UpdateCloakTexture()
+        {
+            if (!_currentCharacterTextures.TryGetValue(TextureType.Cloak, out var cloak))
+            {
+                CloakTexture = null;
+                return;
+            }
+
+            CloakTexture = cloak.Current;
+
+            foreach (var render in _cloakRenderers)
+                render.material.mainTexture = CloakTexture;
+        }
+
+        private async void OnChangeTexture(TextureType[] changedTypes, TextureType[] ignoreTypes = null)
+        {
+            var hasChangedTexture = changedTypes.Any(type => _currentCharacterTextures.ContainsKey(type));
+            if (!hasChangedTexture) return;
+
+            _ignoreTypes = ignoreTypes;
+            PrepareSkinMeshTextures(changedTypes, ignoreTypes);
             await UpdateTextures();
         }
 
-        private void PrepareSkinMeshTextures(List<TextureType> types)
+        private void PrepareSkinMeshTextures(TextureType[] types, TextureType[] ignoreTypes)
         {
-            if (_ignoreTypes == null)
-                return;
+            var skinned = types.Where(
+                type =>
+                    type == TextureType.RobeLong ||
+                    type == TextureType.RobeShort ||
+                    type == TextureType.Pants).ToList();
 
-            var skined = new List<TextureType>()
+            if (skinned.Count == 0) return;
+
+            if (ignoreTypes != null)
             {
-                TextureType.RobeLong,
-                TextureType.RobeShort,
-                TextureType.Pants
-            };
-            foreach (var ignore in _ignoreTypes)
-            {
-                skined.Remove(ignore);
-                CurrentCharacterTextures[ignore].Reset();
+                foreach (var ignore in ignoreTypes)
+                {
+                    skinned.Remove(ignore);
+                    _currentCharacterTextures[ignore].Reset();
+                }
             }
 
-            if (skined.Count != 0 && CurrentCharacterTextures[skined[0]].SelectedTexture == 0)
-                CurrentCharacterTextures[skined[0]].MoveNext();
+            if (skinned.Count == 0) return;
+
+            var skinnedTexture = _currentCharacterTextures[skinned[0]];
+            if (skinnedTexture.SelectedTexture == 0)
+                skinnedTexture.MoveNext();
         }
 
-        public void OnPrevPortrait()
+        private void ResetTexture(TextureType[] types)
         {
-            portrait.sprite = _characterPortraits[_characterRace].Prev;
+            if (types == null) return;
+
+            foreach (var type in types)
+            {
+                if (!_currentCharacterTextures.ContainsKey(type))
+                    continue;
+
+                _currentCharacterTextures[type].Reset();
+            }
         }
 
-        public void OnNextPortrait()
-        {
-            portrait.sprite = _characterPortraits[_characterRace].Next;
-        }
+        public void OnPrevPortrait() => 
+            portrait.sprite = _currentCharacterPortrait.Prev;
+
+        public void OnNextPortrait() => 
+            portrait.sprite = _currentCharacterPortrait.Next;
+
+        public int GetSelectedTextureColor(TextureType type) => 
+            _currentCharacterTextures[type].SelectedColor;
+      
     }
 }

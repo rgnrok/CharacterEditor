@@ -1,4 +1,5 @@
-﻿using CharacterEditor;
+﻿using System.Threading.Tasks;
+using CharacterEditor;
 using CharacterEditor.Services;
 using CharacterEditor.StaticData;
 using UnityEngine.SceneManagement;
@@ -51,7 +52,9 @@ namespace Game
         private async void OnSceneLoaded()
         {
             _loadingCurtain.SetLoading(10);
-            
+
+            await PreloadData();
+
             var levelData = LevelStaticData();
             var successLoad = await _saveLoadService.Load(_saveName, levelData, LoadProcessAction);
 
@@ -59,6 +62,11 @@ namespace Game
                 _fsm.SpawnEvent((int)GameStateMachine.GameStateType.CreateGame);
             else
                 _fsm.SpawnEvent((int) GameStateMachine.GameStateType.GameLoop);
+        }
+
+        private async Task PreloadData()
+        {
+            await _loaderService.ConfigLoader.LoadConfigs();
         }
 
         private void LoadProcessAction(int loadPercent)

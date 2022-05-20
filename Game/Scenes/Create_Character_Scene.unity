@@ -3212,8 +3212,6 @@ MonoBehaviour:
   skinRawImage: {fileID: 1075053166}
   renderSkinTexture: {fileID: 8400000, guid: a464c35955f63c64088c0c185019b78e, type: 2}
   portrait: {fileID: 446074424}
-  portraits: {fileID: 4343727234628468602, guid: 79230c19ab0101d4091e4fb4b4bfb17d,
-    type: 2}
   canChangeMask: 36735
 --- !u!4 &653876882
 Transform:
@@ -3248,13 +3246,9 @@ MonoBehaviour:
   defaultValues:
   - type: 1
     value: 0
-  skinMeshRenderMaterial: {fileID: 2100000, guid: 244804a68b261a94698ec9400479d6c8,
-    type: 2}
-  skinMeshRenderTexture: {fileID: 8400000, guid: f6c325ce6e50e59428a4ac25db544f96,
+  faceMeshRenderMaterial: {fileID: 2100000, guid: 244804a68b261a94698ec9400479d6c8,
     type: 2}
   armorMeshRenderMaterial: {fileID: 2100000, guid: 4d3fd518d8acb9348b2e67505a1f1aff,
-    type: 2}
-  armorMeshRenderTexture: {fileID: 8400000, guid: a52171669daa53047856390032dc2e3a,
     type: 2}
 --- !u!114 &653876884
 MonoBehaviour:
@@ -3361,7 +3355,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5f6a23ff137b8e4298360cb04ae3fea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  offset: {x: 0, y: 0.06, z: 1}
+  _offset: {x: 0, y: 0.06, z: 1}
 --- !u!124 &671310465
 Behaviour:
   m_ObjectHideFlags: 0

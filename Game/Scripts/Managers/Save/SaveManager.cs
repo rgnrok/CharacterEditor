@@ -75,7 +75,7 @@ namespace CharacterEditor
                 _saveLoadService.SaveGame(saveName, GameManager.Instance);
             else 
                 _saveLoadService.CreateGame(saveName, _configManager.ConfigData,
-                TextureManager.Instance.CharacterTexture, TextureManager.Instance.CharacterPortrait,
+                TextureManager.Instance.CharacterTexture, TextureManager.Instance.CurrentCharacterPortrait,
                 MeshManager.Instance.SelectedSkinMeshes.Select(mw => mw.Mesh), MeshManager.Instance.FaceTexture);
         }
     }

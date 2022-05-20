@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,47 +6,47 @@ namespace CharacterEditor
 {
     public class ShaderSelector : MonoBehaviour
     {
-        private Dropdown shaderDropdown;
-        private List<TextureShaderType> shaders;
+        private Dropdown _shaderDropdown;
+        private List<TextureShaderType> _shaderTypes;
+        private PrefabShaderManager _prefabShaderManager;
 
-        void Awake()
+        private void Awake()
         {
-            shaderDropdown = GetComponent<Dropdown>();
-            shaderDropdown.onValueChanged.AddListener(delegate
-            {
-                StartCoroutine(ShaderChanged());
-            });
+            _shaderDropdown = GetComponent<Dropdown>();
+            _shaderDropdown.onValueChanged.AddListener(ShaderChanged);
+
+            _prefabShaderManager = PrefabShaderManager.Instance;
         }
 
-        void Start()
+        private void Start()
         {
-            if (PrefabShaderManager.Instance == null) return;
+            if (_prefabShaderManager == null) return;
+            InitShaderDropdown();
+        }
 
-            shaders = new List<TextureShaderType>();
-            shaderDropdown.options.Clear();
-            foreach (var materialInfo in PrefabShaderManager.Instance.Materials)
+        private void InitShaderDropdown()
+        {
+            _shaderTypes = new List<TextureShaderType>();
+            _shaderDropdown.options.Clear();
+            foreach (var materialInfo in _prefabShaderManager.Materials)
             {
-                shaders.Add(materialInfo.shader);
-                shaderDropdown.options.Add(new Dropdown.OptionData(materialInfo.shader.ToString()));
+                _shaderTypes.Add(materialInfo.shader);
+                _shaderDropdown.options.Add(new Dropdown.OptionData(materialInfo.shader.ToString()));
             }
-            if (shaders.Count == 0)
+
+            if (_shaderTypes.Count == 0)
             {
                 gameObject.SetActive(false);
                 return;
             }
 
-            shaderDropdown.value = 0;
-            shaderDropdown.captionText.text = shaders[0].ToString();
+            _shaderDropdown.value = 0;
+            _shaderDropdown.captionText.text = _shaderTypes[0].ToString();
         }
 
-        private IEnumerator ShaderChanged()
+        private void ShaderChanged(int selected)
         {
-            while (!TextureManager.Instance.IsReady || !MeshManager.Instance.IsReady)
-                yield return null;
-
-            var selectedShader = shaders[shaderDropdown.value];
-            PrefabShaderManager.Instance.SetShader(selectedShader);
-     
+            _prefabShaderManager.UpdateCharacterMaterials(_shaderTypes[selected]);
         }
     }
 }

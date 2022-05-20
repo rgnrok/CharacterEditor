@@ -27,7 +27,7 @@ namespace CharacterEditor
                 }
 
                 AsyncOperationHandle<T> asyncOperationHandle = Addressables.LoadAssetAsync<T>(path);
-                var res =  await LoadWithCache<T>(asyncOperationHandle, path);
+                var res = await LoadWithCache(asyncOperationHandle, path);
                 return res;
             }
 
@@ -63,7 +63,7 @@ namespace CharacterEditor
                 _completedHandles.Clear();
             }
 
-            private async Task<T> LoadWithCache<T>(AsyncOperationHandle<T> asyncOperationHandle, string cacheKey) where T : class
+            private async Task<T> LoadWithCache(AsyncOperationHandle<T> asyncOperationHandle, string cacheKey) 
             {
                 _completedHandles[cacheKey] = asyncOperationHandle;
                 return await asyncOperationHandle.Task;

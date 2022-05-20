@@ -133,7 +133,8 @@ namespace CharacterEditor
                 LoadPlayableNpc(saveData, levelData),
                 LoadEnemies(saveData, levelData),
                 LoadContainers(saveData, levelData),
-                LoadCharacters(saveData, levelData)
+                LoadCharacters(saveData, levelData),
+
             };
 
             var completedTasks = 0;

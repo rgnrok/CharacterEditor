@@ -32,6 +32,11 @@ namespace CharacterEditor
                 return await LoadIcon(PORTRAIT_ICON_ATLAS_BUNDLE_NAME, portraitName);
             }
 
+            public Task<SpriteAtlas> LoadPortraits()
+            {
+                return LoadByPath(PORTRAIT_ICON_ATLAS_BUNDLE_NAME);
+            }
+
             private async Task<Sprite> LoadIcon(string atlasPath, string iconName)
             {
                 var loadedAtlas = await LoadByPath(atlasPath);

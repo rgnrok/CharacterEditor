@@ -34,16 +34,17 @@ namespace CharacterEditor
         [SerializeField] private MaterialInfo[] _materials = new MaterialInfo[0];
         public MaterialInfo[] Materials => _materials;
 
-        public Dictionary<string, TextureShaderType> CharacterShaders { get; private set; }
-        public TextureShaderType CurrentCharacterShader { get; private set; }
+        private Dictionary<string, TextureShaderType> _characterShaders;
+        private TextureShaderType _currentShaderType;
 
         private List<Renderer> _modelRenderers;
         private List<Renderer> _cloakRenderers;
 
-        private string _characterRace;
         private MeshManager _meshManager;
         private IConfigManager _configManager;
 
+        public MaterialInfo GetShaderMaterial() =>
+            GetShaderMaterial(_currentShaderType);
 
         private void Awake()
         {
@@ -53,13 +54,13 @@ namespace CharacterEditor
             _modelRenderers = new List<Renderer>();
             _cloakRenderers = new List<Renderer>();
 
-            CharacterShaders = new Dictionary<string, TextureShaderType>();
-
-            _meshManager = MeshManager.Instance;
-            _meshManager.OnMeshesTextureUpdated += OnMeshesTextureUpdatedHandler;
+            _characterShaders = new Dictionary<string, TextureShaderType>();
 
             _configManager = AllServices.Container.Single<IConfigManager>();
             _configManager.OnChangeConfig += OnChangeConfigHandler;
+
+            _meshManager = GetComponent<MeshManager>();
+            _meshManager.OnMeshesUpdated += OnMeshesTextureUpdatedHandler;
         }
 
         private void OnDestroy()
@@ -68,7 +69,17 @@ namespace CharacterEditor
                 _configManager.OnChangeConfig -= OnChangeConfigHandler;
 
             if (_meshManager != null)
-                _meshManager.OnMeshesTextureUpdated -= OnMeshesTextureUpdatedHandler;
+                _meshManager.OnMeshesUpdated -= OnMeshesTextureUpdatedHandler;
+        }
+
+        public void UpdateCharacterMaterials(TextureShaderType shader)
+        {
+            var materialInfo = GetShaderMaterial(shader);
+            if (materialInfo == null)
+                return;
+
+            UpdateSkinsMaterial(materialInfo);
+            UpdateMeshesMaterial(materialInfo);
         }
 
         private Task OnChangeConfigHandler(CharacterGameObjectData data)
@@ -79,17 +90,15 @@ namespace CharacterEditor
 
         private void OnMeshesTextureUpdatedHandler()
         {
-            var materialInfo = GetShaderMaterial(CurrentCharacterShader);
+            var materialInfo = GetShaderMaterial(_currentShaderType);
             if (materialInfo == null)
                 return;
-            
-            UpdateMeshShaders(materialInfo);
+
+            UpdateMeshesMaterial(materialInfo);
         }
 
         private void ApplyConfig(CharacterGameObjectData data)
         {
-            _characterRace = data.Config.folderName;
-
             _modelRenderers.Clear();
             _modelRenderers.AddRange(data.SkinMeshes);
             _modelRenderers.AddRange(data.ShortRobeMeshes);
@@ -98,46 +107,38 @@ namespace CharacterEditor
             _cloakRenderers.Clear();
             _cloakRenderers.AddRange(data.CloakMeshes);
 
-            if (!CharacterShaders.ContainsKey(_characterRace) || CharacterShaders[_characterRace] != CurrentCharacterShader)
-                SetShader(CurrentCharacterShader);
-        }
-
-        /*
-        * Update skin mesh materials and shaders
-        */
-        public void SetShader(TextureShaderType shader)
-        {
-            var materialInfo = GetShaderMaterial(shader);
-            if (materialInfo == null)
+            var characterRace = data.Config.folderName;
+            if (_characterShaders.TryGetValue(characterRace, out var shaderType) && shaderType == _currentShaderType)
                 return;
 
-            CurrentCharacterShader = shader;
-            CharacterShaders[_characterRace] = CurrentCharacterShader;
+            _characterShaders[characterRace] = _currentShaderType;
+            UpdateCharacterMaterials(_currentShaderType);
+        }
 
+        private void UpdateSkinsMaterial(MaterialInfo materialInfo)
+        {
             var material = materialInfo.GetMaterial(MaterialType.Skin);
             foreach (var render in _modelRenderers)
             {
                 material.mainTexture = render.material.mainTexture;
                 render.material = material;
             }
-            
+
             var cloakMaterial = materialInfo.GetMaterial(MaterialType.Cloak);
             foreach (var render in _cloakRenderers)
             {
                 cloakMaterial.mainTexture = render.material.mainTexture;
                 render.material = cloakMaterial;
             }
-            
-            UpdateMeshShaders(materialInfo);
         }
 
-        private void UpdateMeshShaders(MaterialInfo materialInfo)
+        private void UpdateMeshesMaterial(MaterialInfo materialInfo)
         {
-            UpdateMeshShaders(MeshManager.Instance.SelectedArmorMeshes, materialInfo.GetMaterial(MaterialType.Armor));
-            UpdateMeshShaders(MeshManager.Instance.SelectedSkinMeshes, materialInfo.GetMaterial(MaterialType.Face));
+            UpdateMeshesMaterial(_meshManager.SelectedArmorMeshes, materialInfo.GetMaterial(MaterialType.Armor));
+            UpdateMeshesMaterial(_meshManager.SelectedSkinMeshes, materialInfo.GetMaterial(MaterialType.Face));
         }
 
-        private void UpdateMeshShaders(IEnumerable<CharacterMeshWrapper> meshes, Material material)
+        private void UpdateMeshesMaterial(IEnumerable<CharacterMeshWrapper> meshes, Material material)
         {
             foreach (var meshWrapper in meshes)
             {
@@ -150,7 +151,7 @@ namespace CharacterEditor
                     for (var i = 0; i < tmpMaterials.Length; i++)
                     {
                         var currentMaterial = tmpMaterials[i];
-                        replacedMaterials[i] = _meshManager.IsDynamicTextureAtlas() ? new Material(material) : material;
+                        replacedMaterials[i] = _meshManager.IsDynamicTextureAtlas ? new Material(material) : material;
                         replacedMaterials[i].mainTexture = currentMaterial.mainTexture;
                     }
 
@@ -159,18 +160,12 @@ namespace CharacterEditor
             }
         }
 
-
         private MaterialInfo GetShaderMaterial(TextureShaderType shader)
         {
             foreach (var mat in _materials)
                 if (mat.shader == shader) return mat;
 
             return null;
-        }
-
-        public MaterialInfo GetShaderMaterial()
-        {
-            return GetShaderMaterial(CurrentCharacterShader);
         }
     }
 }

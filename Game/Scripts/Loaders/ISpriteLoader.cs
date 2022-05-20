@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.U2D;
 
 namespace CharacterEditor
 {
@@ -11,5 +12,6 @@ namespace CharacterEditor
 
         Task<Sprite> LoadItemIcon(string iconName);
         Task<Sprite> LoadPortrait(string portraitName);
+        Task<SpriteAtlas> LoadPortraits();
     }
 }

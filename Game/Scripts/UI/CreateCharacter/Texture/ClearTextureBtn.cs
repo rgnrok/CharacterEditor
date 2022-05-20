@@ -4,7 +4,7 @@
     {
         protected override void OnClick()
         {
-            TextureManager.Instance.OnResetTexure(types);
+            TextureManager.Instance.OnResetTexture(types);
         }
     }
 }

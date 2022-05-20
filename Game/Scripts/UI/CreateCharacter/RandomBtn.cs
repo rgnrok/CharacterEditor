@@ -23,11 +23,7 @@ namespace CharacterEditor
         [Header("Skinned Mesh settings")]
         [EnumFlag]
         public SkinMeshType skinMeshTypeMask;
-
-        private Renderer[] _longRobeMeshes;
-        private Renderer[] _shortRobeMeshes;
-        private Renderer[] _cloakMeshes;
-
+        
         [Header("Mesh settings")]
         [EnumFlag]
         public MeshType meshTypeMask;
@@ -53,15 +49,20 @@ namespace CharacterEditor
         private MeshType[] _sameMeshColorTypes;
         private TextureType[] _sameTextureColorTypes;
 
-        private Action _robeCloakVisibleCallback;
-
+        private Renderer[] _longRobeMeshes;
+        private Renderer[] _shortRobeMeshes;
+        private Renderer[] _cloakMeshes;
+        
         private bool _isWaitingTextures;
         private bool _isWaitingMeshes;
-        private bool _isProcess;
+        private bool IsProcess => _isWaitingTextures || _isWaitingMeshes;
 
         private IConfigManager _configManager;
         private MeshManager _meshManager;
         private TextureManager _textureManager;
+
+        private Action _robeCloakVisibleCallback;
+
 
         public void Awake()
         {
@@ -90,36 +91,17 @@ namespace CharacterEditor
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (_isProcess || _textureManager == null || _meshManager == null) return;
-            _isProcess = true;
-
-            _textureManager.OnTexturesChanged -= TexturesChangedHandler;
-            _meshManager.OnMeshesChanged -= MeshesChangedHandler;
+            if (IsProcess) return;
 
             RandomizeTextures();
             RandomizeMeshes();
         }
 
-        private void RandomizeMeshes()
-        {
-            _isWaitingMeshes = false;
-            if (_randomMeshTypes.Length == 0) return;
-
-            _isWaitingMeshes = true;
-            _meshManager.LockUpdate(true);
-            _meshManager.OnMeshesChanged += MeshesChangedHandler;
-
-            var sameColor = _sameTextureColorTypes.Length > 0
-                ? _textureManager.CurrentCharacterTextures[_sameTextureColorTypes[0]].SelectedColor
-                : 0;
-
-            _meshManager.OnRandom(_randomMeshTypes, _sameMesheTypes, _sameMeshColorTypes, sameColor);
-        }
-
         private void RandomizeTextures()
         {
-            _isWaitingTextures = false;
-            if (_randomTextureTypes.Length == 0) return;
+            if (_randomTextureTypes.Length == 0 || _textureManager == null) return;
+
+            _textureManager.OnTexturesChanged -= TexturesChangedHandler;
 
             _isWaitingTextures = true;
             _textureManager.LockUpdate(true);
@@ -127,6 +109,23 @@ namespace CharacterEditor
 
             ShuffleSkinMeshes();
             _textureManager.OnRandom(_randomTextureTypes, _sameTextureColorTypes, _ignoreTextureTypes);
+        }
+
+        private void RandomizeMeshes()
+        {
+            if (_randomMeshTypes.Length == 0 || _meshManager == null) return;
+
+            _meshManager.OnMeshesChanged -= MeshesChangedHandler;
+
+            _isWaitingMeshes = true;
+            _meshManager.LockUpdate(true);
+            _meshManager.OnMeshesChanged += MeshesChangedHandler;
+
+            var sameColor = _sameTextureColorTypes.Length > 0
+                ? _textureManager.GetSelectedTextureColor(_sameTextureColorTypes[0])
+                : 0;
+
+            _meshManager.OnRandom(_randomMeshTypes, _sameMesheTypes, _sameMeshColorTypes, sameColor);
         }
 
 
@@ -222,13 +221,12 @@ namespace CharacterEditor
 
         private void UpdateMeshesAndTextures()
         {
-            if (_isWaitingMeshes || _isWaitingTextures) return;
+            if (IsProcess) return;
             
             _textureManager.LockUpdate(false);
             _meshManager.LockUpdate(false);
-            _isProcess = false;
 
-            if (_robeCloakVisibleCallback != null) _robeCloakVisibleCallback.Invoke();
+            _robeCloakVisibleCallback?.Invoke();
         }
     }
 }

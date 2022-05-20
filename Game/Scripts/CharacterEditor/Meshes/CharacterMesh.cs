@@ -11,8 +11,7 @@ namespace CharacterEditor
             public readonly MeshType MeshType;
             public readonly bool IsFaceMesh;
 
-            private GameObject _loadedMeshObject;
-            public GameObject LoadedMeshObject => _loadedMeshObject;
+            public GameObject LoadedMeshObject { get; private set; }
 
             public CharacterTexture Texture => 
                 _textures[SelectedMesh != -1 ? SelectedMesh : 0];
@@ -30,13 +29,12 @@ namespace CharacterEditor
                 private set
                 {
                     value = Helper.GetActualIndex(value, MeshesCount, -1);
-                    if (_selectedMesh == value && _loadedMeshObject != null) return;
-
+                    if (_selectedMesh == value && LoadedMeshObject != null) return;
       
                     _prevMeshPath = MeshPath;
                     _prevMeshTexture = Texture;
 
-                    _loadedMeshObject = null;
+                    LoadedMeshObject = null;
 
                     _selectedMesh = value;
                     if (_selectedMesh != -1)
@@ -86,7 +84,7 @@ namespace CharacterEditor
                 IsReady = false;
                 _meshLoader.LoadByPath(MeshPath, (path, meshObject) =>
                 {
-                    _loadedMeshObject = meshObject;
+                    LoadedMeshObject = meshObject;
                     IsReady = true;
                 });
             }
@@ -99,7 +97,7 @@ namespace CharacterEditor
             private void UnsetMesh()
             {
                 ClearMesh(MeshPath, Texture);
-                _loadedMeshObject = null;
+                LoadedMeshObject = null;
                 SelectedMesh = -1;
             }
 
@@ -148,13 +146,11 @@ namespace CharacterEditor
             public void Shuffle(int color = -1)
             {
                 SelectedMesh = UnityEngine.Random.Range(-1, MeshesCount);
-                if (SelectedMesh == -1) return;
 
                 if (color == -1) Texture.Shuffle();
                 else Texture.ShuffleWithColor(color);
             }
-
-
+            
             public void SetMesh(int mesh)
             {
                 SelectedMesh = mesh;

@@ -2,16 +2,16 @@
 
 namespace CharacterEditor
 {
-    public class ClearMeshColorBtn : MeshAndTextureTypeMaskSelector, IPointerClickHandler
+    public class ClearMeshColorBtn : MeshAndTextureChangedBtn
     {
-        public void OnPointerClick(PointerEventData eventData)
+        protected override void ChangeTexture()
         {
-            if (textureTypes.Length > 0) {
-                TextureManager.Instance.OnResetColor(textureTypes);
-            }
-            if (meshTypes.Length > 0) {
-                MeshManager.Instance.OnClearMeshColor(meshTypes);
-            }
+            _textureManager.OnResetColor(textureTypes);
+        }
+
+        protected override void ChangeMesh()
+        {
+            _meshManager.OnClearMeshColor(meshTypes);
         }
     }
 }

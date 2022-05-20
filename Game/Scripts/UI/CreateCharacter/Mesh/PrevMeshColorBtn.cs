@@ -1,47 +1,18 @@
-﻿using System;
-using UnityEngine.EventSystems;
-
-namespace CharacterEditor
+﻿namespace CharacterEditor
 {
-    public class PrevMeshColorBtn : MeshAndTextureTypeMaskSelector, IPointerClickHandler
+    public class PrevMeshColorBtn : MeshAndTextureChangedBtn
     {
-        private Action updateMeshCalback;
-
-        private void TextureChangeHandler()
+        protected override void ChangeTexture()
         {
-            TextureManager.Instance.OnTexturesChanged -= TextureChangeHandler;
-            updateMeshCalback.Invoke();
+            _textureManager.OnPrevColor(textureTypes);
         }
 
-        public void OnPointerClick(PointerEventData eventData)
+        protected override void ChangeMesh()
         {
-            TextureManager.Instance.OnTexturesChanged -= TextureChangeHandler;
-
-            updateMeshCalback = () =>
-            {
-                if (meshTypes.Length > 0)
-                {
-                    if (textureTypes.Length > 0)
-                    {
-                        MeshManager.Instance.SetMeshColor(meshTypes,
-                            TextureManager.Instance.CurrentCharacterTextures[textureTypes[0]].SelectedColor);
-                    }
-                    else
-                    {
-                        MeshManager.Instance.OnPrevColor(meshTypes);
-                    }
-                }
-            };
-
             if (textureTypes.Length > 0)
-            {
-                TextureManager.Instance.OnPrevColor(textureTypes);
-                TextureManager.Instance.OnTexturesChanged += TextureChangeHandler;
-            }
+                _meshManager.SetMeshColor(meshTypes, _textureManager.GetSelectedTextureColor(textureTypes[0]));
             else
-            {
-                updateMeshCalback.Invoke();
-            }
+                _meshManager.OnPrevColor(meshTypes);
         }
     }
 }
