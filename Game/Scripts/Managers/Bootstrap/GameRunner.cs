@@ -1,14 +1,17 @@
 ﻿using UnityEngine;
 
-public class GameRunner : MonoBehaviour
+namespace CharacterEditor
 {
-    public GameObject bootstrapPrefab;
-
-    void Awake()
+    public class GameRunner : MonoBehaviour
     {
-        var bootstrapper = FindObjectOfType<GameBootstrapper>();
-        if (bootstrapper) return;
+        public GameObject bootstrapPrefab;
 
-        Instantiate(bootstrapPrefab);
+        void Awake()
+        {
+            var bootstrapper = FindObjectOfType<GameBootstrapper>();
+            if (bootstrapper) return;
+
+            Instantiate(bootstrapPrefab);
+        }
     }
 }

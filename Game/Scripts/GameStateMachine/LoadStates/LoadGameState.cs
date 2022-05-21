@@ -53,7 +53,7 @@ namespace Game
         {
             _loadingCurtain.SetLoading(10);
 
-            await PreloadData();
+            // await PreloadData();
 
             var levelData = LevelStaticData();
             var successLoad = await _saveLoadService.Load(_saveName, levelData, LoadProcessAction);
