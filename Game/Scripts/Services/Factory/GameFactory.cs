@@ -114,6 +114,8 @@ namespace CharacterEditor.Services
         {
             if (config.characterConfig.Prefab == null)
                 config.characterConfig.Prefab = await LoadConfigPrefab(config.characterConfig.prefabPath);
+            if (config.characterConfig.PreviewPrefab == null)
+                config.characterConfig.PreviewPrefab = await LoadConfigPrefab(config.characterConfig.previewPrefabPath);
 
             var go = Object.Instantiate(config.characterConfig.Prefab, position, Quaternion.identity);
             go.layer = Constants.LAYER_NPC;
@@ -180,7 +182,7 @@ namespace CharacterEditor.Services
         public async Task<Container> CreateContainer(ContainerConfig config, ContainerSaveData containerSaveData,
             Vector3 position)
         {
-            var containerGo = await _loaderService.GameObjectLoader.LoadByPath(config.bundlePrefabPath);
+            var containerGo = await _loaderService.GameObjectLoader.LoadByPath(_loaderService.PathDataProvider.GetPath(config.prefab));
             var containerInstance = Object.Instantiate(containerGo, position, Quaternion.identity);
 
             var container = containerInstance?.GetComponent<Container>();

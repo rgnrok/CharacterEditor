@@ -31,148 +31,102 @@ MonoBehaviour:
         path: 
         bundlePath: 
         addressPath: 
-      texturePath: 
-      textureBundlePath: 
     - textureType: 512
       texture:
         path: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Torso/Torso5.png
-        bundlePath: 
-        addressPath: 
-      texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Torso/Torso5.png
-      textureBundlePath: 
+        bundlePath: HumanMale_Clothes_Torso/Torso5
+        addressPath: Textures/Character/HumanMale/Clothes/Torso/Torso5.png
     - textureType: 1024
       texture:
         path: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Shoe/Shoe5.png
-        bundlePath: 
-        addressPath: 
-      texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Shoe/Shoe5.png
-      textureBundlePath: 
+        bundlePath: HumanMale_Clothes_Shoe/Shoe5
+        addressPath: Textures/Character/HumanMale/Clothes/Shoe/Shoe5.png
     models:
     - availableMeshes: 00020000
       prefab:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm L/5/StaticModel/A_Arm_L_HumanMale_5.prefab
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Arm_L_5/A_Arm_L_HumanMale_5
+        addressPath: Prefabs/HumanMale/Arm L/5/StaticModel/A_Arm_L_HumanMale_5.prefab
       additionalPrefab:
         path: 
         bundlePath: 
         addressPath: 
       texture:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm L/5/Textures/A_HumanMale_Soldier_1_Arm.png
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Arm_L_5/A_HumanMale_Soldier_1_Arm
+        addressPath: Prefabs/HumanMale/Arm L/5/Textures/A_HumanMale_Soldier_1_Arm.png
       additionalTexture:
         path: 
         bundlePath: 
         addressPath: 
-      prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm L/5/StaticModel/A_Arm_L_HumanMale_5.prefab
-      prefabBundlePath: 
-      additionalPrefabPath: 
-      additionalPrefabBundlePath: 
-      texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm L/5/Textures/A_HumanMale_Soldier_1_Arm.png
-      textureBundlePath: 
-      additionalTexturePath: 
-      additionalTextureBundlePath: 
     - availableMeshes: 00010000
       prefab:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm R/5/StaticModel/A_Arm_R_HumanMale_5.prefab
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Arm_R_5/A_Arm_R_HumanMale_5
+        addressPath: Prefabs/HumanMale/Arm R/5/StaticModel/A_Arm_R_HumanMale_5.prefab
       additionalPrefab:
         path: 
         bundlePath: 
         addressPath: 
       texture:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm R/5/Textures/A_HumanMale_Soldier_1_Arm.png
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Arm_R_5/A_HumanMale_Soldier_1_Arm
+        addressPath: Prefabs/HumanMale/Arm R/5/Textures/A_HumanMale_Soldier_1_Arm.png
       additionalTexture:
         path: 
         bundlePath: 
         addressPath: 
-      prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm R/5/StaticModel/A_Arm_R_HumanMale_5.prefab
-      prefabBundlePath: 
-      additionalPrefabPath: 
-      additionalPrefabBundlePath: 
-      texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm R/5/Textures/A_HumanMale_Soldier_1_Arm.png
-      textureBundlePath: 
-      additionalTexturePath: 
-      additionalTextureBundlePath: 
     - availableMeshes: 80000000
       prefab:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Shoulder L/6/StaticModel/A_Shoulder_L_HumanMale_6.prefab
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Shoulder_L_6/A_Shoulder_L_HumanMale_6
+        addressPath: Prefabs/HumanMale/Shoulder L/6/StaticModel/A_Shoulder_L_HumanMale_6.prefab
       additionalPrefab:
         path: 
         bundlePath: 
         addressPath: 
       texture:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Shoulder L/6/Textures/A_HumanMale_Soldier_1_Shoulder.png
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Shoulder_L_6/A_HumanMale_Soldier_1_Shoulder
+        addressPath: Prefabs/HumanMale/Shoulder L/6/Textures/A_HumanMale_Soldier_1_Shoulder.png
       additionalTexture:
         path: 
         bundlePath: 
         addressPath: 
-      prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Shoulder L/6/StaticModel/A_Shoulder_L_HumanMale_6.prefab
-      prefabBundlePath: 
-      additionalPrefabPath: 
-      additionalPrefabBundlePath: 
-      texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Shoulder L/6/Textures/A_HumanMale_Soldier_1_Shoulder.png
-      textureBundlePath: 
-      additionalTexturePath: 
-      additionalTextureBundlePath: 
     - availableMeshes: 10000000
       prefab:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Torso/5/StaticModel/A_TorsoArmor_HumanMale_5.prefab
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Torso_5/A_TorsoArmor_HumanMale_5
+        addressPath: Prefabs/HumanMale/Torso/5/StaticModel/A_TorsoArmor_HumanMale_5.prefab
       additionalPrefab:
         path: 
         bundlePath: 
         addressPath: 
       texture:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Torso/5/Textures/A_HumanMale_Soldier_1_Torso.png
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Torso_5/A_HumanMale_Soldier_1_Torso
+        addressPath: Prefabs/HumanMale/Torso/5/Textures/A_HumanMale_Soldier_1_Torso.png
       additionalTexture:
         path: 
         bundlePath: 
         addressPath: 
-      prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Torso/5/StaticModel/A_TorsoArmor_HumanMale_5.prefab
-      prefabBundlePath: 
-      additionalPrefabPath: 
-      additionalPrefabBundlePath: 
-      texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Torso/5/Textures/A_HumanMale_Soldier_1_Torso.png
-      textureBundlePath: 
-      additionalTexturePath: 
-      additionalTextureBundlePath: 
     - availableMeshes: 08000000
       prefab:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Head/6/StaticModel/A_Helm_HumanMale_6.prefab
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Head_6/A_Helm_HumanMale_6
+        addressPath: Prefabs/HumanMale/Head/6/StaticModel/A_Helm_HumanMale_6.prefab
       additionalPrefab:
         path: 
         bundlePath: 
         addressPath: 
       texture:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Head/6/Textures/A_HumanMale_Soldier_1_Helm.png
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Head_6/A_HumanMale_Soldier_1_Helm
+        addressPath: Prefabs/HumanMale/Head/6/Textures/A_HumanMale_Soldier_1_Helm.png
       additionalTexture:
         path: 
         bundlePath: 
         addressPath: 
-      prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Head/6/StaticModel/A_Helm_HumanMale_6.prefab
-      prefabBundlePath: 
-      additionalPrefabPath: 
-      additionalPrefabBundlePath: 
-      texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Head/6/Textures/A_HumanMale_Soldier_1_Helm.png
-      textureBundlePath: 
-      additionalTexturePath: 
-      additionalTextureBundlePath: 
   - configGuid: e35559d2-7325-4285-92d2-a4b31a907e4c
     characterConfig: {fileID: 11400000, guid: b7060db569ead5047953166ae77c230f, type: 2}
     textures: []

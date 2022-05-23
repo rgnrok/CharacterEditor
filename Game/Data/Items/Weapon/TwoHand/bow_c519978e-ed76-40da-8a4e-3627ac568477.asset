@@ -30,28 +30,20 @@ MonoBehaviour:
     - availableMeshes: 00200000
       prefab:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand L/12/StaticModel/W_bow_01.prefab
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Hand_L_12/W_bow_01
+        addressPath: Prefabs/HumanMale/Hand L/12/StaticModel/W_bow_01.prefab
       additionalPrefab:
         path: 
         bundlePath: 
         addressPath: 
       texture:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand L/12/Textures/BOW_01.tga
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Hand_L_12/BOW_01
+        addressPath: Prefabs/HumanMale/Hand L/12/Textures/BOW_01.tga
       additionalTexture:
         path: 
         bundlePath: 
         addressPath: 
-      prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand L/12/StaticModel/W_bow_01.prefab
-      prefabBundlePath: HumanMale_Hand_L_12/W_bow_01
-      additionalPrefabPath: 
-      additionalPrefabBundlePath: 
-      texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand L/12/Textures/BOW_01.tga
-      textureBundlePath: HumanMale_Hand_L_12/BOW_01
-      additionalTexturePath: 
-      additionalTextureBundlePath: 
   hidedMeshTypes: 
   itemType: 2
   itemSubType: 6

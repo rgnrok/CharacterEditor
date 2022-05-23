@@ -6,7 +6,7 @@ namespace CharacterEditor
     namespace JSONMap
     {
         [Serializable]
-        public class BundleMap
+        public class DataMap
         {
             public List<RaceMap> races = new List<RaceMap>();
             public List<GuidPathMap> items = new List<GuidPathMap>();

@@ -9,16 +9,6 @@ namespace CharacterEditor
 {
     public class InputManager
     {
-        public enum CursorState
-        {
-            Undefined,
-            Default,
-            PickUp,
-            Hand,
-            Attack,
-            Speak,
-        }
-
         public event Action ToggleInventory;
         public event Action ToggleCharacterInfo;
         public event Action EscapePress;
@@ -37,7 +27,7 @@ namespace CharacterEditor
 
         private RaycastHit _currentRaycastHit;
         private Vector3 _prevMousePosition;
-        private CursorState _currentCursorState;
+        private CursorType _currentCursorType;
 
         private FollowCamera _camera;
         public InputManager()
@@ -205,52 +195,27 @@ namespace CharacterEditor
             var successHit = GetMouseHit(Constants.LAYER_PICKUP, Constants.LAYER_CONTAINER, Constants.LAYER_NPC, Constants.LAYER_ENEMY, Constants.LAYER_CHARACTER, Constants.LAYER_GROUND);
             if (!successHit)
             {
-                UpdateCursor(CursorState.Default);
+                UpdateCursor(CursorType.Default);
                 return;
             }
 
             if (OnChangeMouseRaycasHit != null) OnChangeMouseRaycasHit(_currentRaycastHit);
         }
 
-        public void UpdateCursor(CursorState state)
+        public async void UpdateCursor(CursorType type)
         {
-            if (_currentCursorState == state) return;
+            if (_currentCursorType == type) return;
 
-            _currentCursorState = state;
-            var cursorPath = GetCursorIconByState(state);
-            if (cursorPath == null)
-            {
-                Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
-                return;
-            }
+            _currentCursorType = type;
 
-            // @todo
             var loaderService = AllServices.Container.Single<ILoaderService>();
-            loaderService.TextureLoader.LoadByPath(cursorPath,
-                (path, texture) =>
-                {
-                    if (texture != null)
-                        Cursor.SetCursor(texture, Vector2.zero, CursorMode.Auto);
-                    
-                });
+            var b = loaderService.CursorLoader;
+            var a = 1;
+            var cursorTexture = await loaderService.CursorLoader.LoadCursor(_currentCursorType);
+            if (cursorTexture != null) Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
         }
 
-        private string GetCursorIconByState(CursorState state)
-        {
-            switch (state)
-            {
-                case CursorState.Default:
-                    return "cursors/Cursor_Arrow_1";
-                case CursorState.Hand:
-                    return "cursors/Cursor_ItemMove_1";
-                case CursorState.PickUp:
-                    return "cursors/Cursor_ItemMove_2";
-                case CursorState.Attack:
-                    return "cursors/Cursor_Melee_1";
-            }
-
-            return null;
-        }
+ 
 
         private void CameraPositionChangedHandler()
         {
@@ -258,4 +223,3 @@ namespace CharacterEditor
         }
     }
 }
-//Invalid texture used for cursor - check importer settings or texture creation.Texture must be RGBA32, readable, have alphaIsTransparency enabled and have no mip chain.

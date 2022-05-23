@@ -16,7 +16,7 @@ MonoBehaviour:
   prefabPath:
     path: Assets/Game/Prefabs/Characters/HumanMale/HumanMale_Enemy.prefab
     bundlePath: Prefabs_Characters_HumanMale/HumanMale_Enemy
-    addressPath: 
+    addressPath: Prefabs/Characters/HumanMale/HumanMale_Enemy.prefab
   skinnedMeshes:
   - HumanMale_Mesh_LOD0
   - HumanMale_Mesh_LOD1
@@ -25,18 +25,18 @@ MonoBehaviour:
   texturePath:
     path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_2022_05_14_130027/tex_Skin.png
     bundlePath: Enemies_833a388b-6760-4567-989d-b5fa8f5c9d4d/tex_Skin
-    addressPath: 
+    addressPath: NewCharacter/HumanMale/HumanMale_2022_05_14_130027/tex_Skin.png
   faceMeshTexturePath:
     path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_2022_05_14_130027/tex_Face.png
     bundlePath: Enemies_833a388b-6760-4567-989d-b5fa8f5c9d4d/tex_Face
-    addressPath: 
+    addressPath: NewCharacter/HumanMale/HumanMale_2022_05_14_130027/tex_Face.png
   armorTexturePath:
     path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_2022_05_14_130027/tex_Armor.png
     bundlePath: Enemies_833a388b-6760-4567-989d-b5fa8f5c9d4d/tex_Armor
-    addressPath: 
+    addressPath: NewCharacter/HumanMale/HumanMale_2022_05_14_130027/tex_Armor.png
   materialPath:
     path: Assets/Packages/Character_Editor/NewCharacter/HumanMale/HumanMale_2022_05_14_130027/mat_Skin.mat
     bundlePath: Enemies_833a388b-6760-4567-989d-b5fa8f5c9d4d/mat_Skin
-    addressPath: 
+    addressPath: NewCharacter/HumanMale/HumanMale_2022_05_14_130027/mat_Skin.mat
   portraitIconPath: Assets/Packages/Character_Editor/Sprites/portraits.png
   portraitIconName: portraits_14

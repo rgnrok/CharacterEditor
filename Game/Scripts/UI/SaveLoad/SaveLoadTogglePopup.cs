@@ -4,15 +4,18 @@ using UnityEngine.EventSystems;
 
 namespace CharacterEditor
 {
-    public class TogglePopup : MonoBehaviour, IPointerClickHandler
+    public class SaveLoadTogglePopup : MonoBehaviour, IPointerClickHandler
     {
         [SerializeField]
         private SaveLoadPopup.SaveLoadPopupMode mode;
 
         private void Start()
         {
-            if (AllServices.Container.Single<IStaticDataService>().LoaderType != LoaderType.AssetBundle) //todo
-                transform.gameObject.SetActive(false);
+            var visibleBtn = true;
+#if UNITY_EDITOR
+            visibleBtn = AllServices.Container.Single<IStaticDataService>().LoaderType != LoaderType.AssetDatabase;
+#endif
+            transform.gameObject.SetActive(visibleBtn);
         }
 
         public void OnPointerClick(PointerEventData eventData)

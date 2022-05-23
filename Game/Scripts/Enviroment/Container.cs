@@ -15,7 +15,7 @@ namespace CharacterEditor
         private IMeshLoader _meshLoader;
         private IPathDataProvider _pathProvider;
 
-        private void Start()
+        private void Awake()
         {
             var loadService = AllServices.Container.Single<ILoaderService>();
             _textureLoader = loadService.TextureLoader;

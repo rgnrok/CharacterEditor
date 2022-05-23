@@ -10,6 +10,7 @@ namespace CharacterEditor.Services
         IMeshLoader CreateMeshLoader();
         IConfigLoader CreateConfigLoader();
         ISpriteLoader CreateIconLoader();
+        ICursorLoader CreateCursorLoader();
         IDataLoader<ItemData> CreateItemLoader();
         IDataLoader<PlayableNpcConfig> CreatePlayerCharacterLoader();
         IDataLoader<EnemyConfig> CreateEnemyLoader();

@@ -29,132 +29,94 @@ MonoBehaviour:
     - textureType: 1024
       texture:
         path: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Shoe/Shoe2.png
-        bundlePath: 
-        addressPath: 
-      texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Shoe/Shoe2.png
-      textureBundlePath: HumanMale_Clothes_Shoe/Shoe2
+        bundlePath: HumanMale_Clothes_Shoe/Shoe2
+        addressPath: Textures/Character/HumanMale/Clothes/Shoe/Shoe2.png
     models:
     - availableMeshes: 00080000
       prefab:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Leg L/0/StaticModel/A_Leg_L_HumanMale_0.prefab
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Leg_L_0/A_Leg_L_HumanMale_0
+        addressPath: Prefabs/HumanMale/Leg L/0/StaticModel/A_Leg_L_HumanMale_0.prefab
       additionalPrefab:
         path: 
         bundlePath: 
         addressPath: 
       texture:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Leg L/0/Textures/A_humanMale_Brigand_1_Leg_R.png
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Leg_L_0/A_humanMale_Brigand_1_Leg_R
+        addressPath: Prefabs/HumanMale/Leg L/0/Textures/A_humanMale_Brigand_1_Leg_R.png
       additionalTexture:
         path: 
         bundlePath: 
         addressPath: 
-      prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Leg L/0/StaticModel/A_Leg_L_HumanMale_0.prefab
-      prefabBundlePath: HumanMale_Leg_L_0/A_Leg_L_HumanMale_0
-      additionalPrefabPath: 
-      additionalPrefabBundlePath: 
-      texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Leg L/0/Textures/A_humanMale_Brigand_1_Leg_R.png
-      textureBundlePath: HumanMale_Leg_L_0/A_humanMale_Brigand_1_Leg_R
-      additionalTexturePath: 
-      additionalTextureBundlePath: 
     - availableMeshes: 00040000
       prefab:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Leg R/0/StaticModel/A_Leg_R_HumanMale_0.prefab
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Leg_R_0/A_Leg_R_HumanMale_0
+        addressPath: Prefabs/HumanMale/Leg R/0/StaticModel/A_Leg_R_HumanMale_0.prefab
       additionalPrefab:
         path: 
         bundlePath: 
         addressPath: 
       texture:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Leg R/0/Textures/A_humanMale_Brigand_1_Leg_R.png
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Leg_R_0/A_humanMale_Brigand_1_Leg_R
+        addressPath: Prefabs/HumanMale/Leg R/0/Textures/A_humanMale_Brigand_1_Leg_R.png
       additionalTexture:
         path: 
         bundlePath: 
         addressPath: 
-      prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Leg R/0/StaticModel/A_Leg_R_HumanMale_0.prefab
-      prefabBundlePath: HumanMale_Leg_R_0/A_Leg_R_HumanMale_0
-      additionalPrefabPath: 
-      additionalPrefabBundlePath: 
-      texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Leg R/0/Textures/A_humanMale_Brigand_1_Leg_R.png
-      textureBundlePath: HumanMale_Leg_R_0/A_humanMale_Brigand_1_Leg_R
-      additionalTexturePath: 
-      additionalTextureBundlePath: 
   - configGuid: e35559d2-7325-4285-92d2-a4b31a907e4c
     characterConfig: {fileID: 11400000, guid: b7060db569ead5047953166ae77c230f, type: 2}
     textures:
     - textureType: 1024
       texture:
         path: Assets/Packages/Character_Editor/Textures/Character/HumanFemale/Clothes/Shoe/Shoes_Armor1.png
-        bundlePath: 
-        addressPath: 
-      texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanFemale/Clothes/Shoe/Shoes_Armor1.png
-      textureBundlePath: HumanFemale_Clothes_Shoe/Shoes_Armor1
+        bundlePath: HumanFemale_Clothes_Shoe/Shoes_Armor1
+        addressPath: Textures/Character/HumanFemale/Clothes/Shoe/Shoes_Armor1.png
     models:
     - availableMeshes: 00080000
       prefab:
         path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Leg L/2/StaticModel/A_humanFemale_ArmorLeg_1_L.prefab
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanFemale_Leg_L_2/A_humanFemale_ArmorLeg_1_L
+        addressPath: Prefabs/HumanFemale/Leg L/2/StaticModel/A_humanFemale_ArmorLeg_1_L.prefab
       additionalPrefab:
         path: 
         bundlePath: 
         addressPath: 
       texture:
         path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Leg L/2/Textures/A_humanFemal_ArmorLeg1_1.png
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanFemale_Leg_L_2/A_humanFemal_ArmorLeg1_1
+        addressPath: Prefabs/HumanFemale/Leg L/2/Textures/A_humanFemal_ArmorLeg1_1.png
       additionalTexture:
         path: 
         bundlePath: 
         addressPath: 
-      prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Leg L/2/StaticModel/A_humanFemale_ArmorLeg_1_L.prefab
-      prefabBundlePath: HumanFemale_Leg_L_2/A_humanFemale_ArmorLeg_1_L
-      additionalPrefabPath: 
-      additionalPrefabBundlePath: 
-      texturePath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Leg L/2/Textures/A_humanFemal_ArmorLeg1_1.png
-      textureBundlePath: HumanFemale_Leg_L_2/A_humanFemal_ArmorLeg1_1
-      additionalTexturePath: 
-      additionalTextureBundlePath: 
     - availableMeshes: 00040000
       prefab:
         path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Leg R/2/StaticModel/A_humanFemale_ArmorLeg_1_R.prefab
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanFemale_Leg_R_2/A_humanFemale_ArmorLeg_1_R
+        addressPath: Prefabs/HumanFemale/Leg R/2/StaticModel/A_humanFemale_ArmorLeg_1_R.prefab
       additionalPrefab:
         path: 
         bundlePath: 
         addressPath: 
       texture:
         path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Leg R/2/Textures/A_humanFemal_ArmorLeg1_1.png
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanFemale_Leg_R_2/A_humanFemal_ArmorLeg1_1
+        addressPath: Prefabs/HumanFemale/Leg R/2/Textures/A_humanFemal_ArmorLeg1_1.png
       additionalTexture:
         path: 
         bundlePath: 
         addressPath: 
-      prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Leg R/2/StaticModel/A_humanFemale_ArmorLeg_1_R.prefab
-      prefabBundlePath: HumanFemale_Leg_R_2/A_humanFemale_ArmorLeg_1_R
-      additionalPrefabPath: 
-      additionalPrefabBundlePath: 
-      texturePath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Leg R/2/Textures/A_humanFemal_ArmorLeg1_1.png
-      textureBundlePath: HumanFemale_Leg_R_2/A_humanFemal_ArmorLeg1_1
-      additionalTexturePath: 
-      additionalTextureBundlePath: 
   - configGuid: 304cac1d-bbd5-40dd-9689-8047ac7bfdab
     characterConfig: {fileID: 0}
     textures:
     - textureType: 1024
       texture:
         path: Assets/Packages/Character_Editor/Textures/Character/HumanMale_Sample/Clothes/Shoe/Shoe1.png
-        bundlePath: 
+        bundlePath: HumanMale_Sample_Clothes_Shoe/Shoe1
         addressPath: 
-      texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale_Sample/Clothes/Shoe/Shoe1.png
-      textureBundlePath: HumanMale_Sample_Clothes_Shoe/Shoe1
     models: []
   hidedMeshTypes: 
   itemType: 5

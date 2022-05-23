@@ -221,7 +221,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
 
     private void PickUpObjectClickHandler(RaycastHit gameObjectHit)
     {
-        InputManager.UpdateCursor(InputManager.CursorState.PickUp);
+        InputManager.UpdateCursor(CursorType.PickUp);
 
         PlayerMoveController.CurrentCharacterStop();
         PlayerMoveController.LookCurrentCharacterToPoint(gameObjectHit.point);
@@ -300,11 +300,11 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
 
     private void OnChangeMouseRaycastHitHandler(RaycastHit hit)
     {
-        var state = InputManager.CursorState.Default;
+        var state = CursorType.Default;
         switch (hit.transform.gameObject.layer)
         {
             case Constants.LAYER_PICKUP:
-                state = InputManager.CursorState.Hand;
+                state = CursorType.Hand;
                 break;
 
             case Constants.LAYER_CHARACTER:
@@ -317,7 +317,6 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
                 if (character != null)
                 {
                     HoverManager.HoverFirends(character);
-                    state = InputManager.CursorState.Speak;
                 }
                 else
                 {
@@ -329,7 +328,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
                 if (enemy != null)
                 {
                     HoverManager.HoverEnemies(enemy);
-                    state = InputManager.CursorState.Attack;
+                    state = CursorType.Attack;
                 }
                 else
                 {

@@ -17,11 +17,11 @@ MonoBehaviour:
   texturePath:
     path: Assets/Game/Data/PlayableNpc/4319ceb2-65de-4f0c-b507-6cb5747a656e/HumanMale_CharacterSkin.png
     bundlePath: PlayableNpc_4319ceb2-65de-4f0c-b507-6cb5747a656e/HumanMale_CharacterSkin
-    addressPath: 
+    addressPath: Data/PlayableNpc/4319ceb2-65de-4f0c-b507-6cb5747a656e/HumanMale_CharacterSkin.png
   faceMeshTexturePath:
     path: Assets/Game/Data/PlayableNpc/4319ceb2-65de-4f0c-b507-6cb5747a656e/HumanMale_Face.png
     bundlePath: PlayableNpc_4319ceb2-65de-4f0c-b507-6cb5747a656e/HumanMale_Face
-    addressPath: 
+    addressPath: Data/PlayableNpc/4319ceb2-65de-4f0c-b507-6cb5747a656e/HumanMale_Face.png
   portraitIconPath: Assets/Packages/Character_Editor/Sprites/portraits.png
   portraitIconName: portraits_16
   equipItems:
@@ -36,9 +36,9 @@ MonoBehaviour:
     meshPath:
       path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Beard/0/StaticModel/A_Jaw_HumanMale_0.prefab
       bundlePath: humanmale_beard_0/A_Jaw_HumanMale_0
-      addressPath: 
+      addressPath: Prefabs/HumanMale/Beard/0/StaticModel/A_Jaw_HumanMale_0.prefab
   - meshType: 1
     meshPath:
       path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hair/11/StaticModel/A_HairModel_HumanMale_11.prefab
       bundlePath: humanmale_hair_11/A_HairModel_HumanMale_11
-      addressPath: 
+      addressPath: Prefabs/HumanMale/Hair/11/StaticModel/A_HairModel_HumanMale_11.prefab

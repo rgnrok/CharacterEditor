@@ -29,22 +29,22 @@ MonoBehaviour:
     - textureType: 2048
       texture:
         path: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Glove/Glove5.png
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Clothes_Glove/Glove5
+        addressPath: Textures/Character/HumanMale/Clothes/Glove/Glove5.png
     models:
     - availableMeshes: 00020000
       prefab:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm L/2/StaticModel/A_Arm_L_HumanMale_2.prefab
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Arm_L_2/A_Arm_L_HumanMale_2
+        addressPath: Prefabs/HumanMale/Arm L/2/StaticModel/A_Arm_L_HumanMale_2.prefab
       additionalPrefab:
         path: 
         bundlePath: 
         addressPath: 
       texture:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm L/2/Textures/A_HumanMale_Brigand_1_Arm.png
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Arm_L_2/A_HumanMale_Brigand_1_Arm
+        addressPath: Prefabs/HumanMale/Arm L/2/Textures/A_HumanMale_Brigand_1_Arm.png
       additionalTexture:
         path: 
         bundlePath: 
@@ -52,16 +52,16 @@ MonoBehaviour:
     - availableMeshes: 00010000
       prefab:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm R/2/StaticModel/A_Arm_R_HumanMale_2.prefab
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Arm_R_2/A_Arm_R_HumanMale_2
+        addressPath: Prefabs/HumanMale/Arm R/2/StaticModel/A_Arm_R_HumanMale_2.prefab
       additionalPrefab:
         path: 
         bundlePath: 
         addressPath: 
       texture:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm R/2/Textures/A_HumanMale_Brigand_1_Arm.png
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Arm_R_2/A_HumanMale_Brigand_1_Arm
+        addressPath: Prefabs/HumanMale/Arm R/2/Textures/A_HumanMale_Brigand_1_Arm.png
       additionalTexture:
         path: 
         bundlePath: 
@@ -72,22 +72,22 @@ MonoBehaviour:
     - textureType: 2048
       texture:
         path: Assets/Packages/Character_Editor/Textures/Character/HumanFemale/Clothes/Glove/HF_GloveArmor_1a.png
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanFemale_Clothes_Glove/HF_GloveArmor_1a
+        addressPath: Textures/Character/HumanFemale/Clothes/Glove/HF_GloveArmor_1a.png
     models:
     - availableMeshes: 00020000
       prefab:
         path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Arm L/4/StaticModel/A_humanFemale_ArmorGlove_1_L.prefab
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanFemale_Arm_L_4/A_humanFemale_ArmorGlove_1_L
+        addressPath: Prefabs/HumanFemale/Arm L/4/StaticModel/A_humanFemale_ArmorGlove_1_L.prefab
       additionalPrefab:
         path: 
         bundlePath: 
         addressPath: 
       texture:
         path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Arm L/4/Textures/A_humanFemal_ArmorGlove1_1a.png
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanFemale_Arm_L_4/A_humanFemal_ArmorGlove1_1a
+        addressPath: Prefabs/HumanFemale/Arm L/4/Textures/A_humanFemal_ArmorGlove1_1a.png
       additionalTexture:
         path: 
         bundlePath: 
@@ -95,16 +95,16 @@ MonoBehaviour:
     - availableMeshes: 00010000
       prefab:
         path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Arm R/4/StaticModel/A_humanFemale_ArmorGlove_1_R.prefab
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanFemale_Arm_R_4/A_humanFemale_ArmorGlove_1_R
+        addressPath: Prefabs/HumanFemale/Arm R/4/StaticModel/A_humanFemale_ArmorGlove_1_R.prefab
       additionalPrefab:
         path: 
         bundlePath: 
         addressPath: 
       texture:
         path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Arm R/4/Textures/A_humanFemal_ArmorGlove1_1a.png
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanFemale_Arm_R_4/A_humanFemal_ArmorGlove1_1a
+        addressPath: Prefabs/HumanFemale/Arm R/4/Textures/A_humanFemal_ArmorGlove1_1a.png
       additionalTexture:
         path: 
         bundlePath: 

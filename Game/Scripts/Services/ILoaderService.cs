@@ -11,6 +11,7 @@ namespace CharacterEditor.Services
         ITextureLoader TextureLoader { get; }
         IConfigLoader ConfigLoader { get; }
         ISpriteLoader SpriteLoader { get; }
+        ICursorLoader CursorLoader { get; }
         IDataLoader<ItemData> ItemLoader { get; }
         IDataLoader<PlayableNpcConfig> PlayableNpcLoader { get; }
         IDataLoader<EnemyConfig> EnemyLoader { get; }

@@ -33,6 +33,9 @@ namespace CharacterEditor
             public ISpriteLoader CreateIconLoader() => 
                 new SpriteLoader(_coroutineRunner);
 
+            public ICursorLoader CreateCursorLoader() =>
+                new CursorLoader(CreateTextureLoader());
+
             public IDataLoader<ItemData> CreateItemLoader() => 
                 new DataLoader<ItemData>(_dataManager.Items, new CommonLoader<ItemData>(_coroutineRunner));
 

@@ -22,6 +22,9 @@ namespace CharacterEditor
             public ISpriteLoader CreateIconLoader() => 
                 new SpriteLoader();
 
+            public ICursorLoader CreateCursorLoader() =>
+                new CursorLoader(CreateTextureLoader());
+
             public IDataLoader<ItemData> CreateItemLoader() => 
                 new ItemLoader();
 

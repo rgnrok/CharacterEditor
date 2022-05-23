@@ -17,11 +17,11 @@ MonoBehaviour:
   texturePath:
     path: Assets/Game/Data/PlayableNpc/26b8545b-6268-4f3b-9599-f5c794336bd7/tex_Skin.png
     bundlePath: PlayableNpc_26b8545b-6268-4f3b-9599-f5c794336bd7/tex_Skin
-    addressPath: 
+    addressPath: Data/PlayableNpc/26b8545b-6268-4f3b-9599-f5c794336bd7/tex_Skin.png
   faceMeshTexturePath:
     path: Assets/Game/Data/PlayableNpc/26b8545b-6268-4f3b-9599-f5c794336bd7/tex_Face.png
     bundlePath: PlayableNpc_26b8545b-6268-4f3b-9599-f5c794336bd7/tex_Face
-    addressPath: 
+    addressPath: Data/PlayableNpc/26b8545b-6268-4f3b-9599-f5c794336bd7/tex_Face.png
   portraitIconPath: Assets/Packages/Character_Editor/Sprites/portraits.png
   portraitIconName: portraits_4
   equipItems:
@@ -36,4 +36,4 @@ MonoBehaviour:
     meshPath:
       path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Beard/1/StaticModel/A_Jaw_HumanMale_1.prefab
       bundlePath: humanmale_beard_1/A_Jaw_HumanMale_1
-      addressPath: 
+      addressPath: Prefabs/HumanMale/Beard/1/StaticModel/A_Jaw_HumanMale_1.prefab

@@ -30,30 +30,20 @@ MonoBehaviour:
     - availableMeshes: 0010000000200000
       prefab:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand R/4/StaticModel/W_R_5.prefab
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Hand_R_4/W_R_5
+        addressPath: Prefabs/HumanMale/Hand R/4/StaticModel/W_R_5.prefab
       additionalPrefab:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand L/5/StaticModel/W_L_5.prefab
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Hand_L_5/W_L_5
+        addressPath: Prefabs/HumanMale/Hand L/5/StaticModel/W_L_5.prefab
       texture:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand R/4/Textures/W_Sword_6.png
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanMale_Hand_R_4/W_Sword_6
+        addressPath: Prefabs/HumanMale/Hand R/4/Textures/W_Sword_6.png
       additionalTexture:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand L/5/Textures/W_Sword_6.png
-        bundlePath: 
-        addressPath: 
-      prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand R/4/StaticModel/W_R_5.prefab
-      prefabBundlePath: 
-      additionalPrefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand
-        L/5/StaticModel/W_L_5.prefab
-      additionalPrefabBundlePath: 
-      texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand R/4/Textures/W_Sword_6.png
-      textureBundlePath: 
-      additionalTexturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand
-        L/5/Textures/W_Sword_6.png
-      additionalTextureBundlePath: 
+        bundlePath: HumanMale_Hand_L_5/W_Sword_6
+        addressPath: Prefabs/HumanMale/Hand L/5/Textures/W_Sword_6.png
   - configGuid: e35559d2-7325-4285-92d2-a4b31a907e4c
     characterConfig: {fileID: 11400000, guid: b7060db569ead5047953166ae77c230f, type: 2}
     textures: []
@@ -61,28 +51,20 @@ MonoBehaviour:
     - availableMeshes: 0010000000200000
       prefab:
         path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Hand R/4/StaticModel/W_R_5.prefab
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanFemale_Hand_R_4/W_R_5
+        addressPath: Prefabs/HumanFemale/Hand R/4/StaticModel/W_R_5.prefab
       additionalPrefab:
         path: 
         bundlePath: 
         addressPath: 
       texture:
         path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Hand R/4/Textures/W_Sword_6.png
-        bundlePath: 
-        addressPath: 
+        bundlePath: HumanFemale_Hand_R_4/W_Sword_6
+        addressPath: Prefabs/HumanFemale/Hand R/4/Textures/W_Sword_6.png
       additionalTexture:
         path: 
         bundlePath: 
         addressPath: 
-      prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Hand R/4/StaticModel/W_R_5.prefab
-      prefabBundlePath: 
-      additionalPrefabPath: 
-      additionalPrefabBundlePath: 
-      texturePath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Hand R/4/Textures/W_Sword_6.png
-      textureBundlePath: 
-      additionalTexturePath: 
-      additionalTextureBundlePath: 
   hidedMeshTypes: 
   itemType: 2
   itemSubType: 5

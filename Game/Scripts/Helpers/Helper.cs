@@ -143,6 +143,24 @@ public static partial class Helper
         }
     }
 
+    public static string GetCursorTextureNameByType(CursorType type)
+    {
+        switch (type)
+        {
+            case CursorType.Default:
+                return "Cursor_Arrow_1";
+            case CursorType.Hand:
+                return "Cursor_ItemMove_1";
+            case CursorType.PickUp:
+                return "Cursor_ItemMove_2";
+            case CursorType.Attack:
+                return "Cursor_Melee_1";
+        }
+
+        return null;
+    }
+
+
     public static MeshType GetHandMeshTypeBySlot(EquipItemSlot type)
     {
         switch (type)

@@ -12,10 +12,10 @@ namespace CharacterEditor
     {
         public class SpriteLoader : CommonLoader<SpriteAtlas>, ISpriteLoader
         {
-            private static readonly string ItemIconAtlasPath =
+            public static readonly string ItemIconAtlasPath =
                 $"{AssetsConstants.CharacterEditorRootPath}/Sprites/ItemIcons.spriteatlas";
 
-            private static readonly string PortraitIconAtlasPath =
+            public static readonly string PortraitIconAtlasPath =
                 $"{AssetsConstants.CharacterEditorRootPath}/Sprites/Portraits.spriteatlas";
 
             private readonly Dictionary<string, SpriteAtlas> _atlasCache = new Dictionary<string, SpriteAtlas>();

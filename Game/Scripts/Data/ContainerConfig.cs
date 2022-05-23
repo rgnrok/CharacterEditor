@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using CharacterEditor.CharacterInventory;
 using UnityEngine;
 
@@ -12,8 +10,7 @@ namespace CharacterEditor
     {
         public string guid;
         public ItemData[] initItems;
-        public string prefabPath;
-        public string bundlePrefabPath;
+        public PathData prefab;
 
         public string Guid
         {

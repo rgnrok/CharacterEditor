@@ -15,6 +15,7 @@ namespace CharacterEditor.Services
         public ITextureLoader TextureLoader { get; }
         public IConfigLoader ConfigLoader { get; }
         public ISpriteLoader SpriteLoader { get; }
+        public ICursorLoader CursorLoader { get; }
         public IDataLoader<ItemData> ItemLoader { get; }
         public IDataLoader<PlayableNpcConfig> PlayableNpcLoader { get; }
         public IDataLoader<EnemyConfig> EnemyLoader { get; }
@@ -34,6 +35,7 @@ namespace CharacterEditor.Services
             TextureLoader.CleanUp();
             ConfigLoader.CleanUp();
             SpriteLoader.CleanUp();
+            CursorLoader.CleanUp();
             ItemLoader.CleanUp();
             PlayableNpcLoader.CleanUp();
             EnemyLoader.CleanUp();
@@ -51,6 +53,7 @@ namespace CharacterEditor.Services
             TextureLoader = _loaderFactory.CreateTextureLoader();
             ConfigLoader = _loaderFactory.CreateConfigLoader();
             SpriteLoader = _loaderFactory.CreateIconLoader();
+            CursorLoader = _loaderFactory.CreateCursorLoader();
             ItemLoader = _loaderFactory.CreateItemLoader();
             PlayableNpcLoader = _loaderFactory.CreatePlayerCharacterLoader();
             EnemyLoader = _loaderFactory.CreateEnemyLoader();

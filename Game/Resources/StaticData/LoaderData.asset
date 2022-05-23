@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6408b9cd0cc9d634e8b8251ea2ef69f9, type: 3}
   m_Name: LoaderData
   m_EditorClassIdentifier: 
-  LoaderType: 1
+  LoaderType: 0
   MeshAtlasType: 0

@@ -29,21 +29,17 @@ MonoBehaviour:
     - textureType: 256
       texture:
         path: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Pants/Pant5.png
-        bundlePath: 
-        addressPath: 
-      texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Pants/Pant5.png
-      textureBundlePath: 
+        bundlePath: HumanMale_Clothes_Pants/Pant5
+        addressPath: Textures/Character/HumanMale/Clothes/Pants/Pant5.png
     models: []
   - configGuid: e35559d2-7325-4285-92d2-a4b31a907e4c
     characterConfig: {fileID: 11400000, guid: b7060db569ead5047953166ae77c230f, type: 2}
     textures:
     - textureType: 256
       texture:
-        path: 
-        bundlePath: 
+        path: Assets/Packages/Character_Editor/Textures/Character/HumanFemale/Clothes/Pant/HumanFemale_Pant_02b.png
+        bundlePath: HumanFemale_Clothes_Pant/HumanFemale_Pant_02b
         addressPath: 
-      texturePath: 
-      textureBundlePath: 
     models: []
   hidedMeshTypes: 
   itemType: 6

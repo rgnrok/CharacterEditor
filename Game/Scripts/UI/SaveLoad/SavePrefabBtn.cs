@@ -8,10 +8,11 @@ namespace CharacterEditor
     {
         private void Start()
         {
-            var staticDataService = AllServices.Container.Single<IStaticDataService>();
-
-            if (staticDataService.LoaderType == LoaderType.AssetBundle)
-                transform.gameObject.SetActive(false);
+            var visibleBtn = false;
+#if UNITY_EDITOR
+            visibleBtn = AllServices.Container.Single<IStaticDataService>().LoaderType == LoaderType.AssetDatabase;
+#endif
+            transform.gameObject.SetActive(visibleBtn);
         }
 
         public void OnPointerClick(PointerEventData eventData)

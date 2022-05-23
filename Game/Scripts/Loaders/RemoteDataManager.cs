@@ -20,7 +20,7 @@ namespace CharacterEditor
         {
             var targetFile = Resources.Load<TextAsset>(mapConfigPath);
 
-            var map = JsonUtility.FromJson<BundleMap>(targetFile.text);
+            var map = JsonUtility.FromJson<DataMap>(targetFile.text);
             Races = map.races.ToDictionary(x => x.configGuid, x => x);
 
             Items = map.items.ToDictionary(x => x.guid, x => x);
