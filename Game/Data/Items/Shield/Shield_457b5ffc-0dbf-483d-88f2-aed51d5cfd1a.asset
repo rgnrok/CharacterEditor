@@ -28,6 +28,22 @@ MonoBehaviour:
     textures: []
     models:
     - availableMeshes: 00200000
+      prefab:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand L/8/StaticModel/W_L_11.prefab
+        bundlePath: 
+        addressPath: 
+      additionalPrefab:
+        path: 
+        bundlePath: 
+        addressPath: 
+      texture:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand L/8/Textures/W_Shield_Knight_1.png
+        bundlePath: 
+        addressPath: 
+      additionalTexture:
+        path: 
+        bundlePath: 
+        addressPath: 
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand L/8/StaticModel/W_L_11.prefab
       prefabBundlePath: 
       additionalPrefabPath: 
@@ -41,6 +57,22 @@ MonoBehaviour:
     textures: []
     models:
     - availableMeshes: 00200000
+      prefab:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Hand L/8/StaticModel/W_L_11.prefab
+        bundlePath: 
+        addressPath: 
+      additionalPrefab:
+        path: 
+        bundlePath: 
+        addressPath: 
+      texture:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Hand L/8/Textures/W_Shield_Knight_1.png
+        bundlePath: 
+        addressPath: 
+      additionalTexture:
+        path: 
+        bundlePath: 
+        addressPath: 
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Hand L/8/StaticModel/W_L_11.prefab
       prefabBundlePath: 
       additionalPrefabPath: 

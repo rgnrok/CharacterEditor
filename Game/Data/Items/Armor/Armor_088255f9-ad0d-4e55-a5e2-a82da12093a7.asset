@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 088255f9-ad0d-4e55-a5e2-a82da12093a7
   itemName: Simple armor
-  iconPath: 
   icon:
     path: Assets/Packages/Character_Editor/Sprites/ItemIcons/Icons_Assassin_TorsoSkin_obj.png
     bundlePath: Icons_Assassin_TorsoSkin_obj
@@ -23,16 +22,35 @@ MonoBehaviour:
     path: 
     bundlePath: 
     addressPath: 
-  prefabPath: 
   configsItems:
   - configGuid: 2c5cab39-f8c4-4ee7-b8db-67c40ae2a27d
     characterConfig: {fileID: 11400000, guid: 6b7a210257ce1b3419c035891239b8aa, type: 2}
     textures:
     - textureType: 512
+      texture:
+        path: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Torso/Torso2.png
+        bundlePath: 
+        addressPath: 
       texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Torso/Torso2.png
       textureBundlePath: 
     models:
     - availableMeshes: 80000000
+      prefab:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Shoulder L/0/StaticModel/A_Shoulder_L_HumanMale_0.prefab
+        bundlePath: 
+        addressPath: 
+      additionalPrefab:
+        path: 
+        bundlePath: 
+        addressPath: 
+      texture:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Shoulder L/0/Textures/A_HumanMale_Cleric_1_Shoulder.png
+        bundlePath: 
+        addressPath: 
+      additionalTexture:
+        path: 
+        bundlePath: 
+        addressPath: 
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Shoulder L/0/StaticModel/A_Shoulder_L_HumanMale_0.prefab
       prefabBundlePath: 
       additionalPrefabPath: 
@@ -42,6 +60,22 @@ MonoBehaviour:
       additionalTexturePath: 
       additionalTextureBundlePath: 
     - availableMeshes: 40000000
+      prefab:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Shoulder R/0/StaticModel/A_Shoulder_R_HumanMale_0.prefab
+        bundlePath: 
+        addressPath: 
+      additionalPrefab:
+        path: 
+        bundlePath: 
+        addressPath: 
+      texture:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Shoulder R/0/Textures/A_HumanMale_Cleric_1_Shoulder.png
+        bundlePath: 
+        addressPath: 
+      additionalTexture:
+        path: 
+        bundlePath: 
+        addressPath: 
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Shoulder R/0/StaticModel/A_Shoulder_R_HumanMale_0.prefab
       prefabBundlePath: 
       additionalPrefabPath: 
@@ -54,10 +88,30 @@ MonoBehaviour:
     characterConfig: {fileID: 11400000, guid: b7060db569ead5047953166ae77c230f, type: 2}
     textures:
     - textureType: 512
+      texture:
+        path: Assets/Packages/Character_Editor/Textures/Character/HumanFemale/Clothes/Torso/Female_Torso_armor_1.png
+        bundlePath: 
+        addressPath: 
       texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanFemale/Clothes/Torso/Female_Torso_armor_1.png
       textureBundlePath: 
     models:
     - availableMeshes: 80000000
+      prefab:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Shoulder L/0/StaticModel/A_humanFemale_ArmorShoulder_1_L.prefab
+        bundlePath: 
+        addressPath: 
+      additionalPrefab:
+        path: 
+        bundlePath: 
+        addressPath: 
+      texture:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Shoulder L/0/Textures/A_humanFemale_ArmorShoulder1_1.png
+        bundlePath: 
+        addressPath: 
+      additionalTexture:
+        path: 
+        bundlePath: 
+        addressPath: 
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Shoulder L/0/StaticModel/A_humanFemale_ArmorShoulder_1_L.prefab
       prefabBundlePath: 
       additionalPrefabPath: 
@@ -68,6 +122,22 @@ MonoBehaviour:
       additionalTexturePath: 
       additionalTextureBundlePath: 
     - availableMeshes: 40000000
+      prefab:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Shoulder R/0/Model/A_humanFemale_ArmorShoulder_1_R.prefab
+        bundlePath: 
+        addressPath: 
+      additionalPrefab:
+        path: 
+        bundlePath: 
+        addressPath: 
+      texture:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Shoulder R/0/Textures/A_humanFemale_ArmorShoulder1_1.png
+        bundlePath: 
+        addressPath: 
+      additionalTexture:
+        path: 
+        bundlePath: 
+        addressPath: 
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Shoulder R/0/Model/A_humanFemale_ArmorShoulder_1_R.prefab
       prefabBundlePath: 
       additionalPrefabPath: 

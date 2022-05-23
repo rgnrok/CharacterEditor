@@ -28,6 +28,22 @@ MonoBehaviour:
     textures: []
     models:
     - availableMeshes: 20000000
+      prefab:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Belt/3/StaticModel/A_Belt_HumanMale_3.prefab
+        bundlePath: 
+        addressPath: 
+      additionalPrefab:
+        path: 
+        bundlePath: 
+        addressPath: 
+      texture:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Belt/3/Textures/A_HumanMale_Brigand_1_Belt.png
+        bundlePath: 
+        addressPath: 
+      additionalTexture:
+        path: 
+        bundlePath: 
+        addressPath: 
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Belt/3/StaticModel/A_Belt_HumanMale_3.prefab
       prefabBundlePath: 
       additionalPrefabPath: 
@@ -40,6 +56,10 @@ MonoBehaviour:
     characterConfig: {fileID: 11400000, guid: b7060db569ead5047953166ae77c230f, type: 2}
     textures:
     - textureType: 4096
+      texture:
+        path: Assets/Packages/Character_Editor/Textures/Character/HumanFemale/Clothes/Belt/HumanFemale_belt_01b.png
+        bundlePath: 
+        addressPath: 
       texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanFemale/Clothes/Belt/HumanFemale_belt_01b.png
       textureBundlePath: 
     models: []

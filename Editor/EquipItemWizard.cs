@@ -508,7 +508,7 @@ namespace Editor
                         var textureData = configItemInfoData.textures[j];
                         configInfo[i].textures[j] = new EquipItemTexturesInfo();
                         configInfo[i].textures[j].textureType = textureData.textureType;
-                        configInfo[i].textures[j].texture = AssetDatabase.LoadAssetAtPath<Texture2D>(textureData.texturePath);
+                        configInfo[i].textures[j].texture = AssetDatabase.LoadAssetAtPath<Texture2D>(textureData.texture.path);
                     }
                 }
 
@@ -519,13 +519,13 @@ namespace Editor
                     {
                         var modelData = configItemInfoData.models[k];
                         configInfo[i].models[k] = new EquipItemMeshesInfo();
-                        configInfo[i].models[k].texture = AssetDatabase.LoadAssetAtPath<Texture2D>(modelData.texturePath);
-                        if (modelData.additionalTexturePath != null && !modelData.additionalTexturePath.Equals(""))
-                            configInfo[i].models[k].additionalTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(modelData.additionalTexturePath);
+                        configInfo[i].models[k].texture = AssetDatabase.LoadAssetAtPath<Texture2D>(modelData.texture.path);
+                        if (!string.IsNullOrEmpty(modelData.additionalTexture.path))
+                            configInfo[i].models[k].additionalTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(modelData.additionalTexture.path);
 
-                        configInfo[i].models[k].model = AssetDatabase.LoadAssetAtPath<GameObject>(modelData.prefabPath);
-                        if (modelData.additionalPrefabPath != null && !modelData.additionalPrefabPath.Equals(""))
-                            configInfo[i].models[k].additionalModel = AssetDatabase.LoadAssetAtPath<GameObject>(modelData.additionalPrefabPath);
+                        configInfo[i].models[k].model = AssetDatabase.LoadAssetAtPath<GameObject>(modelData.prefab.path);
+                        if (!string.IsNullOrEmpty(modelData.additionalPrefab.path))
+                            configInfo[i].models[k].additionalModel = AssetDatabase.LoadAssetAtPath<GameObject>(modelData.additionalPrefab.path);
 
                         configInfo[i].models[k].availableMeshes = modelData.availableMeshes;
                         configInfo[i].models[k].meshMask = GetAvailableMesh(modelData.availableMeshes);
@@ -576,7 +576,7 @@ namespace Editor
                 for (int j = 0; j < configInfo[i].textures.Length; j++)
                 {
                     var configTextureData = new EquipTextureData();
-                    configTextureData.texturePath = AssetDatabase.GetAssetPath(configInfo[i].textures[j].texture);
+                    configTextureData.texture.path = AssetDatabase.GetAssetPath(configInfo[i].textures[j].texture);
                     configTextureData.textureType = configInfo[i].textures[j].textureType;
 
                     configData.textures[j] = configTextureData;
@@ -587,27 +587,27 @@ namespace Editor
                 {
                     var configModelData = new EquipModelData();
                     configModelData.availableMeshes = GetAvailableMeshes(configInfo[i].models[k].meshMask);
-                    configModelData.texturePath = AssetDatabase.GetAssetPath(configInfo[i].models[k].texture);
-                    configModelData.prefabPath = AssetDatabase.GetAssetPath(configInfo[i].models[k].model);
-                    if (configModelData.prefabPath == "")
+                    configModelData.texture.path = AssetDatabase.GetAssetPath(configInfo[i].models[k].texture);
+                    configModelData.prefab.path = AssetDatabase.GetAssetPath(configInfo[i].models[k].model);
+                    if (string.IsNullOrEmpty(configModelData.prefab.path))
                     {
-                        var prefab = PrefabUtility.GetCorrespondingObjectFromSource(configInfo[i].models[k].model);
-                        configModelData.prefabPath = AssetDatabase.GetAssetPath(prefab);
+                        var modelPrefab = PrefabUtility.GetCorrespondingObjectFromSource(configInfo[i].models[k].model);
+                        configModelData.prefab.path = AssetDatabase.GetAssetPath(modelPrefab);
                     }
 
                     if (configInfo[i].models[k].additionalModel != null)
                     {
-                        configModelData.additionalPrefabPath = AssetDatabase.GetAssetPath(configInfo[i].models[k].additionalModel);
-                        if (configModelData.additionalPrefabPath == "")
+                        configModelData.additionalPrefab.path = AssetDatabase.GetAssetPath(configInfo[i].models[k].additionalModel);
+                        if (string.IsNullOrEmpty(configModelData.additionalPrefab.path))
                         {
-                            var prefab = PrefabUtility.GetCorrespondingObjectFromSource(configInfo[i].models[k].additionalModel);
-                            configModelData.additionalPrefabPath = AssetDatabase.GetAssetPath(prefab);
+                            var modelPrefab = PrefabUtility.GetCorrespondingObjectFromSource(configInfo[i].models[k].additionalModel);
+                            configModelData.additionalPrefab.path = AssetDatabase.GetAssetPath(modelPrefab);
                         }
                     }
 
                     if (configInfo[i].models[k].additionalTexture != null)
                     {
-                        configModelData.additionalTexturePath = AssetDatabase.GetAssetPath(configInfo[i].models[k].additionalTexture);
+                        configModelData.additionalTexture.path = AssetDatabase.GetAssetPath(configInfo[i].models[k].additionalTexture);
                     }
 
                     configData.models[k] = configModelData;

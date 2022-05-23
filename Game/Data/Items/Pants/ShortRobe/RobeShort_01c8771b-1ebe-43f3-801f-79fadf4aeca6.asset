@@ -27,6 +27,10 @@ MonoBehaviour:
     characterConfig: {fileID: 11400000, guid: 6b7a210257ce1b3419c035891239b8aa, type: 2}
     textures:
     - textureType: 16384
+      texture:
+        path: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/RobeShort/RobeShort2.png
+        bundlePath: 
+        addressPath: 
       texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/RobeShort/RobeShort2.png
       textureBundlePath: 
     models: []
@@ -34,6 +38,10 @@ MonoBehaviour:
     characterConfig: {fileID: 11400000, guid: b7060db569ead5047953166ae77c230f, type: 2}
     textures:
     - textureType: 16384
+      texture:
+        path: Assets/Packages/Character_Editor/Textures/Character/HumanFemale/Clothes/RobeShort/HumanFemale_RobeShort4b.png
+        bundlePath: 
+        addressPath: 
       texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanFemale/Clothes/RobeShort/HumanFemale_RobeShort4b.png
       textureBundlePath: 
     models: []

@@ -164,15 +164,13 @@ namespace Editor
                 for (int j = 0; j < equipItem.textures.Length; j++)
                 {
                     var textureInfo = equipItem.textures[j];
-                    if (textureInfo.texturePath != null && !textureInfo.texturePath.Equals(""))
-                    {
-                        if (textureInfo.texturePath.IndexOf(TexturePathPrefix, StringComparison.Ordinal) != -1)
-                            length = TexturePathPrefix.Length;
+                    if (string.IsNullOrEmpty(textureInfo.texture.path)) continue;
 
-                        ParsePathToBundle(textureInfo.texturePath.Substring(length), out var textureBundleName,
-                            out var textureAssetPath, 1);
-                        textureInfo.textureBundlePath = textureAssetPath;
-                    }
+                    if (textureInfo.texture.path.IndexOf(TexturePathPrefix, StringComparison.Ordinal) != -1)
+                        length = TexturePathPrefix.Length;
+
+                    ParsePathToBundle(textureInfo.texture.path.Substring(length), out var textureBundleName, out var textureAssetPath);
+                    textureInfo.texture.bundlePath = textureAssetPath;
                 }
 
                 for (int j = 0; j < equipItem.models.Length; j++)
@@ -180,18 +178,18 @@ namespace Editor
                     var prefabAndTextureInfo = equipItem.models[j];
 
                     // Main Texture (right hand)
-                    prefabAndTextureInfo.textureBundlePath =
-                        GetEquipItemPrefabModelBundlePath(prefabAndTextureInfo.texturePath);
+                    prefabAndTextureInfo.texture.bundlePath =
+                        GetEquipItemPrefabModelBundlePath(prefabAndTextureInfo.texture.path);
                     // Additional Texture (left hand)
-                    prefabAndTextureInfo.additionalTextureBundlePath =
-                        GetEquipItemPrefabModelBundlePath(prefabAndTextureInfo.additionalTexturePath);
+                    prefabAndTextureInfo.additionalTexture.bundlePath =
+                        GetEquipItemPrefabModelBundlePath(prefabAndTextureInfo.additionalTexture.path);
 
                     //Convert Main Prefab path (right)
-                    prefabAndTextureInfo.prefabBundlePath =
-                        GetEquipItemPrefabModelBundlePath(prefabAndTextureInfo.prefabPath);
+                    prefabAndTextureInfo.prefab.bundlePath =
+                        GetEquipItemPrefabModelBundlePath(prefabAndTextureInfo.prefab.path);
                     //Convert Additional Prefab path (left)
-                    prefabAndTextureInfo.additionalPrefabBundlePath =
-                        GetEquipItemPrefabModelBundlePath(prefabAndTextureInfo.additionalPrefabPath);
+                    prefabAndTextureInfo.additionalPrefab.bundlePath =
+                        GetEquipItemPrefabModelBundlePath(prefabAndTextureInfo.additionalPrefab.path);
                 }
             }
 

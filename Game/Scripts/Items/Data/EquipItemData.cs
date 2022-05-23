@@ -19,22 +19,17 @@ namespace CharacterEditor
         public class EquipTextureData
         {
             public TextureType textureType;
-            public string texturePath;
-            public string textureBundlePath;
+            public PathData texture;
         }
 
         [Serializable]
         public class EquipModelData
         {
             public MeshType[] availableMeshes;
-            public string prefabPath;
-            public string prefabBundlePath;
-            public string additionalPrefabPath;
-            public string additionalPrefabBundlePath;
-            public string texturePath;
-            public string textureBundlePath;
-            public string additionalTexturePath;
-            public string additionalTextureBundlePath;
+            public PathData prefab;
+            public PathData additionalPrefab;
+            public PathData texture;
+            public PathData additionalTexture;
         }
         #endregion
 

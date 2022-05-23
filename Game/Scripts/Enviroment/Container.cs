@@ -13,12 +13,14 @@ namespace CharacterEditor
         private Dictionary<int, Item> _items = new Dictionary<int, Item>();
         private ITextureLoader _textureLoader;
         private IMeshLoader _meshLoader;
+        private IPathDataProvider _pathProvider;
 
         private void Start()
         {
             var loadService = AllServices.Container.Single<ILoaderService>();
             _textureLoader = loadService.TextureLoader;
             _meshLoader = loadService.MeshLoader;
+            _pathProvider = loadService.PathDataProvider;
         }
 
         public void SetData(ContainerSaveData containerData, Dictionary<int, ItemData> items)
@@ -33,7 +35,7 @@ namespace CharacterEditor
                     if (containerData.items.TryGetValue(itemPair.Key, out var characterItem) && characterItem.guid == itemPair.Value.guid)
                         stats = characterItem.stats;
 
-                    var eiMesh = new EquipItemMesh(equipItemData, _textureLoader, _meshLoader);
+                    var eiMesh = new EquipItemMesh(equipItemData, _textureLoader, _meshLoader, _pathProvider);
                     _items.Add(itemPair.Key, new EquipItem(null, equipItemData, eiMesh, stats)); //todo guid null
                 }
                 else

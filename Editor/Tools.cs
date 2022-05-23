@@ -18,56 +18,36 @@ namespace Editor
         [MenuItem("Tools/UpdateData")]
         public static void UpdateStaticDataPaths()
         {
-            var oldPath = "Assets/Character_Editor/";
-            var newPath = "Assets/Packages/Character_Editor/";
-
-            var paths = AssetDatabase.FindAssets("t:ItemData", new string[] { "Assets/Game/Data" });
+            var paths = AssetDatabase.FindAssets("t:EquipItemData", new string[] { "Assets/Game/Data" });
             foreach (var path in paths)
             {
-                var itemData = AssetDatabase.LoadAssetAtPath<ItemData>(AssetDatabase.GUIDToAssetPath(path));
+                var equipItemData = AssetDatabase.LoadAssetAtPath<EquipItemData>(AssetDatabase.GUIDToAssetPath(path));
 
-                itemData.prefab.path = itemData.prefab.path.Replace(oldPath, newPath);
-                itemData.icon.path = itemData.icon.path.Replace(oldPath, newPath);
+              
+                    // foreach (var configItem in equipItemData.configsItems)
+                    // {
+                    //     foreach (var textureData in configItem.textures)
+                    //     {
+                    //         if (!string.IsNullOrEmpty(textureData.texturePath))
+                    //             textureData.texture.path = textureData.texturePath;
+                    //     }
+                    //
+                    //     foreach (var model in configItem.models)
+                    //     {
+                    //         if (!string.IsNullOrEmpty(model.texturePath))
+                    //             model.texture.path = model.texturePath;
+                    //         if (!string.IsNullOrEmpty(model.additionalTexturePath))
+                    //             model.additionalTexture.path = model.additionalTexturePath;
+                    //
+                    //         if (!string.IsNullOrEmpty(model.prefabPath))
+                    //             model.prefab.path = model.prefabPath;
+                    //         if (!string.IsNullOrEmpty(model.additionalPrefabPath))
+                    //             model.additionalPrefab.path = model.additionalPrefabPath;
+                    //     }
+                    // }
+                
 
-                if (itemData is EquipItemData equipItemData)
-                {
-                    foreach (var configItem in equipItemData.configsItems)
-                    {
-                        foreach (var textureData in configItem.textures)
-                        {
-                            textureData.texturePath = textureData.texturePath.Replace(oldPath, newPath);
-                        }
-
-                        foreach (var model in configItem.models)
-                        {
-                            model.prefabPath = model.prefabPath.Replace(oldPath, newPath);
-                            model.additionalPrefabPath = model.additionalPrefabPath.Replace(oldPath, newPath);
-                            model.texturePath = model.texturePath.Replace(oldPath, newPath);
-                            model.additionalTexturePath = model.additionalTexturePath.Replace(oldPath, newPath);
-                        }
-                    }
-                }
-
-                EditorUtility.CopySerialized(itemData, itemData);
-                AssetDatabase.SaveAssets();
-            }
-
-            var characterPaths = AssetDatabase.FindAssets("t:PlayerCharacterConfig", new string[] { "Assets/Game/Data" });
-            foreach (var path in characterPaths)
-            {
-                var playerData =
-                    AssetDatabase.LoadAssetAtPath<PlayableNpcConfig>(AssetDatabase.GUIDToAssetPath(path));
-
-                playerData.faceMeshTexturePath.path = playerData.faceMeshTexturePath.path.Replace(oldPath, newPath);
-                playerData.texturePath.path = playerData.texturePath.path.Replace(oldPath, newPath);
-                playerData.portraitIconPath = playerData.portraitIconPath.Replace(oldPath, newPath);
-
-                foreach (var faceMesh in playerData.faceMeshs)
-                {
-                    faceMesh.meshPath.path = faceMesh.meshPath.path.Replace(oldPath, newPath);
-                }
-
-                EditorUtility.CopySerialized(playerData, playerData);
+                EditorUtility.CopySerialized(equipItemData, equipItemData);
                 AssetDatabase.SaveAssets();
             }
         }

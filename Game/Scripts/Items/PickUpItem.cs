@@ -1,5 +1,6 @@
 ﻿using CharacterEditor;
 using CharacterEditor.CharacterInventory;
+using CharacterEditor.Services;
 using UnityEngine;
 
 public class PickUpItem : MonoBehaviour
@@ -9,6 +10,7 @@ public class PickUpItem : MonoBehaviour
     private Item _item;
     private ITextureLoader _textureLoader;
     private IMeshLoader _meshLoader;
+    private IPathDataProvider _pathProvider;
 
     public Item Item
     {
@@ -19,7 +21,7 @@ public class PickUpItem : MonoBehaviour
                 var equipItemData = Data as EquipItemData;
                 if (equipItemData == null) return null;
 
-                var eiMesh = new EquipItemMesh(equipItemData, _textureLoader, _meshLoader);
+                var eiMesh = new EquipItemMesh(equipItemData, _textureLoader, _meshLoader, _pathProvider);
                 _item = new EquipItem(null, equipItemData, eiMesh, equipItemData.stats); //todo guid null
             }
 
@@ -37,6 +39,7 @@ public class PickUpItem : MonoBehaviour
     {
         _textureLoader = AllServices.Container.Single<ITextureLoader>();
         _meshLoader = AllServices.Container.Single<IMeshLoader>();
+        _pathProvider = AllServices.Container.Single<ILoaderService>().PathDataProvider;
     }
   
 }

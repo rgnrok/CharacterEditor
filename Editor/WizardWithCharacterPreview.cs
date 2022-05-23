@@ -68,7 +68,7 @@ public abstract class WizardWithCharacterPreview : ScriptableWizard
             var meshBone = selectedConfig.availableMeshes.FirstOrDefault(avMesh => avMesh.mesh == availableMeshes[0]);
             if (meshBone == null) continue;
 
-            var uvModelPath = model.prefabPath;
+            var uvModelPath = model.prefab.path;
             var faceTypes = new[] {MeshType.Beard, MeshType.Hair, MeshType.FaceFeature};
             if (!model.availableMeshes.Any(type => faceTypes.Contains(type)))
                 uvModelPath = uvModelPath.Replace("/StaticModel/", "/Model/");
@@ -80,7 +80,7 @@ public abstract class WizardWithCharacterPreview : ScriptableWizard
             var meshMaterial = new Material(_meshMaterial);
             foreach (var meshRender in uvPrefab.GetComponentsInChildren<MeshRenderer>())
             {
-                meshMaterial.mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(model.texturePath);
+                meshMaterial.mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(model.texture.path);
                 meshRender.material = meshMaterial;
             }
 
@@ -116,7 +116,7 @@ public abstract class WizardWithCharacterPreview : ScriptableWizard
         foreach (var texture in textures)
         {
             var key = Helper.GetShaderTextureName(texture.textureType);
-            textureDic[key] = AssetDatabase.LoadAssetAtPath<Texture2D>(texture.texturePath);
+            textureDic[key] = AssetDatabase.LoadAssetAtPath<Texture2D>(texture.texture.path);
         }
 
         _mergeTextureService.MergeTextures(_mergeMat, _renderClothTexture, textureDic);

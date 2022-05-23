@@ -45,7 +45,7 @@ namespace CharacterEditor
                 return true;
             }
 
-            public EquipItemMesh(EquipItemData itemData, ITextureLoader textureLoader, IMeshLoader meshLoader)
+            public EquipItemMesh(EquipItemData itemData, ITextureLoader textureLoader, IMeshLoader meshLoader, IPathDataProvider pathProvider)
             {
                 _equipItemData = itemData;
 
@@ -55,7 +55,7 @@ namespace CharacterEditor
                     for (var i = 0; i < configData.textures.Length; i++)
                     {
                         var textureData = configData.textures[i];
-                        _itemTextures[configData.configGuid][i] = ClothTextureFactory.Create(textureData.textureType, textureLoader, textureData.textureBundlePath);
+                        _itemTextures[configData.configGuid][i] = ClothTextureFactory.Create(textureData.textureType, textureLoader, pathProvider.GetPath(textureData.texture));
                     }
 
                     _originalItemMeshes[configData.configGuid] = new ItemMesh[configData.models.Length];
@@ -65,12 +65,12 @@ namespace CharacterEditor
                         var meshData = configData.models[i];
                         if (Data.itemType == EquipItemType.Weapon && meshData.availableMeshes.Length == 2)
                         {
-                            _originalItemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(MeshType.HandRight, meshLoader, meshData.prefabBundlePath, meshData.textureBundlePath);
-                            _additionalItemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(MeshType.HandLeft, meshLoader, meshData.additionalPrefabBundlePath, meshData.additionalTextureBundlePath);
+                            _originalItemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(MeshType.HandRight, meshLoader, pathProvider.GetPath(meshData.prefab), pathProvider.GetPath(meshData.texture));
+                            _additionalItemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(MeshType.HandLeft, meshLoader, pathProvider.GetPath(meshData.additionalPrefab), pathProvider.GetPath(meshData.additionalTexture));
                             continue;
                         }
 
-                        _originalItemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(meshData.availableMeshes[0], meshLoader, meshData.prefabBundlePath, meshData.textureBundlePath);
+                        _originalItemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(meshData.availableMeshes[0], meshLoader, pathProvider.GetPath(meshData.prefab), pathProvider.GetPath(meshData.texture));
                         _additionalItemMeshes[configData.configGuid][i] = null;
                     }
 

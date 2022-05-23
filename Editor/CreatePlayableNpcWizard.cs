@@ -184,9 +184,9 @@ namespace Editor
 
                 var mesh = new EquipModelData
                 {
-                    prefabPath = AssetDatabase.GetAssetPath(faceMesh.meshObject),
+                    prefab = new PathData(AssetDatabase.GetAssetPath(faceMesh.meshObject)),
                     availableMeshes = new[] {faceMesh.meshType},
-                    texturePath = AssetDatabase.GetAssetPath(faceMeshTexture)
+                    texture = new PathData(AssetDatabase.GetAssetPath(faceMeshTexture))
                 };
                 meshes.Add(mesh);
             }
@@ -211,7 +211,7 @@ namespace Editor
             var textures = new List<EquipTextureData>();
             var skinTexture = new EquipTextureData
             {
-                texturePath = AssetDatabase.GetAssetPath(texture),
+                texture = new PathData(AssetDatabase.GetAssetPath(texture)),
                 textureType = TextureType.Skin
             };
             textures.Add(skinTexture);

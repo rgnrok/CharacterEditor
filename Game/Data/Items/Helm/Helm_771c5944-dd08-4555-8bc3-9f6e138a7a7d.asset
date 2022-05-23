@@ -27,10 +27,30 @@ MonoBehaviour:
     characterConfig: {fileID: 11400000, guid: 6b7a210257ce1b3419c035891239b8aa, type: 2}
     textures:
     - textureType: 128
+      texture:
+        path: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Head/headAdd3.png
+        bundlePath: 
+        addressPath: 
       texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Head/headAdd3.png
       textureBundlePath: 
     models:
     - availableMeshes: 08000000
+      prefab:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Head/1/StaticModel/A_Helm_HumanMale_1.prefab
+        bundlePath: 
+        addressPath: 
+      additionalPrefab:
+        path: 
+        bundlePath: 
+        addressPath: 
+      texture:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Head/1/Textures/A_HumanMale_Sorcerer_1_Hood.png
+        bundlePath: 
+        addressPath: 
+      additionalTexture:
+        path: 
+        bundlePath: 
+        addressPath: 
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Head/1/StaticModel/A_Helm_HumanMale_1.prefab
       prefabBundlePath: 
       additionalPrefabPath: 
@@ -43,10 +63,30 @@ MonoBehaviour:
     characterConfig: {fileID: 11400000, guid: b7060db569ead5047953166ae77c230f, type: 2}
     textures:
     - textureType: 128
+      texture:
+        path: Assets/Packages/Character_Editor/Textures/Character/HumanFemale/Clothes/Head/headAdd3.png
+        bundlePath: 
+        addressPath: 
       texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanFemale/Clothes/Head/headAdd3.png
       textureBundlePath: 
     models:
     - availableMeshes: 08000000
+      prefab:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Head/1/StaticModel/A_HumanFemale_Armor_helm_1.prefab
+        bundlePath: 
+        addressPath: 
+      additionalPrefab:
+        path: 
+        bundlePath: 
+        addressPath: 
+      texture:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Head/1/Textures/A_Humanfemale_ArmorHead1.png
+        bundlePath: 
+        addressPath: 
+      additionalTexture:
+        path: 
+        bundlePath: 
+        addressPath: 
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Head/1/StaticModel/A_HumanFemale_Armor_helm_1.prefab
       prefabBundlePath: 
       additionalPrefabPath: 

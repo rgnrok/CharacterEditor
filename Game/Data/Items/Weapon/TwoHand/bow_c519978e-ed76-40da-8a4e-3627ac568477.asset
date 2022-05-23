@@ -28,6 +28,22 @@ MonoBehaviour:
     textures: []
     models:
     - availableMeshes: 00200000
+      prefab:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand L/12/StaticModel/W_bow_01.prefab
+        bundlePath: 
+        addressPath: 
+      additionalPrefab:
+        path: 
+        bundlePath: 
+        addressPath: 
+      texture:
+        path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand L/12/Textures/BOW_01.tga
+        bundlePath: 
+        addressPath: 
+      additionalTexture:
+        path: 
+        bundlePath: 
+        addressPath: 
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand L/12/StaticModel/W_bow_01.prefab
       prefabBundlePath: HumanMale_Hand_L_12/W_bow_01
       additionalPrefabPath: 

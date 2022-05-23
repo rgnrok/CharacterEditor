@@ -86,8 +86,7 @@ namespace CharacterEditor.Services
 
                 if (!items.TryGetValue(itemData.dataGuid, out var data)) continue;
 
-                var eiMesh = new EquipItemMesh((EquipItemData) data, _loaderService.TextureLoader,
-                    _loaderService.MeshLoader);
+                var eiMesh = new EquipItemMesh((EquipItemData) data, _loaderService.TextureLoader, _loaderService.MeshLoader, _loaderService.PathDataProvider);
                 GameManager.Instance.Inventory.SetItemToInvetory(characterData.guid,
                     new EquipItem(itemData.guid, data, eiMesh, itemData.stats), ceilPair.Key);
             }
@@ -97,8 +96,7 @@ namespace CharacterEditor.Services
             {
                 if (!items.TryGetValue(pair.Value.dataGuid, out var data)) continue;
                 //todo use ready created item?
-                var eiMesh = new EquipItemMesh((EquipItemData) data, _loaderService.TextureLoader,
-                    _loaderService.MeshLoader);
+                var eiMesh = new EquipItemMesh((EquipItemData) data, _loaderService.TextureLoader, _loaderService.MeshLoader, _loaderService.PathDataProvider);
                 equipItems[pair.Key] = new EquipItem(pair.Value.guid, data, eiMesh, pair.Value.stats);
             }
 
@@ -128,7 +126,7 @@ namespace CharacterEditor.Services
             foreach (var itemInfo in config.equipItems)
             {
                 //todo use ready created item?
-                var eiMesh = new EquipItemMesh((EquipItemData)itemInfo.item, _loaderService.TextureLoader, _loaderService.MeshLoader);
+                var eiMesh = new EquipItemMesh((EquipItemData)itemInfo.item, _loaderService.TextureLoader, _loaderService.MeshLoader, _loaderService.PathDataProvider);
                 equipItems[itemInfo.itemSlot] = new EquipItem(itemInfo.item, eiMesh);
             }
 
