@@ -26,12 +26,14 @@ public class Inventory : Popup
     private readonly Dictionary<string, int> _waitingAddItemCeils = new Dictionary<string, int>();
     private readonly Dictionary<string, int> _waitingRemoveItemCeils = new Dictionary<string, int>();
     private ICommonLoader<GameObject> _gameObjectLoader;
+    private IPathDataProvider _pathProvider;
 
 
     protected override void OnEnable()
     {
         Init(GameManager.Instance.CurrentCharacter); //todo
         _gameObjectLoader = AllServices.Container.Single<ILoaderService>().GameObjectLoader;
+        _pathProvider = AllServices.Container.Single<ILoaderService>().PathDataProvider;
 
         base.OnEnable();
     }
@@ -150,7 +152,7 @@ public class Inventory : Popup
         var item = ceil.Item;
         RemoveFromInvetory(ceil);
         //todo
-        _gameObjectLoader.LoadByPath(item.Data.prefabBundlePath, (path, prefab) =>
+        _gameObjectLoader.LoadByPath(_pathProvider.GetPath(item.Data.prefab), (path, prefab) =>
             {
                 var instance = Instantiate(prefab);
                 instance.gameObject.layer = Constants.LAYER_PICKUP;

@@ -10,7 +10,7 @@ namespace CharacterEditor
         public class ConfigEquipItemData
         {
             public string configGuid;
-            public string configPath;
+            public CharacterConfig characterConfig;
             public EquipTextureData[] textures;
             public EquipModelData[] models;
         }

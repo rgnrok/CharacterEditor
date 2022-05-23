@@ -14,74 +14,78 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 90efeacc-8eb4-4b6e-b344-51cc4b9c8c63
   itemName: Set
-  iconPath: 
-  iconBundleName: Icons_Assassin_TorsoSkin_obj
-  prefabPath: 
-  prefabBundlePath: 
+  icon:
+    path: Assets/Packages/Character_Editor/Sprites/ItemIcons/Icons_Assassin_TorsoSkin_obj.png
+    bundlePath: Icons_Assassin_TorsoSkin_obj
+    addressPath: Icons_Assassin_TorsoSkin_obj
+  prefab:
+    path: 
+    bundlePath: 
+    addressPath: 
   configsItems:
   - configGuid: 2c5cab39-f8c4-4ee7-b8db-67c40ae2a27d
-    configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanMale.asset
+    characterConfig: {fileID: 11400000, guid: 6b7a210257ce1b3419c035891239b8aa, type: 2}
     textures:
     - textureType: 256
-      texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Pant/Pant5.png
-      textureBundlePath: HumanMale_Clothes_Pant/Pant5
+      texturePath: 
+      textureBundlePath: 
     - textureType: 512
       texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Torso/Torso5.png
-      textureBundlePath: HumanMale_Clothes_Torso/Torso5
+      textureBundlePath: 
     - textureType: 1024
       texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Shoe/Shoe5.png
-      textureBundlePath: HumanMale_Clothes_Shoe/Shoe5
+      textureBundlePath: 
     models:
     - availableMeshes: 00020000
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm L/5/StaticModel/A_Arm_L_HumanMale_5.prefab
-      prefabBundlePath: HumanMale_Arm_L_5/A_Arm_L_HumanMale_5
+      prefabBundlePath: 
       additionalPrefabPath: 
       additionalPrefabBundlePath: 
       texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm L/5/Textures/A_HumanMale_Soldier_1_Arm.png
-      textureBundlePath: HumanMale_Arm_L_5/A_HumanMale_Soldier_1_Arm
+      textureBundlePath: 
       additionalTexturePath: 
       additionalTextureBundlePath: 
     - availableMeshes: 00010000
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm R/5/StaticModel/A_Arm_R_HumanMale_5.prefab
-      prefabBundlePath: HumanMale_Arm_R_5/A_Arm_R_HumanMale_5
+      prefabBundlePath: 
       additionalPrefabPath: 
       additionalPrefabBundlePath: 
       texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm R/5/Textures/A_HumanMale_Soldier_1_Arm.png
-      textureBundlePath: HumanMale_Arm_R_5/A_HumanMale_Soldier_1_Arm
+      textureBundlePath: 
       additionalTexturePath: 
       additionalTextureBundlePath: 
     - availableMeshes: 80000000
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Shoulder L/6/StaticModel/A_Shoulder_L_HumanMale_6.prefab
-      prefabBundlePath: HumanMale_Shoulder_L_6/A_Shoulder_L_HumanMale_6
+      prefabBundlePath: 
       additionalPrefabPath: 
       additionalPrefabBundlePath: 
       texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Shoulder L/6/Textures/A_HumanMale_Soldier_1_Shoulder.png
-      textureBundlePath: HumanMale_Shoulder_L_6/A_HumanMale_Soldier_1_Shoulder
+      textureBundlePath: 
       additionalTexturePath: 
       additionalTextureBundlePath: 
     - availableMeshes: 10000000
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Torso/5/StaticModel/A_TorsoArmor_HumanMale_5.prefab
-      prefabBundlePath: HumanMale_Torso_5/A_TorsoArmor_HumanMale_5
+      prefabBundlePath: 
       additionalPrefabPath: 
       additionalPrefabBundlePath: 
       texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Torso/5/Textures/A_HumanMale_Soldier_1_Torso.png
-      textureBundlePath: HumanMale_Torso_5/A_HumanMale_Soldier_1_Torso
+      textureBundlePath: 
       additionalTexturePath: 
       additionalTextureBundlePath: 
     - availableMeshes: 08000000
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Head/6/StaticModel/A_Helm_HumanMale_6.prefab
-      prefabBundlePath: HumanMale_Head_6/A_Helm_HumanMale_6
+      prefabBundlePath: 
       additionalPrefabPath: 
       additionalPrefabBundlePath: 
       texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Head/6/Textures/A_HumanMale_Soldier_1_Helm.png
-      textureBundlePath: HumanMale_Head_6/A_HumanMale_Soldier_1_Helm
+      textureBundlePath: 
       additionalTexturePath: 
       additionalTextureBundlePath: 
   - configGuid: e35559d2-7325-4285-92d2-a4b31a907e4c
-    configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanFemale.asset
+    characterConfig: {fileID: 11400000, guid: b7060db569ead5047953166ae77c230f, type: 2}
     textures: []
     models: []
-  hidedMeshTypes: 01000000
+  hidedMeshTypes: 
   itemType: 1
   itemSubType: 0
   randomStats: 0

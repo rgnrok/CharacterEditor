@@ -14,37 +14,34 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 54a41d41-fcde-4239-9f4e-fb52f59226b7
   itemName: Belt
-  iconPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Belt/3/Model/A_Belt_HumanMale_3.prefab
-  iconBundleName: Icons_Soldier_BeltArmor_obj
-  prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Belt/3/Model/A_Belt_HumanMale_3.prefab
-  prefabBundlePath: HumanMale_Belt_3_prefabObj/A_Belt_HumanMale_3
+  icon:
+    path: Assets/Packages/Character_Editor/Sprites/ItemIcons/Icons_Soldier_BeltArmor_obj.png
+    bundlePath: Icons_Soldier_BeltArmor_obj
+    addressPath: Icons_Soldier_BeltArmor_obj
+  prefab:
+    path: 
+    bundlePath: 
+    addressPath: 
   configsItems:
   - configGuid: 2c5cab39-f8c4-4ee7-b8db-67c40ae2a27d
-    configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanMale.asset
+    characterConfig: {fileID: 11400000, guid: 6b7a210257ce1b3419c035891239b8aa, type: 2}
     textures: []
     models:
     - availableMeshes: 20000000
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Belt/3/StaticModel/A_Belt_HumanMale_3.prefab
-      prefabBundlePath: HumanMale_Belt_3/A_Belt_HumanMale_3
+      prefabBundlePath: 
       additionalPrefabPath: 
       additionalPrefabBundlePath: 
       texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Belt/3/Textures/A_HumanMale_Brigand_1_Belt.png
-      textureBundlePath: HumanMale_Belt_3/A_HumanMale_Brigand_1_Belt
+      textureBundlePath: 
       additionalTexturePath: 
       additionalTextureBundlePath: 
   - configGuid: e35559d2-7325-4285-92d2-a4b31a907e4c
-    configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanFemale.asset
+    characterConfig: {fileID: 11400000, guid: b7060db569ead5047953166ae77c230f, type: 2}
     textures:
     - textureType: 4096
       texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanFemale/Clothes/Belt/HumanFemale_belt_01b.png
-      textureBundlePath: HumanFemale_Clothes_Belt/HumanFemale_belt_01b
-    models: []
-  - configGuid: 304cac1d-bbd5-40dd-9689-8047ac7bfdab
-    configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanMale_Sample.asset
-    textures:
-    - textureType: 4096
-      texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale_Sample/Clothes/Belt/Belt1.png
-      textureBundlePath: HumanMale_Sample_Clothes_Belt/Belt1
+      textureBundlePath: 
     models: []
   hidedMeshTypes: 
   itemType: 7

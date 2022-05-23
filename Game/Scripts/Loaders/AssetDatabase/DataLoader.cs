@@ -30,10 +30,10 @@ namespace CharacterEditor
                 }
             }
 
-            public void LoadData(Action<Dictionary<string, T>> callback)
+            public Dictionary<string, T> LoadData()
             {
                 PrepareGuidCache();
-                callback.Invoke(_guidCache);
+                return _guidCache;
             }
 
             public Task<T> LoadData(string guid)

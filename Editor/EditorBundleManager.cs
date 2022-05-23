@@ -50,7 +50,7 @@ namespace Editor
             bundleMap.items = ParseItemPath();
 
             DisplayProgressBar("Parse npc", "", 0.4f);
-            bundleMap.payableNpc = ParsePlayableNpcPath();
+            bundleMap.playableNpc = ParsePlayableNpcPath();
 
             DisplayProgressBar("Parse enemies", "", 0.8f);
             bundleMap.enemies = ParseEnemiesPath();
@@ -112,42 +112,42 @@ namespace Editor
             var itemMaps = new List<GuidPathMap>();
 
             var loader = new ItemLoader();
-            loader.LoadData(items =>
+            var items = loader.LoadData();
+
+            foreach (var itemData in items.Values)
             {
-                foreach (var itemData in items.Values)
-                {
-                    var itemPath = AssetDatabase.GetAssetPath(itemData);
-                    Debug.Log("itemPath " + itemPath);
-                    var bundlePath = itemPath.Substring(GAME_DATA_PATH.Length);
-                    ParsePathToBundle(bundlePath, out var bundleName, out var assetPath);
+                var itemPath = AssetDatabase.GetAssetPath(itemData);
+     
+                var bundlePath = itemPath.Substring(GAME_DATA_PATH.Length);
+                ParsePathToBundle(bundlePath, out var bundleName, out var assetPath);
 
-                    AssetImporter.GetAtPath(itemPath).SetAssetBundleNameAndVariant(bundleName, "");
-                    var map = new GuidPathMap {path = assetPath, guid = itemData.guid};
-                    itemMaps.Add(map);
+                AssetImporter.GetAtPath(itemPath).SetAssetBundleNameAndVariant(bundleName, "");
+                var map = new GuidPathMap {path = assetPath, guid = itemData.guid};
+                itemMaps.Add(map);
 
-                    UpdateItemPrefabBundlePath(itemData);
+                UpdateItemDataBundlePaths(itemData);
 
-                    var equipItemData = itemData as EquipItemData;
-                    if (equipItemData != null)
-                        UpdateEquipItemPrefabBundlePath(equipItemData);
-                }
-            });
+                var equipItemData = itemData as EquipItemData;
+                if (equipItemData != null)
+                    UpdateEquipItemPrefabBundlePath(equipItemData);
+            }
+
 
             return itemMaps;
         }
 
-        private static void UpdateItemPrefabBundlePath(ItemData itemData)
+        private static void UpdateItemDataBundlePaths(ItemData itemData)
         {
-            if (itemData.prefabPath == null || itemData.prefabPath.Equals("")) return;
+            if (string.IsNullOrEmpty(itemData.prefab.path)) return;
 
-            var length = 0;
-            if (itemData.prefabPath.IndexOf(PrefabPathPrefix, StringComparison.Ordinal) != -1)
-                length = PrefabPathPrefix.Length;
+            var prefabPath = itemData.prefab.path;
 
-            ParsePathToBundle(itemData.prefabPath.Substring(length), out var prefabBundleName, out var prefabAssetPath,
-                2, "prefabObj");
-            itemData.prefabBundlePath = prefabAssetPath;
-            AssetImporter.GetAtPath(itemData.prefabPath).SetAssetBundleNameAndVariant(prefabBundleName, "");
+            if (prefabPath.IndexOf(PrefabPathPrefix, StringComparison.Ordinal) == 0)
+                prefabPath = prefabPath.Substring(PrefabPathPrefix.Length);
+
+            ParsePathToBundle(prefabPath, out var prefabBundleName, out var prefabAssetPath, 2, "prefabObj");
+            itemData.prefab.bundlePath = prefabAssetPath;
+            AssetImporter.GetAtPath(itemData.prefab.path).SetAssetBundleNameAndVariant(prefabBundleName, "");
 
             EditorUtility.CopySerialized(itemData, itemData);
             AssetDatabase.SaveAssets();
@@ -158,16 +158,12 @@ namespace Editor
             if (equipItemData == null) return;
 
             var length = 0;
-            for (int i = 0; i < equipItemData.configsItems.Length; i++)
+            foreach (var equipItem in equipItemData.configsItems)
             {
-                // Update config guids 
-                var config = AssetDatabase.LoadAssetAtPath<CharacterConfig>(equipItemData.configsItems[i].configPath);
-                if (config != null) equipItemData.configsItems[i].configGuid = config.guid;
-
                 //Convert Texture path
-                for (int j = 0; j < equipItemData.configsItems[i].textures.Length; j++)
+                for (int j = 0; j < equipItem.textures.Length; j++)
                 {
-                    var textureInfo = equipItemData.configsItems[i].textures[j];
+                    var textureInfo = equipItem.textures[j];
                     if (textureInfo.texturePath != null && !textureInfo.texturePath.Equals(""))
                     {
                         if (textureInfo.texturePath.IndexOf(TexturePathPrefix, StringComparison.Ordinal) != -1)
@@ -179,9 +175,9 @@ namespace Editor
                     }
                 }
 
-                for (int j = 0; j < equipItemData.configsItems[i].models.Length; j++)
+                for (int j = 0; j < equipItem.models.Length; j++)
                 {
-                    var prefabAndTextureInfo = equipItemData.configsItems[i].models[j];
+                    var prefabAndTextureInfo = equipItem.models[j];
 
                     // Main Texture (right hand)
                     prefabAndTextureInfo.textureBundlePath =
@@ -220,42 +216,40 @@ namespace Editor
         {
             var characterMap = new List<GuidPathMap>();
             var loader = new PlayableNpcLoader();
-            loader.LoadData(characters =>
+            var characters = loader.LoadData();
+            foreach (var character in characters.Values)
             {
-                foreach (var character in characters.Values)
+                var characterPath = AssetDatabase.GetAssetPath(character);
+                var bundlePath = characterPath.Substring(GAME_DATA_PATH.Length);
+                ParsePathToBundle(bundlePath, out var bundleName, out var assetPath);
+
+                AssetImporter.GetAtPath(characterPath).SetAssetBundleNameAndVariant(bundleName, "");
+                var map = new GuidPathMap();
+                map.path = assetPath;
+                map.guid = character.guid;
+                characterMap.Add(map);
+
+                AssetImporter.GetAtPath(character.texturePath.path)
+                    .SetAssetBundleNameAndVariant(bundleName, "");
+
+                AssetImporter.GetAtPath(character.faceMeshTexturePath.path)
+                    .SetAssetBundleNameAndVariant(bundleName, "");
+
+                character.texturePath.bundlePath = GenerateAssetPath(bundleName, character.texturePath.path);
+                character.faceMeshTexturePath.bundlePath =
+                    GenerateAssetPath(bundleName, character.faceMeshTexturePath.path);
+
+                for (int i = 0; i < character.faceMeshs.Length; i++)
                 {
-                    var characterPath = AssetDatabase.GetAssetPath(character);
-                    var bundlePath = characterPath.Substring(GAME_DATA_PATH.Length);
-                    ParsePathToBundle(bundlePath, out var bundleName, out var assetPath);
+                    var faceMesh = character.faceMeshs[i];
+                    var meshBundleName = AssetDatabase.GetImplicitAssetBundleName(faceMesh.meshPath.path);
 
-                    AssetImporter.GetAtPath(characterPath).SetAssetBundleNameAndVariant(bundleName, "");
-                    var map = new GuidPathMap();
-                    map.path = assetPath;
-                    map.guid = character.guid;
-                    characterMap.Add(map);
-
-                    AssetImporter.GetAtPath(character.texturePath.path)
-                        .SetAssetBundleNameAndVariant(bundleName, "");
-
-                    AssetImporter.GetAtPath(character.faceMeshTexturePath.path)
-                        .SetAssetBundleNameAndVariant(bundleName, "");
-
-                    character.texturePath.bundlePath = GenerateAssetPath(bundleName, character.texturePath.path);
-                    character.faceMeshTexturePath.bundlePath =
-                        GenerateAssetPath(bundleName, character.faceMeshTexturePath.path);
-
-                    for (int i = 0; i < character.faceMeshs.Length; i++)
-                    {
-                        var faceMesh = character.faceMeshs[i];
-                        var meshBundleName = AssetDatabase.GetImplicitAssetBundleName(faceMesh.meshPath.path);
-
-                        faceMesh.meshPath.bundlePath = GenerateAssetPath(meshBundleName, faceMesh.meshPath.path);
-                    }
-
-                    EditorUtility.CopySerialized(character, character);
-                    AssetDatabase.SaveAssets();
+                    faceMesh.meshPath.bundlePath = GenerateAssetPath(meshBundleName, faceMesh.meshPath.path);
                 }
-            });
+
+                EditorUtility.CopySerialized(character, character);
+                AssetDatabase.SaveAssets();
+            };
 
             return characterMap;
         }
@@ -264,76 +258,68 @@ namespace Editor
         {
             var enemyMap = new List<GuidPathMap>();
             var loader = new EnemyLoader();
-            loader.LoadData(enemies =>
+            var enemies = loader.LoadData();
+            foreach (var enemy in enemies.Values)
             {
-                foreach (var enemy in enemies.Values)
+                var enemyPath = AssetDatabase.GetAssetPath(enemy);
+                var prefabBonePath = AssetDatabase.GetAssetPath(enemy.prefabBoneData);
+
+                var bundlePath = enemyPath.Substring(GAME_DATA_PATH.Length);
+                ParsePathToBundle(bundlePath, out var bundleName, out var assetPath);
+
+                AssetImporter.GetAtPath(enemyPath).SetAssetBundleNameAndVariant(bundleName, "");
+                var map = new GuidPathMap
                 {
-                    var enemyPath = AssetDatabase.GetAssetPath(enemy);
-                    var prefabBonePath = AssetDatabase.GetAssetPath(enemy.prefabBoneData);
+                    path = assetPath,
+                    guid = enemy.guid
+                };
+                enemyMap.Add(map);
 
-                    var bundlePath = enemyPath.Substring(GAME_DATA_PATH.Length);
-                    ParsePathToBundle(bundlePath, out var bundleName, out var assetPath);
+                var texturesBundleName = $"{bundleName}_{enemy.guid}";
+                AssetImporter.GetAtPath(enemy.texturePath.path).SetAssetBundleNameAndVariant(texturesBundleName, "");
+                AssetImporter.GetAtPath(enemy.faceMeshTexturePath.path).SetAssetBundleNameAndVariant(texturesBundleName, "");
+                AssetImporter.GetAtPath(enemy.armorTexturePath.path).SetAssetBundleNameAndVariant(texturesBundleName, "");
+                AssetImporter.GetAtPath(prefabBonePath).SetAssetBundleNameAndVariant(texturesBundleName, "");
+                AssetImporter.GetAtPath(enemy.materialPath.path).SetAssetBundleNameAndVariant(texturesBundleName, "");
 
-                    AssetImporter.GetAtPath(enemyPath).SetAssetBundleNameAndVariant(bundleName, "");
-                    var map = new GuidPathMap
-                    {
-                        path = assetPath,
-                        guid = enemy.guid
-                    };
-                    enemyMap.Add(map);
+                enemy.texturePath.bundlePath = GenerateAssetPath(texturesBundleName, enemy.texturePath.path);
+                enemy.faceMeshTexturePath.bundlePath = GenerateAssetPath(texturesBundleName, enemy.faceMeshTexturePath.path);
+                enemy.armorTexturePath.bundlePath = GenerateAssetPath(texturesBundleName, enemy.armorTexturePath.path);
+                enemy.materialPath.bundlePath = GenerateAssetPath(texturesBundleName, enemy.materialPath.path);
+                
+                enemy.prefabPath.bundlePath = ParsePrefabPath(enemy.prefabPath.path);
 
-                    var texturesBundleName = string.Format("{0}_{1}", bundleName, enemy.guid);
-                    AssetImporter.GetAtPath(enemy.texturePath.path).SetAssetBundleNameAndVariant(texturesBundleName, "");
-                    AssetImporter.GetAtPath(enemy.faceMeshTexturePath.path)
-                        .SetAssetBundleNameAndVariant(texturesBundleName, "");
-                    AssetImporter.GetAtPath(enemy.armorTexturePath.path)
-                        .SetAssetBundleNameAndVariant(texturesBundleName, "");
-                    AssetImporter.GetAtPath(prefabBonePath).SetAssetBundleNameAndVariant(texturesBundleName, "");
-                    AssetImporter.GetAtPath(enemy.materialPath.path).SetAssetBundleNameAndVariant(texturesBundleName, "");
-
-                    enemy.texturePath.bundlePath = GenerateAssetPath(texturesBundleName, enemy.texturePath.path);
-                    enemy.faceMeshTexturePath.bundlePath = GenerateAssetPath(texturesBundleName, enemy.faceMeshTexturePath.path);
-                    enemy.armorTexturePath.bundlePath = GenerateAssetPath(texturesBundleName, enemy.armorTexturePath.path);
-                    enemy.materialPath.bundlePath = GenerateAssetPath(texturesBundleName, enemy.materialPath.path);
-
-
-                    enemy.prefabPath.bundlePath = ParsePrefabPath(enemy.prefabPath.path);
-
-                    EditorUtility.CopySerialized(enemy, enemy);
-                    AssetDatabase.SaveAssets();
-                }
-            });
+                EditorUtility.CopySerialized(enemy, enemy);
+                AssetDatabase.SaveAssets();
+            };
 
             return enemyMap;
         }
 
         private static List<GuidPathMap> ParseContainersPath()
         {
-            string bundleName, assetPath;
-
             var containerMap = new List<GuidPathMap>();
             var loader = new ContainerLoader();
-            loader.LoadData(data =>
+            var data = loader.LoadData();
+
+            foreach (var container in data.Values)
             {
-                foreach (var container in data.Values)
+                var containerPath = AssetDatabase.GetAssetPath(container);
+
+                var bundlePath = containerPath.Substring(GAME_DATA_PATH.Length);
+                ParsePathToBundle(bundlePath, out var bundleName, out var assetPath);
+
+                AssetImporter.GetAtPath(containerPath).SetAssetBundleNameAndVariant(bundleName, "");
+                var map = new GuidPathMap
                 {
-                    var containerPath = AssetDatabase.GetAssetPath(container);
+                    path = assetPath,
+                    guid = container.guid
+                };
+                containerMap.Add(map);
 
-                    var bundlePath = containerPath.Substring(GAME_DATA_PATH.Length);
-                    ParsePathToBundle(bundlePath, out bundleName, out assetPath);
-
-                    AssetImporter.GetAtPath(containerPath).SetAssetBundleNameAndVariant(bundleName, "");
-                    var map = new GuidPathMap
-                    {
-                        path = assetPath,
-                        guid = container.guid
-                    };
-                    containerMap.Add(map);
-
-                    EditorUtility.CopySerialized(container, container);
-                    AssetDatabase.SaveAssets();
-                }
-            });
+                EditorUtility.CopySerialized(container, container);
+                AssetDatabase.SaveAssets();
+            };
 
             return containerMap;
         }

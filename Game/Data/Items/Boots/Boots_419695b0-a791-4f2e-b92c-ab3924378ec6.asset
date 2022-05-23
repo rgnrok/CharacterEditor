@@ -15,12 +15,18 @@ MonoBehaviour:
   guid: 419695b0-a791-4f2e-b92c-ab3924378ec6
   itemName: Simple boots
   iconPath: 
-  iconBundleName: Icons_BattleMage_Shoes_obj
+  icon:
+    path: 
+    bundlePath: 
+    addressPath: 
+  prefab:
+    path: 
+    bundlePath: 
+    addressPath: 
   prefabPath: 
-  prefabBundlePath: 
   configsItems:
   - configGuid: 2c5cab39-f8c4-4ee7-b8db-67c40ae2a27d
-    configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanMale.asset
+    characterConfig: {fileID: 11400000, guid: 6b7a210257ce1b3419c035891239b8aa, type: 2}
     textures:
     - textureType: 1024
       texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Shoe/Shoe2.png
@@ -45,7 +51,7 @@ MonoBehaviour:
       additionalTexturePath: 
       additionalTextureBundlePath: 
   - configGuid: e35559d2-7325-4285-92d2-a4b31a907e4c
-    configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanFemale.asset
+    characterConfig: {fileID: 11400000, guid: b7060db569ead5047953166ae77c230f, type: 2}
     textures:
     - textureType: 1024
       texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanFemale/Clothes/Shoe/Shoes_Armor1.png
@@ -70,7 +76,7 @@ MonoBehaviour:
       additionalTexturePath: 
       additionalTextureBundlePath: 
   - configGuid: 304cac1d-bbd5-40dd-9689-8047ac7bfdab
-    configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanMale_Sample.asset
+    characterConfig: {fileID: 0}
     textures:
     - textureType: 1024
       texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale_Sample/Clothes/Shoe/Shoe1.png

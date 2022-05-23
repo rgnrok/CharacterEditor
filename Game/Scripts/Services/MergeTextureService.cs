@@ -63,7 +63,7 @@ namespace CharacterEditor.Services
         private void CreateEmptyTexture()
         {
             _emptyAlphaTexture = new Texture2D(1, 1);
-            _emptyAlphaTexture.SetPixel(0, 0, Color.clear);
+            _emptyAlphaTexture.SetPixel(0, 0, new Color(1,1,1,0));
             _emptyAlphaTexture.Apply();
         }
 

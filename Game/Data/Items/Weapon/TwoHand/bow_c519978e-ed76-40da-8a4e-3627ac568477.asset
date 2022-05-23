@@ -14,13 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: c519978e-ed76-40da-8a4e-3627ac568477
   itemName: Bow
-  iconPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand L/12/Model/W_bow_01.prefab
-  iconBundleName: Icons_OneHand_Dagger_obj
-  prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand L/12/Model/W_bow_01.prefab
-  prefabBundlePath: HumanMale_Hand_L_12_prefabObj/W_bow_01
+  icon:
+    path: 
+    bundlePath: 
+    addressPath: 
+  prefab:
+    path: 
+    bundlePath: 
+    addressPath: 
   configsItems:
   - configGuid: 2c5cab39-f8c4-4ee7-b8db-67c40ae2a27d
-    configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanMale.asset
+    characterConfig: {fileID: 11400000, guid: 6b7a210257ce1b3419c035891239b8aa, type: 2}
     textures: []
     models:
     - availableMeshes: 00200000

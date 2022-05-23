@@ -14,58 +14,44 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: c8e0b33a-7753-427d-9921-40338927e13c
   itemName: Shadow Dagger
-  iconPath: 
-  iconBundleName: Icons_OneHand_Dagger_obj
-  prefabPath: 
-  prefabBundlePath: 
+  icon:
+    path: Assets/Packages/Character_Editor/Sprites/ItemIcons/Icons_OneHand_Dagger_obj.png
+    bundlePath: Icons_OneHand_Dagger_obj
+    addressPath: Icons_OneHand_Dagger_obj
+  prefab:
+    path: 
+    bundlePath: 
+    addressPath: 
   configsItems:
   - configGuid: 2c5cab39-f8c4-4ee7-b8db-67c40ae2a27d
-    configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanMale.asset
+    characterConfig: {fileID: 11400000, guid: 6b7a210257ce1b3419c035891239b8aa, type: 2}
     textures: []
     models:
     - availableMeshes: 0010000000200000
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand R/9/StaticModel/W_R_9.prefab
-      prefabBundlePath: HumanMale_Hand_R_9/W_R_9
+      prefabBundlePath: 
       additionalPrefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand
         L/9/StaticModel/W_L_9.prefab
-      additionalPrefabBundlePath: HumanMale_Hand_L_9/W_L_9
+      additionalPrefabBundlePath: 
       texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand R/9/Textures/W_Dagger_Assassin_1.png
-      textureBundlePath: HumanMale_Hand_R_9/W_Dagger_Assassin_1
+      textureBundlePath: 
       additionalTexturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand
         L/9/Textures/W_Dagger_Assassin_1.png
-      additionalTextureBundlePath: HumanMale_Hand_L_9/W_Dagger_Assassin_1
+      additionalTextureBundlePath: 
   - configGuid: e35559d2-7325-4285-92d2-a4b31a907e4c
-    configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanFemale.asset
+    characterConfig: {fileID: 11400000, guid: b7060db569ead5047953166ae77c230f, type: 2}
     textures: []
     models:
     - availableMeshes: 0010000000200000
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Hand R/9/StaticModel/W_R_10.prefab
-      prefabBundlePath: HumanFemale_Hand_R_9/W_R_10
-      additionalPrefabPath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Hand
-        L/9/StaticModel/W_L_10.prefab
-      additionalPrefabBundlePath: HumanFemale_Hand_L_9/W_L_10
+      prefabBundlePath: 
+      additionalPrefabPath: 
+      additionalPrefabBundlePath: 
       texturePath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Hand R/9/Textures/W_Dagger_Assassin_1.png
-      textureBundlePath: HumanFemale_Hand_R_9/W_Dagger_Assassin_1
+      textureBundlePath: 
       additionalTexturePath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Hand
         L/9/Textures/W_Dagger_Assassin_1.png
-      additionalTextureBundlePath: HumanFemale_Hand_L_9/W_Dagger_Assassin_1
-  - configGuid: 304cac1d-bbd5-40dd-9689-8047ac7bfdab
-    configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanMale_Sample.asset
-    textures: []
-    models:
-    - availableMeshes: 0010000000200000
-      prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale_Sample/Hand
-        R/0/StaticModel/W_R_0.prefab
-      prefabBundlePath: HumanMale_Sample_Hand_R_0/W_R_0
-      additionalPrefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale_Sample/Hand
-        L/0/StaticModel/W_L_0.prefab
-      additionalPrefabBundlePath: HumanMale_Sample_Hand_L_0/W_L_0
-      texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale_Sample/Hand
-        R/0/Textures/W_WoodenSword.png
-      textureBundlePath: HumanMale_Sample_Hand_R_0/W_WoodenSword
-      additionalTexturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale_Sample/Hand
-        L/0/Textures/W_WoodenSword.png
-      additionalTextureBundlePath: HumanMale_Sample_Hand_L_0/W_WoodenSword
+      additionalTextureBundlePath: 
   hidedMeshTypes: 
   itemType: 2
   itemSubType: 5

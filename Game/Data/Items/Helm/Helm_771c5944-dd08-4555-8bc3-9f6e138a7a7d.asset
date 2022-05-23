@@ -14,44 +14,48 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 771c5944-dd08-4555-8bc3-9f6e138a7a7d
   itemName: Helm
-  iconPath: 
-  iconBundleName: Icons_Sorcerer_Hood_obj
-  prefabPath: 
-  prefabBundlePath: 
+  icon:
+    path: Assets/Packages/Character_Editor/Sprites/ItemIcons/Icons_Sorcerer_Hood_obj.png
+    bundlePath: Icons_Sorcerer_Hood_obj
+    addressPath: Icons_Sorcerer_Hood_obj
+  prefab:
+    path: 
+    bundlePath: 
+    addressPath: 
   configsItems:
   - configGuid: 2c5cab39-f8c4-4ee7-b8db-67c40ae2a27d
-    configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanMale.asset
+    characterConfig: {fileID: 11400000, guid: 6b7a210257ce1b3419c035891239b8aa, type: 2}
     textures:
     - textureType: 128
       texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Head/headAdd3.png
-      textureBundlePath: HumanMale_Clothes_Head/headAdd3
+      textureBundlePath: 
     models:
     - availableMeshes: 08000000
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Head/1/StaticModel/A_Helm_HumanMale_1.prefab
-      prefabBundlePath: HumanMale_Head_1/A_Helm_HumanMale_1
+      prefabBundlePath: 
       additionalPrefabPath: 
       additionalPrefabBundlePath: 
       texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Head/1/Textures/A_HumanMale_Sorcerer_1_Hood.png
-      textureBundlePath: HumanMale_Head_1/A_HumanMale_Sorcerer_1_Hood
+      textureBundlePath: 
       additionalTexturePath: 
       additionalTextureBundlePath: 
   - configGuid: e35559d2-7325-4285-92d2-a4b31a907e4c
-    configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanFemale.asset
+    characterConfig: {fileID: 11400000, guid: b7060db569ead5047953166ae77c230f, type: 2}
     textures:
     - textureType: 128
       texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanFemale/Clothes/Head/headAdd3.png
-      textureBundlePath: HumanFemale_Clothes_Head/headAdd3
+      textureBundlePath: 
     models:
     - availableMeshes: 08000000
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Head/1/StaticModel/A_HumanFemale_Armor_helm_1.prefab
-      prefabBundlePath: HumanFemale_Head_1/A_HumanFemale_Armor_helm_1
+      prefabBundlePath: 
       additionalPrefabPath: 
       additionalPrefabBundlePath: 
       texturePath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Head/1/Textures/A_Humanfemale_ArmorHead1.png
-      textureBundlePath: HumanFemale_Head_1/A_Humanfemale_ArmorHead1
+      textureBundlePath: 
       additionalTexturePath: 
       additionalTextureBundlePath: 
-  hidedMeshTypes: 01000000
+  hidedMeshTypes: 
   itemType: 8
   itemSubType: 0
   randomStats: 0

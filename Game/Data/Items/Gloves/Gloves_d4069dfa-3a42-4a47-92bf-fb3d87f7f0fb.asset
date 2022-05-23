@@ -14,59 +14,63 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: d4069dfa-3a42-4a47-92bf-fb3d87f7f0fb
   itemName: Gloves
-  iconPath: 
-  iconBundleName: Icons_Ranger_Glove_obj
-  prefabPath: 
-  prefabBundlePath: 
+  icon:
+    path: Assets/Packages/Character_Editor/Sprites/ItemIcons/Icons_Ranger_Glove_obj.png
+    bundlePath: Icons_Ranger_Glove_obj
+    addressPath: Icons_Ranger_Glove_obj
+  prefab:
+    path: 
+    bundlePath: 
+    addressPath: 
   configsItems:
   - configGuid: 2c5cab39-f8c4-4ee7-b8db-67c40ae2a27d
-    configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanMale.asset
+    characterConfig: {fileID: 11400000, guid: 6b7a210257ce1b3419c035891239b8aa, type: 2}
     textures:
     - textureType: 2048
       texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanMale/Clothes/Glove/Glove5.png
-      textureBundlePath: HumanMale_Clothes_Glove/Glove5
+      textureBundlePath: 
     models:
     - availableMeshes: 00020000
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm L/2/StaticModel/A_Arm_L_HumanMale_2.prefab
-      prefabBundlePath: HumanMale_Arm_L_2/A_Arm_L_HumanMale_2
+      prefabBundlePath: 
       additionalPrefabPath: 
       additionalPrefabBundlePath: 
       texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm L/2/Textures/A_HumanMale_Brigand_1_Arm.png
-      textureBundlePath: HumanMale_Arm_L_2/A_HumanMale_Brigand_1_Arm
+      textureBundlePath: 
       additionalTexturePath: 
       additionalTextureBundlePath: 
     - availableMeshes: 00010000
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm R/2/StaticModel/A_Arm_R_HumanMale_2.prefab
-      prefabBundlePath: HumanMale_Arm_R_2/A_Arm_R_HumanMale_2
+      prefabBundlePath: 
       additionalPrefabPath: 
       additionalPrefabBundlePath: 
       texturePath: Assets/Packages/Character_Editor/Prefabs/HumanMale/Arm R/2/Textures/A_HumanMale_Brigand_1_Arm.png
-      textureBundlePath: HumanMale_Arm_R_2/A_HumanMale_Brigand_1_Arm
+      textureBundlePath: 
       additionalTexturePath: 
       additionalTextureBundlePath: 
   - configGuid: e35559d2-7325-4285-92d2-a4b31a907e4c
-    configPath: Assets/Packages/Character_Editor/Data/CharacterConfigs/HumanFemale.asset
+    characterConfig: {fileID: 11400000, guid: b7060db569ead5047953166ae77c230f, type: 2}
     textures:
     - textureType: 2048
       texturePath: Assets/Packages/Character_Editor/Textures/Character/HumanFemale/Clothes/Glove/HF_GloveArmor_1a.png
-      textureBundlePath: HumanFemale_Clothes_Glove/HF_GloveArmor_1a
+      textureBundlePath: 
     models:
     - availableMeshes: 00020000
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Arm L/4/StaticModel/A_humanFemale_ArmorGlove_1_L.prefab
-      prefabBundlePath: HumanFemale_Arm_L_4/A_humanFemale_ArmorGlove_1_L
+      prefabBundlePath: 
       additionalPrefabPath: 
       additionalPrefabBundlePath: 
       texturePath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Arm L/4/Textures/A_humanFemal_ArmorGlove1_1a.png
-      textureBundlePath: HumanFemale_Arm_L_4/A_humanFemal_ArmorGlove1_1a
+      textureBundlePath: 
       additionalTexturePath: 
       additionalTextureBundlePath: 
     - availableMeshes: 00010000
       prefabPath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Arm R/4/StaticModel/A_humanFemale_ArmorGlove_1_R.prefab
-      prefabBundlePath: HumanFemale_Arm_R_4/A_humanFemale_ArmorGlove_1_R
+      prefabBundlePath: 
       additionalPrefabPath: 
       additionalPrefabBundlePath: 
       texturePath: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Arm R/4/Textures/A_humanFemal_ArmorGlove1_1a.png
-      textureBundlePath: HumanFemale_Arm_R_4/A_humanFemal_ArmorGlove1_1a
+      textureBundlePath: 
       additionalTexturePath: 
       additionalTextureBundlePath: 
   hidedMeshTypes: 

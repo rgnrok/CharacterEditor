@@ -9,13 +9,13 @@ namespace CharacterEditor
         public class ItemData : ScriptableObject, IData
         {
             public string guid;
-            public string Guid { get { return guid; } }
+            public string Guid => guid;
 
             public string itemName;
-            public string iconPath;
-            public string iconBundleName;
-            public string prefabPath;
-            public string prefabBundlePath;
+            public PathData icon;
+
+            // Prefabs for environment visible and etc
+            public PathData prefab;
         }
     }
 }

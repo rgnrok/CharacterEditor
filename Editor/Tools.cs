@@ -26,14 +26,13 @@ namespace Editor
             {
                 var itemData = AssetDatabase.LoadAssetAtPath<ItemData>(AssetDatabase.GUIDToAssetPath(path));
 
-                itemData.prefabPath = itemData.prefabPath.Replace(oldPath, newPath);
-                itemData.iconPath = itemData.prefabPath.Replace(oldPath, newPath);
+                itemData.prefab.path = itemData.prefab.path.Replace(oldPath, newPath);
+                itemData.icon.path = itemData.icon.path.Replace(oldPath, newPath);
 
                 if (itemData is EquipItemData equipItemData)
                 {
                     foreach (var configItem in equipItemData.configsItems)
                     {
-                        configItem.configPath = configItem.configPath.Replace(oldPath, newPath);
                         foreach (var textureData in configItem.textures)
                         {
                             textureData.texturePath = textureData.texturePath.Replace(oldPath, newPath);
@@ -117,8 +116,6 @@ namespace Editor
                     for (var j = 0; j < lods.Length; j++)
                         Debug.Log($"{prefab.name} has {j} lod with {lods[j].screenRelativeTransitionHeight * 100}%");
                 }
-
-
 
                 EditorUtility.DisplayCancelableProgressBar($"Update LODs: {prefab.name}", string.Empty, i / prefabsCount);
             }

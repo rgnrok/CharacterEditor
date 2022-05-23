@@ -16,12 +16,14 @@ public abstract class ItemDragCeil : MonoBehaviour, IBeginDragHandler, IDragHand
     private Item _item;
     private bool canDropOnGround;
     private ICommonLoader<GameObject> _gameObjectLoader;
+    private IPathDataProvider _pathProvider;
 
     void Start()
     {
         _canvas = GameManager.Instance.Canvas;
         ParentCeil = GetComponentInParent<ItemCeil>();
         _gameObjectLoader = AllServices.Container.Single<ILoaderService>().GameObjectLoader;
+        _pathProvider = AllServices.Container.Single<ILoaderService>().PathDataProvider;
 
     }
 
@@ -34,7 +36,7 @@ public abstract class ItemDragCeil : MonoBehaviour, IBeginDragHandler, IDragHand
 
         if (_item != null)
         {
-            _gameObjectLoader.LoadByPath(_item.Data.prefabBundlePath, (path, prefab) =>
+            _gameObjectLoader.LoadByPath(_pathProvider.GetPath(_item.Data.prefab), (path, prefab) =>
                 {
                     _dragPrefabObject = Instantiate(prefab);
                     _dragPrefabObject.SetActive(false);

@@ -23,6 +23,9 @@ namespace Editor
         private const string MESH_GROUP_NAME = "Meshes";
 
         private const string ITEMS_GROUP_NAME = "Items";
+        private const string NPC_GROUP_NAME = "PlayableNpc";
+        private const string ENEMIES_GROUP_NAME = "Enemies";
+        private const string CONTAINERS_GROUP_NAME = "Containers";
 
         [MenuItem("Tools/Character Editor/Refresh Addressables")]
         public static void RefreshAddressable()
@@ -39,10 +42,10 @@ namespace Editor
 
             bundleMap.races = ParseRacesConfigs(configs);
 
-            bundleMap.items = ParseItemPath();
-            // bundleMap.playerCharacters = ParsePlayerCharacterPath();
-            // bundleMap.enemies = ParseEnemiesPath();
-            // bundleMap.containers = ParseContainersPath();
+            bundleMap.items = ParseDataEntitiesPath(new ItemLoader(), ITEMS_GROUP_NAME);
+            bundleMap.playableNpc = ParseDataEntitiesPath(new PlayableNpcLoader(), NPC_GROUP_NAME);
+            bundleMap.enemies = ParseDataEntitiesPath(new EnemyLoader(), ENEMIES_GROUP_NAME);
+            bundleMap.containers = ParseDataEntitiesPath(new ContainerLoader(), CONTAINERS_GROUP_NAME);
 
             DisplayProgressBar("Save addressablesInfo", "", 0.9f);
 
@@ -98,31 +101,23 @@ namespace Editor
             return races;
         }
 
-        private static List<GuidPathMap> ParseItemPath()
+        private static List<GuidPathMap> ParseDataEntitiesPath<T>(DataLoader<T> loader, string group) where T: Object, IData
         {
             var itemMaps = new List<GuidPathMap>();
-
-            var loader = new ItemLoader();
-            loader.LoadData(items =>
+            var data = loader.LoadData();
             {
-                foreach (var itemData in items.Values)
+                foreach (var entityData in data.Values)
                 {
-                    var itemPath = AssetDatabase.GetAssetPath(itemData);
-                    var assetPath = SetupAddressable(itemPath, $"{ITEMS_GROUP_NAME}");
+                    var entityPath = AssetDatabase.GetAssetPath(entityData);
+                    var assetPath = SetupAddressable(entityPath, group);
 
-                    var map = new GuidPathMap {path = assetPath, guid = itemData.guid};
+                    var map = new GuidPathMap {path = assetPath, guid = entityData.Guid};
                     itemMaps.Add(map);
-
-                    // UpdateItemPrefabBundlePath(itemData);
-                    //
-                    // var equipItemData = itemData as EquipItemData;
-                    // if (equipItemData != null)
-                    //     UpdateEquipItemPrefabBundlePath(equipItemData);
                 }
-            });
-
+            }
             return itemMaps;
         }
+
 
         private static void ClearAddressables()
         {
@@ -177,7 +172,7 @@ namespace Editor
                 addressableGroup.RemoveAssetEntry(oldEntry);
         }
 
-        protected static List<TexturesMap> ParseTextures(CharacterConfig characterConfig)
+        private static List<TexturesMap> ParseTextures(CharacterConfig characterConfig)
         {
             var dataManager = new DataManager(MeshAtlasType.Static);
 

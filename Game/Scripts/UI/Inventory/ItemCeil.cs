@@ -17,11 +17,13 @@ public class ItemCeil : MonoBehaviour, IPointerClickHandler {
 
     public Action<int, Item, Item> UpdateItem;
     private ISpriteLoader _spriteLoader;
+    private IPathDataProvider _pathProvider;
 
     void Awake()
     {
         UpdateImage();
         _spriteLoader = AllServices.Container.Single<ILoaderService>().SpriteLoader;
+        _pathProvider = AllServices.Container.Single<ILoaderService>().PathDataProvider;
 
     }
 
@@ -48,7 +50,7 @@ public class ItemCeil : MonoBehaviour, IPointerClickHandler {
             return;
         }
 
-        _spriteLoader.LoadItemIcon(Item.Data.iconBundleName,
+        _spriteLoader.LoadItemIcon(_pathProvider.GetPath(Item.Data.icon),
             icon =>
             {
                 itemImage.sprite = icon;

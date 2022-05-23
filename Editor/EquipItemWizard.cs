@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using CharacterEditor;
 using CharacterEditor.CharacterInventory;
+using CharacterEditor.Services;
 using UnityEditor;
 using UnityEngine;
 
@@ -75,13 +77,15 @@ namespace Editor
         private Dictionary<int, GameObject> _characterPreviews = new Dictionary<int, GameObject>();
         private Dictionary<string, GameObject> _itemModelPreviews = new Dictionary<string, GameObject>();
 
-        Vector2 scrollPos;
+        private Vector2 scrollPos;
         private bool _updateCharacterPreview;
         private int _currentModelAndTextureHash;
         private int _prevModelAndTextureHash;
+        private Rect prect = new Rect();
+        private MergeTextureService _mergeTextureService;
 
         [MenuItem("Tools/Character Editor/Items/Equip Item Wizard")]
-        static void CreateWizard()
+        public static void CreateWizard()
         {
             DisplayWizard<EquipItemWizard>("Create item", "Save new", "Update selected");
         }
@@ -95,9 +99,7 @@ namespace Editor
                 OnValidate();
             }
         }
-
-
-
+        
         void Awake()
         {
             InitWizard();
@@ -105,6 +107,7 @@ namespace Editor
 
         private void InitWizard()
         {
+            _mergeTextureService = new MergeTextureService();
             _selectedObject = Selection.activeObject as EquipItemData;
             if (_selectedObject != null)
             {
@@ -315,7 +318,8 @@ namespace Editor
             }
         }
 
-        Rect prect = new Rect();
+
+
         private void DrawCharacterPreview()
         {
             if (p == null) p = CreateInstance<Preview>();
@@ -448,37 +452,29 @@ namespace Editor
         private void UpdateCharacterTextures()
         {
             var selectedConfig = _configs[_selectedConfigIndex];
+
+            var mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Editor/Materials/SkinAndClothRenderMaterial.mat");
+            var renderClothTexture = new RenderTexture(Constants.SKIN_TEXTURE_ATLAS_SIZE, Constants.SKIN_TEXTURE_ATLAS_SIZE, 1, RenderTextureFormat.ARGB32);
+
             foreach (var configData in configInfo)
             {
                 if (configData.characterConfig.guid != selectedConfig.guid) continue;
 
-                var renderClothTexture = new RenderTexture(1024, 1024, 1, RenderTextureFormat.ARGB32);
+                var configTextures =
+                    configData.textures
+                        .Where(t => Helper.GetShaderTextureName(t.textureType) != null)
+                        .ToDictionary(t => Helper.GetShaderTextureName(t.textureType), t => t.texture);
 
-                var emptyText = new Texture2D(1, 1, TextureFormat.RGBA32, false);
-                emptyText.SetPixel(0, 0, new Color(1, 1, 1, 0));
-                emptyText.Apply();
-                var mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Editor/SkinAndClothRenderMaterial.mat");
-
-                foreach (TextureType type in Enum.GetValues(typeof(TextureType)))
-                {
-                    mat.SetTexture(Helper.GetShaderTextureName(type), emptyText);
-                }
-
-                foreach (var texture in configData.textures)
-                {
-                    mat.SetTexture(Helper.GetShaderTextureName(texture.textureType), texture.texture);
-                }
-                Graphics.Blit(Texture2D.blackTexture, renderClothTexture, mat);
-
+                _mergeTextureService.MergeTextures(mat, renderClothTexture, configTextures);
+                
                 RenderTexture.active = renderClothTexture;
                 var characterTexture = new Texture2D(Constants.SKIN_TEXTURE_ATLAS_SIZE, Constants.SKIN_TEXTURE_ATLAS_SIZE, TextureFormat.RGB24, false);
                 characterTexture.ReadPixels(new Rect(0, 0, renderClothTexture.width, renderClothTexture.height), 0, 0);
                 characterTexture.Apply();
 
                 foreach (var render in _currentCharacterPreview.GetComponentsInChildren<SkinnedMeshRenderer>())
-                {
                     render.sharedMaterial.mainTexture = characterTexture;
-                }
+
                 break;
             }
         }
@@ -491,18 +487,18 @@ namespace Editor
 
             if (_selectedObject.configsItems == null) return;
 
-            if (_selectedObject.iconPath != null)
-                icon = AssetDatabase.LoadAssetAtPath<Sprite>(_selectedObject.iconPath);
+            if (!string.IsNullOrEmpty(_selectedObject.icon.path))
+                icon = AssetDatabase.LoadAssetAtPath<Sprite>(_selectedObject.icon.path);
 
-            if (_selectedObject.prefabPath != null)
-                prefab = AssetDatabase.LoadAssetAtPath<GameObject>(_selectedObject.prefabPath);
+            if (!string.IsNullOrEmpty(_selectedObject.prefab.path))
+                prefab = AssetDatabase.LoadAssetAtPath<GameObject>(_selectedObject.prefab.path);
 
             configInfo = new ConfigEquipItemInfo[_selectedObject.configsItems.Length];
             for (var i = 0; i < _selectedObject.configsItems.Length; i++)
             {
                 var configItemInfoData = _selectedObject.configsItems[i];
                 configInfo[i] = new ConfigEquipItemInfo();
-                configInfo[i].characterConfig = AssetDatabase.LoadAssetAtPath<CharacterConfig>(configItemInfoData.configPath);
+                configInfo[i].characterConfig = configItemInfoData.characterConfig;
 
                 if (configItemInfoData.textures != null)
                 {
@@ -556,13 +552,17 @@ namespace Editor
 
             if (icon != null)
             {
-                selectedObject.iconPath = AssetDatabase.GetAssetPath(icon);
-                selectedObject.iconBundleName = icon.name;
+                selectedObject.icon = new PathData()
+                {
+                    path = AssetDatabase.GetAssetPath(icon),
+                    bundlePath = icon.name,
+                    addressPath = icon.name
+                };
             }
 
             if (prefab != null)
             {
-                selectedObject.prefabPath = AssetDatabase.GetAssetPath(prefab);
+                selectedObject.prefab.path = AssetDatabase.GetAssetPath(prefab);
             }
 
             selectedObject.configsItems = new ConfigEquipItemData[configInfo.Length];
@@ -570,7 +570,7 @@ namespace Editor
             {
                 var configData = new ConfigEquipItemData();
                 configData.configGuid = configInfo[i].characterConfig.guid;
-                configData.configPath = AssetDatabase.GetAssetPath(configInfo[i].characterConfig);
+                configData.characterConfig = configInfo[i].characterConfig;
 
                 configData.textures = new EquipTextureData[configInfo[i].textures.Length];
                 for (int j = 0; j < configInfo[i].textures.Length; j++)
@@ -714,6 +714,7 @@ namespace Editor
 
             EditorUtility.FocusProjectWindow();
             Selection.activeObject = _selectedObject;
+            OnValidate();
         }
 
         private string GetAssetPath(string id)
