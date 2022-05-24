@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5289963df4815314c96ff220a6ee8bd3, type: 3}
+  m_Name: bcc65ec2-17a7-49a0-918c-630d15358573
+  m_EditorClassIdentifier: 
+  guid: bcc65ec2-17a7-49a0-918c-630d15358573
+  prefabPath:
+    path: Assets/Game/Prefabs/Characters/HumanMale/HumanMale_Enemy.prefab
+    bundlePath: Prefabs_Characters_HumanMale/HumanMale_Enemy
+    addressPath: Prefabs/Characters/HumanMale/HumanMale_Enemy.prefab
+  skinnedMeshes:
+  - HumanMale_Mesh_LOD0
+  - HumanMale_Mesh_LOD1
+  - HumanMale_Mesh_LOD2
+  prefabBoneData: {fileID: 11400000, guid: 497f5fa80705ba744988de3aec5cb2c5, type: 2}
+  texturePath:
+    path: Assets/Game/Data/Enemies/bcc65ec2-17a7-49a0-918c-630d15358573/tex_Skin.png
+    bundlePath: Enemies_bcc65ec2-17a7-49a0-918c-630d15358573_bcc65ec2-17a7-49a0-918c-630d15358573/tex_Skin
+    addressPath: Data/Enemies/bcc65ec2-17a7-49a0-918c-630d15358573/tex_Skin.png
+  faceMeshTexturePath:
+    path: Assets/Game/Data/Enemies/bcc65ec2-17a7-49a0-918c-630d15358573/tex_Face.png
+    bundlePath: Enemies_bcc65ec2-17a7-49a0-918c-630d15358573_bcc65ec2-17a7-49a0-918c-630d15358573/tex_Face
+    addressPath: Data/Enemies/bcc65ec2-17a7-49a0-918c-630d15358573/tex_Face.png
+  armorTexturePath:
+    path: Assets/Game/Data/Enemies/bcc65ec2-17a7-49a0-918c-630d15358573/tex_Armor.png
+    bundlePath: Enemies_bcc65ec2-17a7-49a0-918c-630d15358573_bcc65ec2-17a7-49a0-918c-630d15358573/tex_Armor
+    addressPath: Data/Enemies/bcc65ec2-17a7-49a0-918c-630d15358573/tex_Armor.png
+  materialPath:
+    path: Assets/Game/Data/Enemies/bcc65ec2-17a7-49a0-918c-630d15358573/mat_Skin.mat
+    bundlePath: Enemies_bcc65ec2-17a7-49a0-918c-630d15358573_bcc65ec2-17a7-49a0-918c-630d15358573/mat_Skin
+    addressPath: Data/Enemies/bcc65ec2-17a7-49a0-918c-630d15358573/mat_Skin.mat
+  portraitIconPath: Assets/Packages/Character_Editor/Sprites/portraits.png
+  portraitIconName: portraits_14

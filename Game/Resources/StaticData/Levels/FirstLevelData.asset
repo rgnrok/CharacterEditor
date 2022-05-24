@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   LevelKey: Play_Character_Scene
   EnemySpawners:
-  - Id: 833a388b-6760-4567-989d-b5fa8f5c9d4d
+  - Id: bcc65ec2-17a7-49a0-918c-630d15358573
     Position: {x: -11, y: 0, z: 13.73}
-  - Id: 833a388b-6760-4567-989d-b5fa8f5c9d4d
+  - Id: bcc65ec2-17a7-49a0-918c-630d15358573
     Position: {x: 13.5, y: 0, z: -13.14}
   PlayableNpcSpawners:
   - Id: 26b8545b-6268-4f3b-9599-f5c794336bd7
@@ -25,5 +25,5 @@ MonoBehaviour:
     Position: {x: -3.6, y: 0, z: 0}
   ContainerSpawners:
   - Id: Container_1
-    Position: {x: -8.98, y: 0, z: 0.63}
+    Position: {x: 11.36, y: 0, z: 15.24}
   InitialPlayerPoint: {x: 13.68, y: 0, z: 13.51}

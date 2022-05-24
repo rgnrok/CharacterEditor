@@ -92,7 +92,7 @@ namespace Editor
             var config = CreateInstance<PlayableNpcConfig>();
 
             SetValues(config);
-            if (!Helper.TryCreateFolder(GetAssetTexturesDir(config.guid))) return;
+            if (!Helper.TryCreateFolder(GetAssetDir(config.guid))) return;
 
             AssetDatabase.CreateAsset(config, GetAssetPath(config.guid));
             AssetDatabase.SaveAssets();
@@ -244,13 +244,13 @@ namespace Editor
             config.portraitIconName = portrait.name;
             config.portraitIconPath = portrait.GetObjectPath();
 
-            var textureName = SaveTexture(config.guid, texture);
-            config.texturePath = new PathData(textureName);
+            var texturePath = EditorHelper.SaveTexture(GetAssetDir(config.guid), texture);
+            config.texturePath = new PathData(texturePath);
 
             if (faceMeshes.Length != 0)
             {
-                textureName = SaveTexture(config.guid, faceMeshTexture);
-                config.faceMeshTexturePath = new PathData(textureName);
+                texturePath = EditorHelper.SaveTexture(GetAssetDir(config.guid), faceMeshTexture);
+                config.faceMeshTexturePath = new PathData(texturePath);
             }
 
             config.characterConfig = characterConfig;
@@ -262,17 +262,6 @@ namespace Editor
             config.faceMeshs = new MeshTypeFaceMeshPath[faceMeshes.Length];
             for (var i = 0; i < faceMeshes.Length; i++)
                 config.faceMeshs[i] = new MeshTypeFaceMeshPath(faceMeshes[i].meshType, AssetDatabase.GetAssetPath(faceMeshes[i].meshObject));
-        }
-
-        private string SaveTexture(string guid, Texture2D mTexture)
-        {
-            var directory = GetAssetTexturesDir(guid);
-            Helper.TryCreateFolder(directory);
-
-            var path = $"{directory}/{mTexture.name}.png";
-            File.WriteAllBytes(path, mTexture.DeCompress().EncodeToPNG());
-
-            return path;
         }
 
         private void InitValues(PlayableNpcConfig config)
@@ -301,9 +290,9 @@ namespace Editor
         }
 
         private string GetAssetPath(string guid) =>
-            $"{GetAssetTexturesDir(guid)}/{guid}.asset";
+            $"{GetAssetDir(guid)}/{guid}.asset";
 
-        private string GetAssetTexturesDir(string guid) =>
+        private string GetAssetDir(string guid) =>
             $"Assets/Game/Data/PlayableNpc/{guid}";
     }
 }

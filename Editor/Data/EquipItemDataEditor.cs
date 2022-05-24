@@ -11,10 +11,7 @@ namespace Editor
         {
             base.OnInspectorGUI();
 
-            if (GUILayout.Button("Open Wizard"))
-            {
-              EquipItemWizard.CreateWizard();
-            }
+            if (GUILayout.Button("Open Wizard")) EquipItemWizard.CreateWizard();
 
             EditorUtility.SetDirty(target);
         }
