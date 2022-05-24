@@ -6,30 +6,30 @@ using UnityEngine;
 
 public class CharacterBattleFindTargetPayloadState : CharacterBattleBasePayloadState<List<IBattleEntity>>
 {
-    private readonly CharacterBattleFSM _fsm;
-
     private List<IBattleEntity> _entities;
     private CharacterAttackManager _attackManager;
     private IAttacked _selectedTarget;
+    private InputManager _inputManager;
 
 
     public CharacterBattleFindTargetPayloadState(CharacterBattleFSM fsm) : base(fsm)
     {
-        _fsm = fsm;
     }
 
-    public new void Exit()
+    public override void Exit()
     {
         base.Exit();
         GameManager.Instance.RenderPathController.SetCharacter(null);
         GameManager.Instance.OnEnemyClick -= OnEnemyClickHandler;
-        GameManager.Instance.InputManager.SpacePress -= OnSpacePressHandler;
         GameManager.Instance.PlayerMoveController.OnGroundClick -= OnGroundClickHandler;
+
+        if (_inputManager != null)
+            _inputManager.SpacePress -= OnSpacePressHandler;
     }
 
-   
 
-    public new void Enter(List<IBattleEntity> entities)
+
+    public override void Enter(List<IBattleEntity> entities)
     {
         base.Enter(entities);
 
@@ -37,8 +37,11 @@ public class CharacterBattleFindTargetPayloadState : CharacterBattleBasePayloadS
         _attackManager = _character.AttackManager;
 
         GameManager.Instance.OnEnemyClick += OnEnemyClickHandler;
-        GameManager.Instance.InputManager.SpacePress += OnSpacePressHandler;
         GameManager.Instance.PlayerMoveController.OnGroundClick += OnGroundClickHandler;
+
+        _inputManager = AllServices.Container.Single<InputManager>();
+        _inputManager.SpacePress += OnSpacePressHandler;
+
 
         AfterSwitching();
     }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices.WindowsRuntime;
 using CharacterEditor.Services;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -7,7 +6,7 @@ using UnityEngine.UI;
 
 namespace CharacterEditor
 {
-    public class InputManager
+    public class InputManager : IService
     {
         public event Action ToggleInventory;
         public event Action ToggleCharacterInfo;
@@ -23,32 +22,38 @@ namespace CharacterEditor
         public event Action<RaycastHit> GroundUpClick;
         public event Action<RaycastHit> GroundDownClick;
 
-        public event Action<RaycastHit> OnChangeMouseRaycasHit;
+        public event Action<RaycastHit> OnChangeMouseRaycastHit;
 
         private RaycastHit _currentRaycastHit;
         private Vector3 _prevMousePosition;
         private CursorType _currentCursorType;
 
         private FollowCamera _camera;
+
+        private int _mouseHitMask;
+        private int _cursorHintMask;
+
         public InputManager()
         {
-            _camera = Camera.main.GetComponent<FollowCamera>();
-            _camera.OnPositionChanged += CameraPositionChangedHandler;
+            _mouseHitMask = 1 << Constants.LAYER_CHARACTER
+                            | 1 << Constants.LAYER_CONTAINER
+                            | 1 << Constants.LAYER_PICKUP
+                            | 1 << Constants.LAYER_GROUND
+                            | 1 << Constants.LAYER_ENEMY;
+
+            _cursorHintMask = _mouseHitMask | 1 << Constants.LAYER_NPC;
+        }
+
+        public void SetupCamera(FollowCamera camera)
+        {
+            _camera = camera;
+            if (camera != null)
+                _camera.OnPositionChanged += CameraPositionChangedHandler;
         }
 
 
         public void Update()
         {
-            if (Input.anyKeyDown && !Input.GetKey(KeyCode.Mouse0) && !Input.GetKey(KeyCode.Mouse1))
-            {
-                if (EventSystem.current.currentSelectedGameObject == null ||
-                    EventSystem.current.currentSelectedGameObject.GetComponent<InputField>() == null)
-                {
-                    KeyDownEvent();
-                    return;
-                }
-            }
-
             if (Input.GetMouseButtonDown(0)) //Left
             {
                 if (MouseLeftDown()) return;
@@ -64,51 +69,69 @@ namespace CharacterEditor
                 if (MouseLeftUp()) return;
             }
 
-            if (Input.GetMouseButton(0))
+            if (Input.anyKeyDown && !Input.GetKey(KeyCode.Mouse0) && !Input.GetKey(KeyCode.Mouse1))
             {
-                return;
+                if (EventSystem.current.currentSelectedGameObject == null ||
+                    EventSystem.current.currentSelectedGameObject.GetComponent<InputField>() == null)
+                {
+                    KeyDownEvent();
+                    return;
+                }
             }
+
             UpdateCursor();
         }
 
         private void KeyDownEvent()
         {
             if (Input.GetKeyDown(KeyCode.I))
+            {
                 ToggleInventory?.Invoke();
+                return;
+            }
 
             if (Input.GetKeyDown(KeyCode.C))
+            {
                 ToggleCharacterInfo?.Invoke();
+                return;
+            }
 
             if (Input.GetKeyDown(KeyCode.Space))
+            {
                 SpacePress?.Invoke();
+                return;
+            }
 
             if (Input.GetKeyDown(KeyCode.Escape))
+            {
                 EscapePress?.Invoke();
+                return;
+            }
         }
 
         private bool MouseLeftDown()
         {
             if (!EventSystem.current.IsPointerOverGameObject())
             {
-                var successHit = GetMouseHit(Constants.LAYER_CHARACTER, Constants.LAYER_CONTAINER, Constants.LAYER_PICKUP, Constants.LAYER_GROUND, Constants.LAYER_ENEMY);
+                var successHit = GetMouseHitByMask(_mouseHitMask);
                 if (successHit)
                 {
                     switch (_currentRaycastHit.collider.gameObject.layer)
                     {
                         case Constants.LAYER_CHARACTER:
-                            if (CharacterGameObjectClick != null) CharacterGameObjectClick(_currentRaycastHit);
+                            CharacterGameObjectClick?.Invoke(_currentRaycastHit);
                             break;
                         case Constants.LAYER_ENEMY:
-                            if (EnemyGameObjectClick != null) EnemyGameObjectClick(_currentRaycastHit);
+                            EnemyGameObjectClick?.Invoke(_currentRaycastHit);
                             break;
                         case Constants.LAYER_CONTAINER:
-                            if (ContainerGameObjectClick != null) ContainerGameObjectClick(_currentRaycastHit);
+                            ContainerGameObjectClick?.Invoke(_currentRaycastHit);
                             break;
                         case Constants.LAYER_PICKUP:
-                            if (PickUpObjectClick != null) PickUpObjectClick(_currentRaycastHit);
+                            PickUpObjectClick?.Invoke(_currentRaycastHit);
                             break;
                         case Constants.LAYER_GROUND:
-                            if (GroundDownClick != null) GroundDownClick(_currentRaycastHit);
+                            GroundDownClick?.Invoke(_currentRaycastHit);
                             break;
                     }
                     return true;
@@ -120,50 +143,44 @@ namespace CharacterEditor
 
         private bool MouseLeftUp()
         {
-            if (!EventSystem.current.IsPointerOverGameObject())
-            {
-                var successHit = GetMouseHit(Constants.LAYER_GROUND);
-                if (successHit)
-                {
-                    if (GroundUpClick != null) GroundUpClick(_currentRaycastHit);
-                    return true;
-                }
-            }
+            if (EventSystem.current.IsPointerOverGameObject()) return false;
 
-            return false;
+            var successHit = GetMouseHitByLayer(Constants.LAYER_GROUND);
+            if (successHit) GroundUpClick?.Invoke(_currentRaycastHit);
+
+            return successHit;
         }
 
         private bool MouseRightDown()
         {
-            if (!EventSystem.current.IsPointerOverGameObject())
-            {
-                var successHit = GetMouseHit(Constants.LAYER_NPC);
-                if (successHit)
-                {
-                    if (NpcGameObjectClick != null) NpcGameObjectClick(_currentRaycastHit);
-                    return true;
-                }
-            }
+            if (EventSystem.current.IsPointerOverGameObject()) return false;
 
-            return false;
+            var successHit = GetMouseHitByLayer(Constants.LAYER_NPC);
+            if (successHit) NpcGameObjectClick?.Invoke(_currentRaycastHit);
+
+            return successHit;
+        }
+
+        private bool GetMouseHitByLayer(int layer, float distance = 50)
+        {
+            return GetMouseHitByMask(1 << layer, distance);
         }
 
         private bool GetMouseHit(params int[] layers)
         {
-            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (layers.Length == 0) return false;
 
-            int mask = 0;
+            var mask = 0;
             foreach (var layer in layers)
-            {
                 mask |= 1 << layer;
-            }
 
-            return Physics.Raycast(ray, out _currentRaycastHit, float.MaxValue, mask);
-//            if (rayCasts.Length == 0) return false;
+            return GetMouseHitByMask(mask);
+        }
 
-//            UpdateCurrentRaycast(rayCasts);
-            return true;
+        private bool GetMouseHitByMask(int mask, float distance = 50)
+        {
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            return Physics.Raycast(ray, out _currentRaycastHit, distance, mask);
         }
 
 
@@ -192,14 +209,14 @@ namespace CharacterEditor
             if (!force && _prevMousePosition == Input.mousePosition) return;
             _prevMousePosition = Input.mousePosition;
 
-            var successHit = GetMouseHit(Constants.LAYER_PICKUP, Constants.LAYER_CONTAINER, Constants.LAYER_NPC, Constants.LAYER_ENEMY, Constants.LAYER_CHARACTER, Constants.LAYER_GROUND);
+            var successHit = GetMouseHitByMask(_cursorHintMask);
             if (!successHit)
             {
                 UpdateCursor(CursorType.Default);
                 return;
             }
 
-            if (OnChangeMouseRaycasHit != null) OnChangeMouseRaycasHit(_currentRaycastHit);
+            OnChangeMouseRaycastHit?.Invoke(_currentRaycastHit);
         }
 
         public async void UpdateCursor(CursorType type)
@@ -209,8 +226,6 @@ namespace CharacterEditor
             _currentCursorType = type;
 
             var loaderService = AllServices.Container.Single<ILoaderService>();
-            var b = loaderService.CursorLoader;
-            var a = 1;
             var cursorTexture = await loaderService.CursorLoader.LoadCursor(_currentCursorType);
             if (cursorTexture != null) Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
         }

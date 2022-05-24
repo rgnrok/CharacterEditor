@@ -1,16 +1,22 @@
-﻿using UnityEngine;
-using UnityEngine.EventSystems;
-
-namespace CharacterEditor
+﻿namespace CharacterEditor
 {
     public class Popup : GameUI
     {
         private bool _isShow;
+        private InputManager _inputManager;
 
         void Start()
         {
-            GameManager.Instance.InputManager.EscapePress += EscapePressHandler;
+            _inputManager = AllServices.Container.Single<InputManager>();
+            _inputManager.EscapePress += EscapePressHandler;
         }
+
+        private void OnDestroy()
+        {
+            if (_inputManager != null)
+                _inputManager.EscapePress -= EscapePressHandler;
+        }
+
 
         public void Toggle()
         {

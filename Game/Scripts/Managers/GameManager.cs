@@ -10,7 +10,6 @@ using UnityEngine.Profiling;
 public class GameManager : MonoBehaviour, ICoroutineRunner
 {
     public static GameManager Instance { get; private set; }
-    public InputManager InputManager { get; private set; }
     public BattleManager BattleManager { get; private set; }
 
     public PlayerMoveController PlayerMoveController { get; private set; }
@@ -56,6 +55,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
     #endregion
 
     private ISaveLoadService _saveLoadService;
+    private InputManager _inputManager;
 
     // private GameStateMachine _gameStateMachine;
 
@@ -66,15 +66,19 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
         Instance = this;
         BattleManager = new BattleManager();
 
-        InputManager = new InputManager();
-        InputManager.CharacterGameObjectClick += CharacterGameObjectClickHandler;
-        InputManager.EnemyGameObjectClick += EnemyGameObjectClickHandler;
-        InputManager.NpcGameObjectClick += NpcGameObjectClickHandler;
-        InputManager.ToggleInventory += ToggleInventoryHandler;
-        InputManager.ToggleCharacterInfo += ToggleCharacterInfoHandler;
-        InputManager.ContainerGameObjectClick += ContainerGameObjectClickHandler;
-        InputManager.PickUpObjectClick += PickUpObjectClickHandler;
-        InputManager.OnChangeMouseRaycasHit += OnChangeMouseRaycastHitHandler;
+        _followCamera = Camera.main.GetComponent<FollowCamera>();
+
+
+        _inputManager = AllServices.Container.Single<InputManager>();
+        _inputManager.SetupCamera(_followCamera);
+        _inputManager.CharacterGameObjectClick += CharacterGameObjectClickHandler;
+        _inputManager.EnemyGameObjectClick += EnemyGameObjectClickHandler;
+        _inputManager.NpcGameObjectClick += NpcGameObjectClickHandler;
+        _inputManager.ToggleInventory += ToggleInventoryHandler;
+        _inputManager.ToggleCharacterInfo += ToggleCharacterInfoHandler;
+        _inputManager.ContainerGameObjectClick += ContainerGameObjectClickHandler;
+        _inputManager.PickUpObjectClick += PickUpObjectClickHandler;
+        _inputManager.OnChangeMouseRaycastHit += OnChangeMouseRaycastHitHandler;
 
         PlayerMoveController = GetComponent<PlayerMoveController>();
         RenderPathController = GetComponent<RenderPathController>();
@@ -83,7 +87,6 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
         Enemies = new Dictionary<string, Enemy>();
 
         HoverManager = GetComponent<HoverManager>();
-        _followCamera = Camera.main.GetComponent<FollowCamera>();
         // _gameStateMachine = new GameStateMachine(new SceneLoader(this), AllServices.Container);
 
         _saveLoadService = AllServices.Container.Single<ISaveLoadService>();
@@ -92,7 +95,6 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
         _saveLoadService.OnPlayableNpcLoaded += OnPlayableNpcLoadedHandler;
         _saveLoadService.OnEnemiesLoaded += OnEnemiesLoadedHandler;
         _saveLoadService.OnLoadData += OnLoadDataHandler;
-
     }
 
     private void Start()
@@ -110,6 +112,18 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
             _saveLoadService.OnPlayableNpcLoaded -= OnPlayableNpcLoadedHandler;
             _saveLoadService.OnEnemiesLoaded -= OnEnemiesLoadedHandler;
             _saveLoadService.OnLoadData -= OnLoadDataHandler;
+        }
+
+        if (_inputManager != null)
+        {
+            _inputManager.CharacterGameObjectClick -= CharacterGameObjectClickHandler;
+            _inputManager.EnemyGameObjectClick -= EnemyGameObjectClickHandler;
+            _inputManager.NpcGameObjectClick -= NpcGameObjectClickHandler;
+            _inputManager.ToggleInventory -= ToggleInventoryHandler;
+            _inputManager.ToggleCharacterInfo -= ToggleCharacterInfoHandler;
+            _inputManager.ContainerGameObjectClick -= ContainerGameObjectClickHandler;
+            _inputManager.PickUpObjectClick -= PickUpObjectClickHandler;
+            _inputManager.OnChangeMouseRaycastHit -= OnChangeMouseRaycastHitHandler;
         }
     }
 
@@ -221,7 +235,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
 
     private void PickUpObjectClickHandler(RaycastHit gameObjectHit)
     {
-        InputManager.UpdateCursor(CursorType.PickUp);
+        _inputManager.UpdateCursor(CursorType.PickUp);
 
         PlayerMoveController.CurrentCharacterStop();
         PlayerMoveController.LookCurrentCharacterToPoint(gameObjectHit.point);
@@ -249,7 +263,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
 
     private void Update()
     {
-        InputManager.Update();
+        _inputManager.Update();
         BattleManager.Update();
         // _gameStateMachine.Update();
     }
@@ -340,7 +354,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
                 break;
         }
 
-        InputManager.UpdateCursor(state);
+        _inputManager.UpdateCursor(state);
     }
 
     private void OnCharactersLoadedHandler(IList<Character> characters)

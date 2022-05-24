@@ -32,11 +32,10 @@ public class RenderPathController : MonoBehaviour
 
     private MovePointerInfo _movePonterInfo;
     private Vector3 _movePointerInfoOffset;
+    private InputManager _inputManager;
 
     void Start()
     {
-        GameManager.Instance.InputManager.OnChangeMouseRaycasHit += OnChangeMouseRaycasHitHandler;
-
         _pointersPool = new ObjectPool<GameObject>(CreatePathPoint, DestroyObject, HiddeObject);
         _debugPool = new ObjectPool<GameObject>(CreateDebugPoint, DestroyObject, HiddeObject);
 
@@ -52,6 +51,17 @@ public class RenderPathController : MonoBehaviour
         _movePointerInfoOffset = new Vector3(100, 10, 0);
 
         GameManager.Instance.OnChangeCharacter += OnChangeCharacterHandler;
+        _inputManager = AllServices.Container.Single<InputManager>();
+        _inputManager.OnChangeMouseRaycastHit += OnChangeMouseRaycastHitHandler;
+    }
+
+    private void OnDestroy()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnChangeCharacter -= OnChangeCharacterHandler;
+
+        if (_inputManager != null)
+            _inputManager.OnChangeMouseRaycastHit -= OnChangeMouseRaycastHitHandler;
     }
 
     private GameObject CreateDebugPoint()
@@ -72,7 +82,7 @@ public class RenderPathController : MonoBehaviour
         Destroy(point);
     }
 
-    private void OnChangeMouseRaycasHitHandler(RaycastHit hit)
+    private void OnChangeMouseRaycastHitHandler(RaycastHit hit)
     {
         RenderPath(hit);
     }

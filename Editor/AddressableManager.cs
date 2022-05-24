@@ -130,6 +130,8 @@ namespace Editor
                     faceBone.prefabPath.addressPath = GetAddressablePath(faceBone.prefabPath.path);
                 foreach (var armorBone in enemyData.prefabBoneData.armorBones)
                     armorBone.prefabPath.addressPath = GetAddressablePath(armorBone.prefabPath.path);
+                EditorUtility.CopySerialized(enemyData.prefabBoneData, enemyData.prefabBoneData);
+
 
                 var prefabPath = GetAddressablePath(enemyData.prefabPath.path);
                 if (string.IsNullOrEmpty(prefabPath))

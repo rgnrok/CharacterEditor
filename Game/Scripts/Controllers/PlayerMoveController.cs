@@ -13,14 +13,25 @@ public class PlayerMoveController : MonoBehaviour
     public Action CurrentCharacterPositionChanged;
     private Dictionary<string, GameObject> _movePointers = new Dictionary<string, GameObject>();
     private Dictionary<string, GameObject> _attackMovePointers = new Dictionary<string, GameObject>();
+    private InputManager _inputManager;
 
     public event Action<string, Vector3> OnGroundClick;
 
 
     private void Start()
     {
-        GameManager.Instance.InputManager.GroundUpClick += GroundUpClickHandler;
-        GameManager.Instance.InputManager.GroundDownClick += GroundDownClickHandler;
+        _inputManager = AllServices.Container.Single<InputManager>();
+        _inputManager.GroundUpClick += GroundUpClickHandler;
+        _inputManager.GroundDownClick += GroundDownClickHandler;
+    }
+
+    private void OnDestroy()
+    {
+        if (_inputManager != null)
+        {
+            _inputManager.GroundUpClick += GroundUpClickHandler;
+            _inputManager.GroundDownClick += GroundDownClickHandler;
+        }
     }
 
     private void GroundDownClickHandler(RaycastHit hit)

@@ -21,10 +21,10 @@ public class ItemCeil : MonoBehaviour, IPointerClickHandler {
 
     void Awake()
     {
-        UpdateImage();
         _spriteLoader = AllServices.Container.Single<ILoaderService>().SpriteLoader;
         _pathProvider = AllServices.Container.Single<ILoaderService>().PathDataProvider;
 
+        UpdateImage();
     }
 
     public virtual void SetItem(Item item, bool disabled = false)
