@@ -16,7 +16,7 @@ namespace CharacterEditor
             Texture2D characterTexture, Sprite portrait,
             IEnumerable<CharacterMesh> faceMeshes, Texture2D faceMeshTexture);
 
-        void SaveGame(string saveName, GameManager gameManager);
+        void SaveGame(string saveName, string levelName, GameManager gameManager);
 
         Task<bool> Load(string saveName, LevelStaticData levelData, Action<int> loadProcessAction);
         string GetLastSave();

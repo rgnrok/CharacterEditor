@@ -88,7 +88,7 @@ namespace CharacterEditor
             KeepLastSaveName(saveName);
         }
 
-        public void SaveGame(string saveName, GameManager gameManager)
+        public void SaveGame(string saveName, string levelName, GameManager gameManager)
         {
             if (gameManager == null) return;
 
@@ -115,6 +115,7 @@ namespace CharacterEditor
             var saveData = new SaveData
             {
                 saveName = saveName,
+                levelKey = levelName,
                 characters = charactersData,
                 selectedCharacterGuid = gameManager.CurrentCharacter.guid,
                 mainCharacterGuid = gameManager.MainCharacterGuid,

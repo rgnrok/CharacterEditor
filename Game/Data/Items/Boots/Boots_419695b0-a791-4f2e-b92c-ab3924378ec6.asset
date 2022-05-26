@@ -15,9 +15,9 @@ MonoBehaviour:
   guid: 419695b0-a791-4f2e-b92c-ab3924378ec6
   itemName: Simple boots
   icon:
-    path: 
-    bundlePath: 
-    addressPath: 
+    path: Assets/Packages/Character_Editor/Sprites/ItemIcons/Icons_BattleMage_Shoes_obj.png
+    bundlePath: Icons_BattleMage_Shoes_obj
+    addressPath: Icons_BattleMage_Shoes_obj
   prefab:
     path: 
     bundlePath: 
@@ -109,15 +109,6 @@ MonoBehaviour:
         path: 
         bundlePath: 
         addressPath: 
-  - configGuid: 304cac1d-bbd5-40dd-9689-8047ac7bfdab
-    characterConfig: {fileID: 0}
-    textures:
-    - textureType: 1024
-      texture:
-        path: Assets/Packages/Character_Editor/Textures/Character/HumanMale_Sample/Clothes/Shoe/Shoe1.png
-        bundlePath: HumanMale_Sample_Clothes_Shoe/Shoe1
-        addressPath: 
-    models: []
   hidedMeshTypes: 
   itemType: 5
   itemSubType: 0

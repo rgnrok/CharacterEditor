@@ -14,22 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: e35559d2-7325-4285-92d2-a4b31a907e4c
   prefabPath:
-    path: Assets/Game/Prefabs/Characters/HumanFemale/HumanFamale_Game.prefab
-    bundlePath: Prefabs_Characters_HumanFemale/HumanFamale_Game
-    addressPath: Prefabs/Characters/HumanFemale/HumanFamale_Game.prefab
+    path: Assets/Game/Prefabs/Characters/HumanFemale/HumanFemale_Game.prefab
+    bundlePath: Prefabs_Characters_HumanFemale/HumanFemale_Game
+    addressPath: Prefabs/Characters/HumanFemale/HumanFemale_Game.prefab
   skinnedMeshes:
   - HumanFemale_Mesh_LOD0
   - HumanFemale_Mesh_LOD1
   - HumanFemale_Mesh_LOD2
   folderName: HumanFemale
   previewPrefabPath:
-    path: Assets/Game/Prefabs/Characters/HumanFemale/HumanFamale_Preview.prefab
-    bundlePath: Prefabs_Characters_HumanFemale/HumanFamale_Preview
-    addressPath: Prefabs/Characters/HumanFemale/HumanFamale_Preview.prefab
+    path: Assets/Game/Prefabs/Characters/HumanFemale/HumanFemale_Preview.prefab
+    bundlePath: Prefabs_Characters_HumanFemale/HumanFemale_Preview
+    addressPath: Prefabs/Characters/HumanFemale/HumanFemale_Preview.prefab
   createGamePrefabPath:
-    path: Assets/Game/Prefabs/Characters/HumanFemale/HumanFamale_Create.prefab
-    bundlePath: Prefabs_Characters_HumanFemale/HumanFamale_Create
-    addressPath: Prefabs/Characters/HumanFemale/HumanFamale_Create.prefab
+    path: Assets/Game/Prefabs/Characters/HumanFemale/HumanFemale_Create.prefab
+    bundlePath: Prefabs_Characters_HumanFemale/HumanFemale_Create
+    addressPath: Prefabs/Characters/HumanFemale/HumanFemale_Create.prefab
   headBone: Bip01_Head
   shortRobeMeshes:
   - Short_Robe_LOD0

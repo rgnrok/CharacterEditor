@@ -9,8 +9,7 @@ namespace CharacterEditor
     {
         private const string SAVE_FILE_NAME = "FileName.dat";
         private static readonly char DirSep = Path.DirectorySeparatorChar;
-
-        private readonly string _savesFolder = $"{Application.persistentDataPath}{DirSep}Saves{DirSep}";
+        private static readonly string SavesFolder = $"{Application.persistentDataPath}{DirSep}Saves{DirSep}";
 
         public bool IsSaveExist(string saveName)
         {
@@ -20,9 +19,9 @@ namespace CharacterEditor
 
         public string[] GetSaves()
         {
-            if (!TryCreateDirectoryIfNotExist(_savesFolder)) return new string[0];
+            if (!TryCreateDirectoryIfNotExist(SavesFolder)) return new string[0];
 
-            var folders = Directory.GetDirectories(_savesFolder);
+            var folders = Directory.GetDirectories(SavesFolder);
             var saveNames = new string[folders.Length];
             for (var i = 0; i < saveNames.Length; i++)
             {
@@ -89,23 +88,28 @@ namespace CharacterEditor
             return null;
         }
 
+        public static void DeleteSaves()
+        {
+            Directory.Delete(SavesFolder, true);
+        }
+
         private bool TryCreateDirectoryIfNotExist(string dir)
         {
             if (Directory.Exists(dir)) return true;
 
             try
             {
-                var indexOf = dir.IndexOf(_savesFolder, StringComparison.Ordinal);
+                var indexOf = dir.IndexOf(SavesFolder, StringComparison.Ordinal);
                 if (indexOf != 0)
                 {
-                    Directory.CreateDirectory(_savesFolder);
+                    Directory.CreateDirectory(SavesFolder);
                     return true;
                 }
 
-                var dirPath = dir.Substring(0, _savesFolder.Length);
+                var dirPath = dir.Substring(0, SavesFolder.Length);
                 Directory.CreateDirectory(dirPath);
 
-                var innerDir = dir.Substring(_savesFolder.Length); ;
+                var innerDir = dir.Substring(SavesFolder.Length); ;
                 foreach (var part in innerDir.Split(DirSep))
                 {
                     dirPath += $"{part}{DirSep}";
@@ -121,7 +125,7 @@ namespace CharacterEditor
         }
 
         private string SaveFolderPath(string saveName) =>
-            $"{_savesFolder}{saveName}";
+            $"{SavesFolder}{saveName}";
 
         private string SaveFilePath(string saveName) =>
             $"{SaveFolderPath(saveName)}{DirSep}{SAVE_FILE_NAME}";

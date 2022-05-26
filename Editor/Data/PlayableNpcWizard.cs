@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using CharacterEditor;
 using CharacterEditor.CharacterInventory;
@@ -36,7 +35,7 @@ namespace Editor
         }
     }
 
-    public class CreatePlayableNpcWizard : WizardWithCharacterPreview
+    public class PlayableNpcWizard : WizardWithCharacterPreview
     {
         public CharacterConfig characterConfig;
         public EquipItemSlotItemData[] equipItems;
@@ -49,9 +48,9 @@ namespace Editor
 
 
         [MenuItem("Tools/Character Editor/Create/Playable Npc Wizard...")]
-        static void CreateWizard()
+        public static void CreateWizard()
         {
-            DisplayWizard<CreatePlayableNpcWizard>("Create Playable Npc", "Save new", "Update selected");
+            DisplayWizard<PlayableNpcWizard>("Create Playable Npc", "Save new", "Update selected");
         }
 
         private void Awake()
@@ -128,6 +127,8 @@ namespace Editor
             scrollPos = GUILayout.BeginScrollView(scrollPos, false, false, GUIStyle.none, GUI.skin.verticalScrollbar);
 
             GUILayout.BeginVertical(bodyOptions);
+            DrawPortrait();
+
             base.DrawWizardGUI();
             GUILayout.EndVertical();
 
@@ -137,6 +138,19 @@ namespace Editor
             DrawCharacterPreview();
 
             return true;
+        }
+
+        private void DrawPortrait()
+        {
+            if (portrait == null) return;
+            var croppedTexture = new Texture2D((int) portrait.rect.width, (int) portrait.rect.height);
+            var pixels = portrait.texture.GetPixels((int) portrait.textureRect.x,
+                (int) portrait.textureRect.y,
+                (int) portrait.textureRect.width,
+                (int) portrait.textureRect.height);
+            croppedTexture.SetPixels(pixels);
+            croppedTexture.Apply();
+            GUILayout.Label(croppedTexture, GUILayout.Height(32f));
         }
 
         private void DrawCharacterPreview()

@@ -2883,11 +2883,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 526024998}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04296e5c7674bbc4eb6d8dd50acabfb0, type: 3}
+  m_Script: {fileID: 11500000, guid: 50867abbd4dbb4c45a5019f01d281079, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouseRotateSpeed: 0.3
-  isPreview: 0
+  RotateSpeed: 0.3
 --- !u!1 &561146397
 GameObject:
   m_ObjectHideFlags: 0
@@ -3186,7 +3185,6 @@ GameObject:
   - component: {fileID: 653876881}
   - component: {fileID: 653876883}
   - component: {fileID: 653876884}
-  - component: {fileID: 653876888}
   - component: {fileID: 653876885}
   m_Layer: 0
   m_Name: Controllers
@@ -3287,20 +3285,6 @@ MonoBehaviour:
     material: {fileID: 2100000, guid: 5cee2e947364d514a9901865cef15c3b, type: 2}
   - shader: 4
     material: {fileID: 2100000, guid: 4e30bbae2a1bec6428f4691388ce845f, type: 2}
---- !u!114 &653876888
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 653876880}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04296e5c7674bbc4eb6d8dd50acabfb0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mouseRotateSpeed: 0.3
-  isPreview: 0
 --- !u!1 &671310461
 GameObject:
   m_ObjectHideFlags: 0

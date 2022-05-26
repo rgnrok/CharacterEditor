@@ -15,6 +15,13 @@ namespace Editor
             PlayerPrefs.Save();
         }
 
+        [MenuItem("Tools/Delete Saves")]
+        public static void DeleteSaves()
+        {
+            FileSaveLoadStorage.DeleteSaves();
+            ClearPrefs();
+        }
+
         [MenuItem("Tools/UpdateData")]
         public static void UpdateStaticDataPaths()
         {

@@ -19,25 +19,43 @@ namespace CharacterEditor
         [SerializeField] private EquipPanelCeil leftHandCeil;
 
         private Character _currentCharacter;
+        private ItemManager _itemManager;
+        private GameManager _gameManager;
 
-      
+        private PointerYRotateComponent _characterRotateComponent;
+
+        void Awake()
+        {
+            _itemManager = ItemManager.Instance;
+            _gameManager = GameManager.Instance;
+
+            _characterRotateComponent = GetComponentInChildren<PointerYRotateComponent>();
+        }
 
         void OnDisable()
         {
-            ItemManager.Instance.OnEquip -= OnEquipHandler;
-            ItemManager.Instance.OnUnEquip -= OnUnEquipHandler;
-            GameManager.Instance.OnChangeCharacter -= OnChangeCharacterHandler;
+            if (_itemManager != null)
+            {
+                _itemManager.OnEquip -= OnEquipHandler;
+                _itemManager.OnUnEquip -= OnUnEquipHandler;
+            }
+
+            if (_gameManager != null)
+                _gameManager.OnChangeCharacter -= OnChangeCharacterHandler;
 
             if (_currentCharacter.GameObjectData.PreviewCharacterObject != null)
                 _currentCharacter.GameObjectData.PreviewCharacterObject.SetActive(false);
         }
 
-        void OnEnable()
+        protected override void OnEnable()
         {
-            ItemManager.Instance.OnEquip += OnEquipHandler;
-            ItemManager.Instance.OnUnEquip += OnUnEquipHandler;
-            GameManager.Instance.OnChangeCharacter += OnChangeCharacterHandler;
-            Init(GameManager.Instance.CurrentCharacter); 
+            base.OnEnable();
+
+            _itemManager.OnEquip += OnEquipHandler;
+            _itemManager.OnUnEquip += OnUnEquipHandler;
+            _gameManager.OnChangeCharacter += OnChangeCharacterHandler;
+
+            Init(_gameManager.CurrentCharacter); 
         }
 
         private void OnChangeCharacterHandler(Character character)
@@ -48,15 +66,16 @@ namespace CharacterEditor
             Init(character);
         }
 
-        public void Init(Character character)
+        private void Init(Character character)
         {
             _currentCharacter = character;
 
-            var previewCamera = _currentCharacter.GameObjectData.PreviewCharacterObject.GetComponentInChildren<Camera>();
+            var characterPreview = _currentCharacter.GameObjectData.PreviewCharacterObject;
+            var previewCamera = characterPreview.GetComponentInChildren<Camera>();
             previewCamera.targetTexture = characterTexture;
 
-            if (_currentCharacter.GameObjectData.PreviewCharacterObject != null)
-                _currentCharacter.GameObjectData.PreviewCharacterObject.SetActive(true);
+            characterPreview.SetActive(true);
+            _characterRotateComponent.SetTarget(characterPreview.transform.Find("Model"));
 
             UpdateEquipItems();
         }
@@ -71,7 +90,6 @@ namespace CharacterEditor
             UpdateEquipItems();
         }
 
-
         private void UpdateEquipItems()
         {
             foreach (EquipItemSlot slotType in Enum.GetValues(typeof(EquipItemSlot)))
@@ -79,8 +97,7 @@ namespace CharacterEditor
                 var ceil = GetCeil(slotType);
                 if (ceil == null) continue;
 
-                EquipItem item;
-                _currentCharacter.EquipItems.TryGetValue(slotType, out item);
+                _currentCharacter.EquipItems.TryGetValue(slotType, out var item);
                 ceil.SetItem(item);
             }
 
@@ -89,8 +106,7 @@ namespace CharacterEditor
 
         private void UpdateTwoHandCeil()
         {
-            EquipItem item;
-            _currentCharacter.EquipItems.TryGetValue(EquipItemSlot.HandRight, out item);
+            _currentCharacter.EquipItems.TryGetValue(EquipItemSlot.HandRight, out var item);
             
             if (item != null && item.ItemSubType == EquipItemSubType.TwoHand) leftHandCeil.SetItem(item, true);
         }

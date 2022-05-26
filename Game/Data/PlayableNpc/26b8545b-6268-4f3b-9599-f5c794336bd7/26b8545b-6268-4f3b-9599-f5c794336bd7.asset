@@ -23,7 +23,7 @@ MonoBehaviour:
     bundlePath: PlayableNpc_26b8545b-6268-4f3b-9599-f5c794336bd7/tex_Face
     addressPath: Data/PlayableNpc/26b8545b-6268-4f3b-9599-f5c794336bd7/tex_Face.png
   portraitIconPath: Assets/Packages/Character_Editor/Sprites/portraits.png
-  portraitIconName: portraits_4
+  portraitIconName: portraits_11
   equipItems:
   - itemSlot: 4
     item: {fileID: 11400000, guid: 733bb2cea74c2c340975ffb8ad3e1084, type: 2}

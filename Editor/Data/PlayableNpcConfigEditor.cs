@@ -5,14 +5,14 @@ using UnityEngine;
 
 namespace Editor
 {
-    [CustomEditor(typeof(EnemyConfig))]
-    public class EnemyConfigEditor : UnityEditor.Editor
+    [CustomEditor(typeof(PlayableNpcConfig))]
+    public class PlayableNpcConfigEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
 
-            if (GUILayout.Button("Open Wizard")) EnemyWizard.CreateWizard();
+            if (GUILayout.Button("Open Wizard")) PlayableNpcWizard.CreateWizard();
 
             EditorUtility.SetDirty(target);
         }

@@ -27,8 +27,7 @@ namespace CharacterEditor
             [SerializeField] private RawImage armorRawImage;
             [SerializeField] private RenderTexture renderClothTexture;
             [SerializeField] private Material clothRenderShaderMaterial;
-            [SerializeField] private PrefabShaderManager.MaterialInfo[] materials;
-//            public MaterialInfo[] Materials { get { return materials; } }
+
 
             private Dictionary<string, Texture2D> _characterTextures;
             public Texture2D CharacterTexture

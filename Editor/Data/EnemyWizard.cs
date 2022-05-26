@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Editor
 {
-    public class CreateEnemyWizard : ScriptableWizard
+    public class EnemyWizard : ScriptableWizard
     {
         public GameObject prefab;
         public string[] skinnedMeshes;
@@ -21,7 +21,7 @@ namespace Editor
         [MenuItem("Tools/Character Editor/Create/Enemy Wizard...")]
         public static void CreateWizard()
         {
-            DisplayWizard<CreateEnemyWizard>("Create Enemy", "Save new",
+            DisplayWizard<EnemyWizard>("Create Enemy", "Save new",
                 "Update selected");
         }
 

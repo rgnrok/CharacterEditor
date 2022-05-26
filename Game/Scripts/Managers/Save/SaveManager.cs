@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using CharacterEditor.Services;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace CharacterEditor
 {
@@ -72,7 +73,7 @@ namespace CharacterEditor
         public void Save(string saveName)
         {
             if (GameManager.Instance != null)
-                _saveLoadService.SaveGame(saveName, GameManager.Instance);
+                _saveLoadService.SaveGame(saveName, SceneManager.GetActiveScene().name, GameManager.Instance);
             else 
                 _saveLoadService.CreateGame(saveName, _configManager.ConfigData,
                 TextureManager.Instance.CharacterTexture, TextureManager.Instance.CurrentCharacterPortrait,

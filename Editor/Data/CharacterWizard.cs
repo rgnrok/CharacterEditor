@@ -6,7 +6,7 @@ using UnityEditor;
 
 namespace Editor
 {
-    public class CreateCharacterWizard : ScriptableWizard
+    public class CharacterWizard : ScriptableWizard
     {
         public string folderName = "";
         public GameObject gameModel;
@@ -30,7 +30,7 @@ namespace Editor
         [MenuItem("Tools/Character Editor/Create/Character Wizard...")]
         static void CreateWizard()
         {
-            DisplayWizard<CreateCharacterWizard>("Create Character", "Save new", "Update selected");
+            DisplayWizard<CharacterWizard>("Create Character", "Save new", "Update selected");
         }
 
         void Awake()

@@ -1,4 +1,5 @@
-﻿using CharacterEditor;
+﻿using System;
+using CharacterEditor;
 using UnityEditor;
 using UnityEngine;
 
@@ -6,14 +7,24 @@ namespace Editor
 {
     public class SpriteProcessor : AssetPostprocessor
     {
-        private static void SetTextureSettings(TextureImporter textureImporter)
+        private static void SetTextureSettings(TextureImporter textureImporter, bool unCompressed)
         {
             textureImporter.textureType = TextureImporterType.Default;
             textureImporter.alphaIsTransparency = true;
             textureImporter.isReadable = true;
             textureImporter.npotScale = TextureImporterNPOTScale.None;
-            textureImporter.textureCompression = TextureImporterCompression.Uncompressed;
             textureImporter.mipmapEnabled = false;
+
+            if (unCompressed)
+                textureImporter.textureCompression = TextureImporterCompression.Uncompressed;
+        }
+
+        void OnPostprocessTexture(Texture2D texture)
+        {
+            if (assetPath.IndexOf("Game/Data/PlayableNpc", StringComparison.Ordinal) == -1)
+                return;
+
+            ImportAsset(assetPath, true);
         }
 
         [MenuItem("Tools/Character Editor/Update Textures")]
@@ -26,20 +37,22 @@ namespace Editor
                 }
             );
 
-            for (int i = 0; i < textures.Length; i++)
+            for (var i = 0; i < textures.Length; i++)
             {
-                var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetDatabase.GUIDToAssetPath(textures[i]));
-                var assetPath = AssetDatabase.GetAssetPath(texture);
-                var textureImporter = AssetImporter.GetAtPath(AssetDatabase.GUIDToAssetPath(textures[i])) as TextureImporter;
-
-                if (textureImporter != null)
-                {
-                    SetTextureSettings(textureImporter);
-
-                    AssetDatabase.ImportAsset(assetPath);
-                    AssetDatabase.Refresh();
-                }
+                var assetPath = AssetDatabase.GUIDToAssetPath(textures[i]);
+                ImportAsset(assetPath);
             }
+        }
+
+        private static void ImportAsset(string assetPath, bool unCompressed = false)
+        {
+            var textureImporter = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            if (textureImporter == null) return;
+
+            SetTextureSettings(textureImporter, unCompressed);
+
+            AssetDatabase.ImportAsset(assetPath);
+            AssetDatabase.Refresh();
         }
     }
 }
