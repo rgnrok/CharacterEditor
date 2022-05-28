@@ -7,7 +7,7 @@ using UnityEngine;
 public class CharacterBattleFindTargetPayloadState : CharacterBattleBasePayloadState<List<IBattleEntity>>
 {
     private List<IBattleEntity> _entities;
-    private CharacterAttackManager _attackManager;
+    private CharacterAttackComponent _attackComponent;
     private IAttacked _selectedTarget;
     private InputManager _inputManager;
 
@@ -34,7 +34,7 @@ public class CharacterBattleFindTargetPayloadState : CharacterBattleBasePayloadS
         base.Enter(entities);
 
         _entities = entities;
-        _attackManager = _character.AttackManager;
+        _attackComponent = _character.AttackComponent;
 
         GameManager.Instance.OnEnemyClick += OnEnemyClickHandler;
         GameManager.Instance.PlayerMoveController.OnGroundClick += OnGroundClickHandler;
@@ -76,7 +76,7 @@ public class CharacterBattleFindTargetPayloadState : CharacterBattleBasePayloadS
     private void Attack(IAttacked target)
     {
         _selectedTarget = target;
-        if (_attackManager.IsAvailableDistance(target))
+        if (_attackComponent.IsAvailableDistance(target))
         {
             _fsm.SpawnEvent((int)CharacterBattleFSM.CharacterBattleStateType.Attack, target);
             _character.ActionPoints.StatCurrentValue--; //todo
@@ -84,19 +84,19 @@ public class CharacterBattleFindTargetPayloadState : CharacterBattleBasePayloadS
             return;
         }
 
-        _fsm.SpawnEvent((int)CharacterBattleFSM.CharacterBattleStateType.Move, _attackManager.GetTargetPointForAttack(target));
+        _fsm.SpawnEvent((int)CharacterBattleFSM.CharacterBattleStateType.Move, _attackComponent.GetTargetPointForAttack(target));
     }
 
     private void OnEnemyClickHandler(string characterGuid, IAttacked attacked)
     {
-        if (_character == null || _character.guid != characterGuid) return;
+        if (_character == null || _character.Guid != characterGuid) return;
 
         Attack(attacked);
     }
 
     private void OnGroundClickHandler(string characterGuid, Vector3 point)
     {
-        if (_character == null || _character.guid != characterGuid) return;
+        if (_character == null || _character.Guid != characterGuid) return;
 
         _fsm.SpawnEvent((int)CharacterBattleFSM.CharacterBattleStateType.Move, point);
         _character.ActionPoints.StatCurrentValue--; //todo

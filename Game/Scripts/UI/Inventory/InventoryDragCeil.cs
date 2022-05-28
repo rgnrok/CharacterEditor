@@ -2,11 +2,10 @@
 
 public class InventoryDragCeil : ItemDragCeil
 {
-    protected override void DropOnGround(ItemCeil itemCeil, Vector3 position)
+    protected override void DropOnGround(ItemCell itemCell, Vector3 position)
     {
-        var inventoryCeil = itemCeil as InventoryCeil;
-        if (inventoryCeil == null) return;
+        if (!(itemCell is InventoryCell inventoryCell)) return;
 
-        GameManager.Instance.Inventory.RemoveFromInvetoryToGround(inventoryCeil, position);
+        GameManager.Instance.Inventory.RemoveFromInvetoryToGround(inventoryCell, position);
     }
 }

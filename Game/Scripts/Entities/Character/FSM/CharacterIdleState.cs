@@ -27,7 +27,7 @@ public class CharacterIdleState : CharacterBaseState
 
     private void OnGroundClickHandler(string characterGuid, Vector3 point)
     {
-        if (_character == null || _character.guid != characterGuid) return;
+        if (_character == null || _character.Guid != characterGuid) return;
 
         _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Move, point);
     }

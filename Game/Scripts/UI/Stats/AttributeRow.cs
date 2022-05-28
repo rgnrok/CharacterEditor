@@ -19,7 +19,7 @@ public class AttributeRow : MonoBehaviour
 
     private void OnChangeCharacterHandler(Character character)
     {
-        if (_currentCharacter != null && character != null && _currentCharacter.guid.Equals(character.guid)) return;
+        if (_currentCharacter != null && character != null && _currentCharacter.Guid.Equals(character.Guid)) return;
 
         if (_currentCharacter != null) _currentCharacter.StatCollection.UpdateStats -= UpdateStatsHandler;
         if (_vital != null) _vital.OnCurrentValueChange -= OnCurrentValueChangeHandler;

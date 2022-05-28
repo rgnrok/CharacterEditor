@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using EnemySystem;
-using UnityEngine;
 
 public class EnemyBattleState : EnemyBaseState, IUpdatableState
 {
     private bool _isTurnComplete;
-    private EnemyAttackManager _attackManager;
+    private EnemyAttackComponent _attackComponent;
+    private EnemyBattleFSM _battleFSM;
 
     public EnemyBattleState(EnemyFSM fsm) : base(fsm)
     {
@@ -15,9 +14,7 @@ public class EnemyBattleState : EnemyBaseState, IUpdatableState
         _battleFSM.OnCurrentStateChanged += OnCurrentStateChangedHandler;
     }
 
-    private EnemyBattleFSM _battleFSM;
-
-    public new void Enter()
+    public override void Enter()
     {
         base.Enter();
         _battleFSM.Start();
@@ -28,7 +25,7 @@ public class EnemyBattleState : EnemyBaseState, IUpdatableState
         if (_detectCollider != null) _detectCollider.IncreaseDetectCollider();
     }
 
-    public new void Exit()
+    public override void Exit()
     {
         base.Exit();
         _battleFSM.OnCurrentStateChanged -= OnCurrentStateChangedHandler;
@@ -43,15 +40,6 @@ public class EnemyBattleState : EnemyBaseState, IUpdatableState
     {
         _battleFSM.Update();
     }
-
-    // public override string GetName()
-    // {
-    //     if (_battleFSM.CurrentState != null)
-    //         return _battleFSM.CurrentState.GetName();
-    //
-    //     return base.GetName();
-    // }
-
 
     private void OnTurnEndHandler()
     {
@@ -79,13 +67,12 @@ public class EnemyBattleState : EnemyBaseState, IUpdatableState
     {
 
     }
+
     private void OnBattleEndHandler()
     {
         _fsm.SpawnEvent((int)EnemyBattleFSM.EnemyBattleStateType.Idle);
     }
-
-   
-
+    
     private void OnCurrentStateChangedHandler(IExitableState state)
     {
         _fsm.FireOnCurrentStateChanged();

@@ -1,6 +1,6 @@
 ﻿using CharacterEditor.CharacterInventory;
 
-public class InventoryCeil : ItemCeil
+public class InventoryCell : ItemCell
 {
     protected override void OnClickHandler()
     {

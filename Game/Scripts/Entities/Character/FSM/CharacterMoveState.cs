@@ -66,7 +66,7 @@ public class CharacterMoveState : CharacterBasePayloadState<Vector3>
 
     private void OnGroundClickHandler(string characterGuid, Vector3 point)
     {
-        if (_character == null || _character.guid != characterGuid) return;
+        if (_character == null || _character.Guid != characterGuid) return;
 
         Move(point);
     }

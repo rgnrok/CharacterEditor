@@ -8,15 +8,15 @@ namespace CharacterEditor
     {
         [SerializeField] private RenderTexture characterTexture;
 
-        [SerializeField] private EquipPanelCeil headCeil;
-        [SerializeField] private EquipPanelCeil armorCeil;
-        [SerializeField] private EquipPanelCeil pantsCeil;
-        [SerializeField] private EquipPanelCeil glovesCeil;
-        [SerializeField] private EquipPanelCeil bootsCeil;
-        [SerializeField] private EquipPanelCeil cloakCeil;
-        [SerializeField] private EquipPanelCeil beltCeil;
-        [SerializeField] private EquipPanelCeil rightHandCeil;
-        [SerializeField] private EquipPanelCeil leftHandCeil;
+        [SerializeField] private EquipPanelCell _headCell;
+        [SerializeField] private EquipPanelCell _armorCell;
+        [SerializeField] private EquipPanelCell _pantsCell;
+        [SerializeField] private EquipPanelCell _glovesCell;
+        [SerializeField] private EquipPanelCell _bootsCell;
+        [SerializeField] private EquipPanelCell _cloakCell;
+        [SerializeField] private EquipPanelCell _beltCell;
+        [SerializeField] private EquipPanelCell _rightHandCell;
+        [SerializeField] private EquipPanelCell _leftHandCell;
 
         private Character _currentCharacter;
         private ItemManager _itemManager;
@@ -108,31 +108,31 @@ namespace CharacterEditor
         {
             _currentCharacter.EquipItems.TryGetValue(EquipItemSlot.HandRight, out var item);
             
-            if (item != null && item.ItemSubType == EquipItemSubType.TwoHand) leftHandCeil.SetItem(item, true);
+            if (item != null && item.ItemSubType == EquipItemSubType.TwoHand) _leftHandCell.SetItem(item, true);
         }
 
-        private EquipPanelCeil GetCeil(EquipItemSlot slot)
+        private EquipPanelCell GetCeil(EquipItemSlot slot)
         {
             switch (slot)
             {
                 case EquipItemSlot.Helm:
-                    return headCeil;
+                    return _headCell;
                 case EquipItemSlot.Armor:
-                    return armorCeil;
+                    return _armorCell;
                 case EquipItemSlot.Pants:
-                    return pantsCeil;
+                    return _pantsCell;
                 case EquipItemSlot.Gloves:
-                    return glovesCeil;
+                    return _glovesCell;
                 case EquipItemSlot.Boots:
-                    return bootsCeil;
+                    return _bootsCell;
                 case EquipItemSlot.Belt:
-                    return beltCeil;
+                    return _beltCell;
                 case EquipItemSlot.Cloak:
-                    return cloakCeil;
+                    return _cloakCell;
                 case EquipItemSlot.HandRight:
-                    return rightHandCeil;
+                    return _rightHandCell;
                 case EquipItemSlot.HandLeft:
-                    return leftHandCeil;
+                    return _leftHandCell;
                 default:
                     return null;
             }

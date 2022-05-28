@@ -9,27 +9,26 @@ namespace CharacterEditor
     public class InventoryCharacter : GameUI
     {
         [SerializeField] private ScrollRect scrollView;
-        [SerializeField] private GameObject ceil;
+        [SerializeField] private GameObject cell;
 
-        private List<InventoryCeil> _ceils = new List<InventoryCeil>();
+        private List<InventoryCell> _cells = new List<InventoryCell>();
 
         public readonly Dictionary<string, Item> InventoryItems = new Dictionary<string, Item>();
-        private Dictionary<int, string> _inventoryCeils = new Dictionary<int, string>();
+        private Dictionary<int, string> _inventoryCells = new Dictionary<int, string>();
         private Character _character;
 
-        public string CharacterGuid { get { return _character.guid;} }
+        public string CharacterGuid { get { return _character.Guid;} }
 
-        public Dictionary<int, CharacterItemData> GetInventoryCeils()
+        public Dictionary<int, CharacterItemData> GetInventoryCells()
         {
-            Dictionary<int, CharacterItemData> ceils = new Dictionary<int, CharacterItemData>();
+            Dictionary<int, CharacterItemData> cells = new Dictionary<int, CharacterItemData>();
 
-            foreach (var ceilPair in _inventoryCeils)
+            foreach (var cellPair in _inventoryCells)
             {
-                Item item;
-                if (!InventoryItems.TryGetValue(ceilPair.Value, out item)) continue;
-                ceils[ceilPair.Key] = new CharacterItemData(item);
+                if (!InventoryItems.TryGetValue(cellPair.Value, out var item)) continue;
+                cells[cellPair.Key] = new CharacterItemData(item);
             }
-            return ceils;
+            return cells;
         }
 
 
@@ -37,57 +36,57 @@ namespace CharacterEditor
         {
             _character = character;
 
-            if (_inventoryCeils == null)
+            if (_inventoryCells == null)
             {
-                var characterCeils = new Dictionary<int, string>();
-                foreach (var ceilPair in character.inventoryCeils)
+                var characterCells = new Dictionary<int, string>();
+                foreach (var cellPair in character.InventoryCells)
                 {
-                    characterCeils[ceilPair.Key] = ceilPair.Value.guid;
+                    characterCells[cellPair.Key] = cellPair.Value.guid;
                 }
 
-                _inventoryCeils = characterCeils;
+                _inventoryCells = characterCells;
             }
 
 //            var characterItems = GetCharacterItems(character.guid);
 
-            var maxCeilNum = 0;
-            foreach (var key in _inventoryCeils.Keys)
+            var maxCellNum = 0;
+            foreach (var key in _inventoryCells.Keys)
             {
-                if (key > maxCeilNum) maxCeilNum = key;
+                if (key > maxCellNum) maxCellNum = key;
             }
 
-            // Create new ceils
-            for (var i = scrollView.content.childCount; i < maxCeilNum; i++)
+            // Create new cells
+            for (var i = scrollView.content.childCount; i < maxCellNum; i++)
             {
-                Instantiate(ceil, scrollView.content.transform);
+                Instantiate(cell, scrollView.content.transform);
             }
 
-            _ceils.Clear();
+            _cells.Clear();
             for (var i = 0; i < scrollView.content.childCount; i++)
             {
-                string ceilItemGuid;
-                _inventoryCeils.TryGetValue(i, out ceilItemGuid);
+                string cellItemGuid;
+                _inventoryCells.TryGetValue(i, out cellItemGuid);
 
-                var itemCeil = scrollView.content.GetChild(i).GetComponent<InventoryCeil>();
+                var itemCell = scrollView.content.GetChild(i).GetComponent<InventoryCell>();
 
-                _ceils.Add(itemCeil);
-                itemCeil.Index = i;
+                _cells.Add(itemCell);
+                itemCell.Index = i;
 
                 Item item = null;
-                if (ceilItemGuid != null) InventoryItems.TryGetValue(ceilItemGuid, out item);
-                itemCeil.SetItem(item);
+                if (cellItemGuid != null) InventoryItems.TryGetValue(cellItemGuid, out item);
+                itemCell.SetItem(item);
             }
         }
 
-        public void SetItem(Item item, int ceilIndex)
+        public void SetItem(Item item, int cellIndex)
         {
             InventoryItems[item.Guid] = item;
-            _inventoryCeils[ceilIndex] = item.Guid;
+            _inventoryCells[cellIndex] = item.Guid;
         }
 
-        public bool AddItem(Item item, int ceilIndex = -1)
+        public bool AddItem(Item item, int cellIndex = -1)
         {
-            if (TryAddItem(item, ceilIndex))
+            if (TryAddItem(item, cellIndex))
             {
                 InventoryItems[item.Guid] = item;
                 return true;
@@ -96,67 +95,67 @@ namespace CharacterEditor
             return false;
         }
 
-        public void RemoveItem(string itemGuid, int ceilIndex = -1)
+        public void RemoveItem(string itemGuid, int cellIndex = -1)
         {
             if (!InventoryItems.ContainsKey(itemGuid)) return;
 
-            if (ceilIndex != -1 && _ceils.Count > ceilIndex)
+            if (cellIndex != -1 && _cells.Count > cellIndex)
             {
-                SetCeilItem(_ceils[ceilIndex], null);
+                SetCellItem(_cells[cellIndex], null);
                 return;
             }
 
-            foreach (var pair in _inventoryCeils)
+            foreach (var pair in _inventoryCells)
             {
                 if (pair.Value != itemGuid) continue;
-                SetCeilItem(_ceils[pair.Key], null);
+                SetCellItem(_cells[pair.Key], null);
                 break;
             }
 
             InventoryItems.Remove(itemGuid);
         }
 
-        private bool TryAddItem(Item item, int ceilIndex = -1)
+        private bool TryAddItem(Item item, int cellIndex = -1)
         {
-            //Not check empty ceil because unequip item drop to some ceil that eqip wil be removed
-            if (ceilIndex != -1 && ceilIndex < _ceils.Count)// && _ceils[ceilIndex].IsEmpty())
+            //Not check empty cell because unequip item drop to some cell that eqip wil be removed
+            if (cellIndex != -1 && cellIndex < _cells.Count)// && _cells[cellIndex].IsEmpty())
             {
-                SetCeilItem(_ceils[ceilIndex], item);
+                SetCellItem(_cells[cellIndex], item);
                 return true;
             }
 
-            foreach (var invCeil in _ceils)
+            foreach (var invCell in _cells)
             {
-                if (!invCeil.IsEmpty()) continue;
-                SetCeilItem(invCeil, item);
+                if (!invCell.IsEmpty()) continue;
+                SetCellItem(invCell, item);
                 return true;
             }
 
             return false;
         }
 
-        public void SetCeilItem(ItemCeil ceil, Item item)
+        public void SetCellItem(ItemCell cell, Item item)
         {
-            ceil.SetItem(item);
+            cell.SetItem(item);
             if (item == null)
-                _inventoryCeils.Remove(ceil.Index);
+                _inventoryCells.Remove(cell.Index);
             else
-                _inventoryCeils[ceil.Index] = item.Guid;
+                _inventoryCells[cell.Index] = item.Guid;
         }
 
-        public void SwapCeils(ItemCeil ceil1, ItemCeil ceil2)
+        public void SwapCells(ItemCell cell1, ItemCell cell2)
         {
 
-            if (ceil1.Item != null)
+            if (cell1.Item != null)
             {
-                var tmpItem = ceil2.Item;
-                SetCeilItem(ceil2, ceil1.Item);
-                SetCeilItem(ceil1, tmpItem);
+                var tmpItem = cell2.Item;
+                SetCellItem(cell2, cell1.Item);
+                SetCellItem(cell1, tmpItem);
             }
             else
             {
-                SetCeilItem(ceil1, ceil2.Item);
-                SetCeilItem(ceil2, null);
+                SetCellItem(cell1, cell2.Item);
+                SetCellItem(cell2, null);
             }
         }
 

@@ -6,7 +6,7 @@ using UnityEngine;
 public class EnemyBattleFindTargetState : EnemyBattleBaseState<List<IBattleEntity>>
 {
     private List<IBattleEntity> _entities;
-    private EnemyAttackManager _attackManager;
+    private EnemyAttackComponent _attackComponent;
 
     private bool _readyAttacket; //todo
 
@@ -19,7 +19,7 @@ public class EnemyBattleFindTargetState : EnemyBattleBaseState<List<IBattleEntit
     {
         base.Enter(targetEntity);
         _entities = targetEntity;
-        _attackManager = _enemy.AttackManager;
+        _attackComponent = _enemy.AttackComponent;
 
         AfterSwitching();
     }
@@ -38,13 +38,13 @@ public class EnemyBattleFindTargetState : EnemyBattleBaseState<List<IBattleEntit
             return;
         }
         var battleEntity = _entities[0];
-        if (_attackManager.IsAvailableDistance(battleEntity))
+        if (_attackComponent.IsAvailableDistance(battleEntity))
         {
             _fsm.SpawnEvent((int)EnemyBattleFSM.EnemyBattleStateType.Attack, battleEntity);
             _readyAttacket = true;
             return;
         }
 
-        _fsm.SpawnEvent((int)EnemyBattleFSM.EnemyBattleStateType.Move, _attackManager.GetTargetPointForAttack(battleEntity));
+        _fsm.SpawnEvent((int)EnemyBattleFSM.EnemyBattleStateType.Move, _attackComponent.GetTargetPointForAttack(battleEntity));
     }
 }

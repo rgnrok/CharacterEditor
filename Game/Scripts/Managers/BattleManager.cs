@@ -89,7 +89,7 @@ namespace CharacterEditor
 
         private void SortEntities()
         {
-            _battleEntities.Sort((a, b) => a.guid.CompareTo(b.guid));
+            _battleEntities.Sort((a, b) => a.Guid.CompareTo(b.Guid));
         }
 
         private void StartBattle()

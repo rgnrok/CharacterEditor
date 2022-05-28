@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using StatSystem;
 using UnityEngine;
 
-public interface IBattleEntity
+public interface IBattleEntity : IIdentifiable
 {
     StatCollection StatCollection { get; }
     Vital Health { get; }
     Vital ActionPoints { get; }
 
     Sprite Portrait { get; }
-    string guid { get; }
 
-    FSM BaseFSM { get; }
+    IFSM FSM { get; }
 
     GameObject EntityGameObject { get; }
 

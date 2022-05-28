@@ -12,7 +12,7 @@ namespace CharacterEditor
     {
         string[] GetSaves();
 
-        void CreateGame(string saveName, CharacterGameObjectData configData,
+        void CreateGame(string saveName, string characterGuid,
             Texture2D characterTexture, Sprite portrait,
             IEnumerable<CharacterMesh> faceMeshes, Texture2D faceMeshTexture);
 

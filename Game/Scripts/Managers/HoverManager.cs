@@ -28,13 +28,13 @@ public class HoverManager : MonoBehaviour
 
         foreach (var hoverEntity in hoverEntities)
         {
-            if (!_cachedOutlines.TryGetValue(hoverEntity.guid, out outline))
+            if (!_cachedOutlines.TryGetValue(hoverEntity.Guid, out outline))
             {
                 outline = hoverEntity.EntityGameObject.GetComponent<Outline>();
                 if (outline == null) outline = hoverEntity.EntityGameObject.AddComponent<Outline>();
                 if (outline == null) continue;
 
-                _cachedOutlines[hoverEntity.guid] = outline;
+                _cachedOutlines[hoverEntity.Guid] = outline;
             }
             outline.EnableOutilne(color);
         }
@@ -44,7 +44,7 @@ public class HoverManager : MonoBehaviour
             if (Array.IndexOf(hoverEntities, currentEntity) == -1)
             {
                 // If entity ready hover - than it must be into cache
-                if (!_cachedOutlines.TryGetValue(currentEntity.guid, out outline)) continue;
+                if (!_cachedOutlines.TryGetValue(currentEntity.Guid, out outline)) continue;
 
                 outline.DisableOutilne();
             }
@@ -60,7 +60,7 @@ public class HoverManager : MonoBehaviour
         foreach (var currentEntity in currentEntities)
         {
             // If entity ready hover - than it must be into cache
-            if (!_cachedOutlines.TryGetValue(currentEntity.guid, out outline)) continue;
+            if (!_cachedOutlines.TryGetValue(currentEntity.Guid, out outline)) continue;
 
             outline.DisableOutilne();
         }

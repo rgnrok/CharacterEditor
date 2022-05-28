@@ -32,16 +32,16 @@ public class EnemyFSM : FSM
     public bool IsTurnComplete()
     {
         if (CurrentState != _battleState) return true;
-
+    
         return _battleState.IsTurnComplete();
     }
-
+    
     public void StartTurn(List<IBattleEntity> enemies)
     {
         if (CurrentState != _battleState) return;
         _battleState.StartTurn(enemies);
     }
-
+    
     public void ProcessTurn()
     {
         if (CurrentState != _battleState) return;

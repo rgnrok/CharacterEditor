@@ -7,19 +7,19 @@ using Attribute = StatSystem.Attribute;
 
 namespace CharacterEditor
 {
-    public class Character: Entity<CharacterGameObjectData, CharacterConfig>, IBattleEntity, IAttacked
+    public class Character: Entity<CharacterGameObjectData, CharacterConfig>, IBattleEntity, IAttacked, IHover
     {
         public readonly Dictionary<EquipItemSlot, EquipItem> EquipItems = new Dictionary<EquipItemSlot, EquipItem>();
         public readonly Dictionary<MeshType, FaceMesh> FaceMeshItems = new Dictionary<MeshType, FaceMesh>();
-        public readonly Dictionary<int, CharacterItemData> inventoryCeils = new Dictionary<int, CharacterItemData>();
+        public readonly Dictionary<int, CharacterItemData> InventoryCells = new Dictionary<int, CharacterItemData>();
 
-        public Texture2D FaceMeshTexture { get; private set; }
-        public Sprite Portrait { get; private set; }
-        public CharacterFSM FSM { get; private set; }
+        public Texture2D FaceMeshTexture { get; }
+        public Sprite Portrait { get; }
 
-        public FSM BaseFSM => FSM;
-        // public GameObject EntityGameObject { get { return GameObjectData.Entity; } }
-        public CharacterAttackManager AttackManager { get; private set; }
+        private CharacterFSM _characterFSM;
+        public IFSM FSM => _characterFSM;
+
+        public CharacterAttackComponent AttackComponent { get; private set; }
         public PlayerMoveComponent MoveComponent { get; private set; }
 
         public Vital ActionPoints { get { return StatCollection.GetStat<Vital>(StatType.ActionPoint); } }
@@ -38,7 +38,7 @@ namespace CharacterEditor
         {
             FaceMeshTexture = faceMeshTexture;
             Portrait = portrait;
-            inventoryCeils = data.inventoryCells;
+            InventoryCells = data.inventoryCells;
         }
 
         public Character(string guid, CharacterGameObjectData gameObjectData, Texture2D texture, Texture2D faceMeshTexture, Sprite portrait) : base(guid, gameObjectData, texture)
@@ -47,23 +47,22 @@ namespace CharacterEditor
             Portrait = portrait;
         }
 
-        protected override void Die()
+        protected override void OnDie()
         {
-            base.Die();
+            base.OnDie();
             OnDied?.Invoke(this);
 
-
-            FSM.SpawnEvent((int)CharacterFSM.CharacterStateType.Dead);
+            _characterFSM.SpawnEvent((int)CharacterFSM.CharacterStateType.Dead);
         }
 
         protected override void InternalInit()
         {
             base.InternalInit();
-            AttackManager = new CharacterAttackManager(this);
+            AttackComponent = new CharacterAttackComponent(this);
             MoveComponent = EntityGameObject.GetComponent<PlayerMoveComponent>();
 
-            FSM = new CharacterFSM(this);
-            FSM.Start();
+            _characterFSM = new CharacterFSM(this);
+            _characterFSM.Start();
 
             var canvas = EntityGameObject.GetComponentInChildren<EntityCanvas>();
             if (canvas != null) canvas.Init(this);
@@ -72,28 +71,28 @@ namespace CharacterEditor
 
         public void StartBattle()
         {
-            FSM.SpawnEvent((int)CharacterFSM.CharacterStateType.Battle);
+            _characterFSM.SpawnEvent((int)CharacterFSM.CharacterStateType.Battle);
         }
 
         public bool IsTurnComplete()
         {
-            return FSM.IsTurnComplete();
+            return _characterFSM.IsTurnComplete();
         }
 
         public void StartTurn(List<IBattleEntity> entities)
         {
-            FSM.StartTurn(entities);
+            _characterFSM.StartTurn(entities);
         }
 
         public void ProcessTurn()
         {
-            FSM.ProcessTurn();
+            _characterFSM.ProcessTurn();
         }
 
         public int CalculateAP(float distance, IAttacked attackedEntity = null)
         {
             var movePoints = Mathf.CeilToInt(distance / Speed);
-            if (attackedEntity == null || AttackManager == null) return movePoints;
+            if (attackedEntity == null || AttackComponent == null) return movePoints;
 
             var attackPoints = 1; //todo
             return movePoints + attackPoints;
@@ -231,7 +230,7 @@ namespace CharacterEditor
 
             var item = EquipItems[slotType];
             EquipItems.Remove(slotType);
-            if (addToInventory && OnAddToInventory != null) OnAddToInventory(guid, item);  //todo remove can unequip to ground, inventory, container and etc
+            if (addToInventory && OnAddToInventory != null) OnAddToInventory(Guid, item);  //todo remove can unequip to ground, inventory, container and etc
             if (OnUnequipItem != null) OnUnequipItem(item);
 
             foreach (var statPair in item.Stats)
@@ -251,7 +250,7 @@ namespace CharacterEditor
 
         public void RemoveFromInvetory(Item item)
         {
-            if (OnRemoveFromInventory != null) OnRemoveFromInventory(guid, item);
+            if (OnRemoveFromInventory != null) OnRemoveFromInventory(Guid, item);
         }
 
     

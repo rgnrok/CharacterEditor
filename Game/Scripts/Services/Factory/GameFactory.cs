@@ -252,7 +252,7 @@ namespace CharacterEditor.Services
         {
             foreach (var faceMeshPair in faceMeshItems.Values)
             {
-                faceMeshPair.LoadTextureAndMesh(character.configGuid);
+                faceMeshPair.LoadTextureAndMesh(character.ConfigGuid);
                 while (!faceMeshPair.ItemMesh.IsReady) await Task.Yield();
                 character.AddFaceMesh(faceMeshPair);
             }

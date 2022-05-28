@@ -110,7 +110,7 @@ public class RenderPathController : MonoBehaviour
 
     public void SetCharacter(Character ch)
     {
-        if (_character != null && ch!=null && ch.guid == _character.guid )
+        if (_character != null && ch!=null && ch.Guid == _character.Guid )
             return;
         
         _character = ch;
@@ -121,12 +121,12 @@ public class RenderPathController : MonoBehaviour
         }
 
         _moveComponent = _character.GameObjectData.CharacterObject.GetComponent<PlayerMoveComponent>();
-        _isEnabled = GameManager.Instance.CurrentCharacter.guid == _character.guid;
+        _isEnabled = GameManager.Instance.CurrentCharacter.Guid == _character.Guid;
     }
 
     private void OnChangeCharacterHandler(Character ch)
     {
-        _isEnabled = _character != null && ch.guid == _character.guid;
+        _isEnabled = _character != null && ch.Guid == _character.Guid;
         if (!_isEnabled) Clean();
     }
 
@@ -158,9 +158,9 @@ public class RenderPathController : MonoBehaviour
                 _cursorAttackPathPointInstance.SetActive(true);
                 _cursorPathPointInstance.SetActive(false);
 
-                if (_character.AttackManager.IsAvailableDistance(attacked)) return;
+                if (_character.AttackComponent.IsAvailableDistance(attacked)) return;
 
-                point = _character.AttackManager.GetTargetPointForAttack(attacked);
+                point = _character.AttackComponent.GetTargetPointForAttack(attacked);
             }
         }
         else
@@ -303,7 +303,7 @@ public class RenderPathController : MonoBehaviour
             if (attacked != null)
             {
                 pathInfo.targetPoint = attacked.EntityGameObject.transform.position;
-                pathInfo.endPoint = _character.AttackManager.GetTargetPointForAttack(attacked);
+                pathInfo.endPoint = _character.AttackComponent.GetTargetPointForAttack(attacked);
                 pathInfo.attacked = attacked;
             }
         }
@@ -396,7 +396,7 @@ public class RenderPathController : MonoBehaviour
         _cursorAttackPathPointInstance.transform.position = pathInfo.targetPoint + pointSubVector;
         _cursorAttackPathPointInstance.SetActive(true);
 
-        var isRange = _character.AttackManager.IsRange();
+        var isRange = _character.AttackComponent.IsRange();
         if (isRange)
         {
             //todo
@@ -407,7 +407,7 @@ public class RenderPathController : MonoBehaviour
         PrefaprePointInfo(ref pathInfo);
 
         if (!pathInfo.isComplete) return;
-        if (_character.AttackManager.IsAvailableDistance(pathInfo.totalDistance)) return;
+        if (_character.AttackComponent.IsAvailableDistance(pathInfo.totalDistance)) return;
 
         foreach (var pathPoint in pathInfo.points)
         {

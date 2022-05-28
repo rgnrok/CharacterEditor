@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ContainerDragCeil : ItemDragCeil
 {
-    protected override void DropOnGround(ItemCeil itemCeil, Vector3 position)
+    protected override void DropOnGround(ItemCell itemCell, Vector3 position)
     {
 //        throw new System.NotImplementedException();
     }

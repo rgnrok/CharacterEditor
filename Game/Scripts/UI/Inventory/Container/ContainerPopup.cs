@@ -11,7 +11,7 @@ public class ContainerPopup : Popup
     [SerializeField] private GameObject ceil;
     [SerializeField] private ScrollRect scrollView;
 
-    private List<ContainerCeil> _ceils = new List<ContainerCeil>();
+    private List<ContainerCell> _ceils = new List<ContainerCell>();
 
     private Dictionary<int, CharacterItemData> _containerCeils = new Dictionary<int, CharacterItemData>();
     public readonly Dictionary<string, Item> ContainerItems = new Dictionary<string, Item>();
@@ -63,7 +63,7 @@ public class ContainerPopup : Popup
             CharacterItemData ceilInfo;
             _containerCeils.TryGetValue(i, out ceilInfo);
 
-            var itemCeil = scrollView.content.GetChild(i).GetComponent<ContainerCeil>();
+            var itemCeil = scrollView.content.GetChild(i).GetComponent<ContainerCell>();
 
             _ceils.Add(itemCeil);
             itemCeil.Index = i;
@@ -86,20 +86,20 @@ public class ContainerPopup : Popup
         }
     }
 
-    public void AddToInventory(ContainerCeil containerCeil, InventoryCeil inventoryCeil = null)
+    public void AddToInventory(ContainerCell containerCell, InventoryCell inventoryCell = null)
     {
-        var item = containerCeil.Item;
+        var item = containerCell.Item;
 
-        if (GameManager.Instance.Inventory.AddToInvetory(item, inventoryCeil))
+        if (GameManager.Instance.Inventory.AddToInventory(item, inventoryCell))
         {
             ContainerItems.Remove(item.Guid);
-            _currentContainer.RemoveItem(containerCeil.Index);
-            SetCeilItem(containerCeil, null);
+            _currentContainer.RemoveItem(containerCell.Index);
+            SetCeilItem(containerCell, null);
         }
     }
 
 
-    public void SwapCeils(ItemCeil ceil1, ItemCeil ceil2)
+    public void SwapCeils(ItemCell ceil1, ItemCell ceil2)
     {
         if (ceil1.Item != null)
         {
@@ -119,37 +119,37 @@ public class ContainerPopup : Popup
         _currentContainer.AddItem(ceil2.Index, ceil2.Item);
     }
 
-    private void SetCeilItem(ItemCeil ceil, Item item)
+    private void SetCeilItem(ItemCell cell, Item item)
     {
-        ceil.SetItem(item);
+        cell.SetItem(item);
         if (item == null)
-            _containerCeils.Remove(ceil.Index);
+            _containerCeils.Remove(cell.Index);
         else
-            _containerCeils[ceil.Index] = new CharacterItemData(item);
+            _containerCeils[cell.Index] = new CharacterItemData(item);
     }
 
-    public void AddToContainer(ContainerCeil containerCeil, InventoryCeil inventoryCeil)
+    public void AddToContainer(ContainerCell containerCell, InventoryCell inventoryCell)
     {
-        var item = inventoryCeil.Item;
+        var item = inventoryCell.Item;
         if (item == null) return;
 
         ContainerItems[item.Guid] = item;
-        GameManager.Instance.Inventory.RemoveFromInvetory(inventoryCeil);
-        _currentContainer.AddItem(containerCeil.Index, item);
-        SetCeilItem(containerCeil, item);
+        GameManager.Instance.Inventory.RemoveFromInvetory(inventoryCell);
+        _currentContainer.AddItem(containerCell.Index, item);
+        SetCeilItem(containerCell, item);
     }
 
 
-    public void AddToContainer(ContainerCeil containerCeil, EquipPanelCeil equipCeil)
+    public void AddToContainer(ContainerCell containerCell, EquipPanelCell equipCell)
     {
-        var item = equipCeil.Item as EquipItem;
+        var item = equipCell.Item as EquipItem;
         if (item == null) return;
 
         ItemManager.Instance.UnEquipItem(item);
-        equipCeil.SetItem(null);
+        equipCell.SetItem(null);
 
         ContainerItems[item.Guid] = item;
-        _currentContainer.AddItem(containerCeil.Index, item);
-        SetCeilItem(containerCeil, item);
+        _currentContainer.AddItem(containerCell.Index, item);
+        SetCeilItem(containerCell, item);
     }
 }

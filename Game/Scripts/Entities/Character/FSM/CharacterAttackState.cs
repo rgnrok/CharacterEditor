@@ -5,11 +5,11 @@ using UnityEngine;
 public class CharacterAttackState : CharacterBasePayloadState<IAttacked>
 {
     private IAttacked _targetEntity;
-    private readonly CharacterAttackManager _attackManager;
+    private readonly CharacterAttackComponent _attackComponent;
 
     public CharacterAttackState(CharacterFSM fsm) : base(fsm)
     {
-        _attackManager = _character.AttackManager;
+        _attackComponent = _character.AttackComponent;
     }
 
     public override void Enter(IAttacked targetEntity)
@@ -40,22 +40,22 @@ public class CharacterAttackState : CharacterBasePayloadState<IAttacked>
 
     private void Attack()
     {
-        if (_attackManager == null) return;
+        if (_attackComponent == null) return;
 
-        if (!_attackManager.IsAvailableDistance(_targetEntity))
+        if (!_attackComponent.IsAvailableDistance(_targetEntity))
         {
-            _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Move, _attackManager.GetTargetPointForAttack(_targetEntity));
+            _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Move, _attackComponent.GetTargetPointForAttack(_targetEntity));
 
             return;
         }
 
-        _attackManager.Attack(_targetEntity);
+        _attackComponent.Attack(_targetEntity);
     }
 
     private void MoveComponentHandler()
     {
         GameManager.Instance.PlayerMoveController.HideCharacterPointer(_character);
-        if (_attackManager.IsAvailableDistance(_targetEntity))
+        if (_attackComponent.IsAvailableDistance(_targetEntity))
         {
             _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Attack, _targetEntity);
         }

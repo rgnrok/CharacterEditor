@@ -2,7 +2,7 @@
 using CharacterEditor.CharacterInventory;
 using UnityEngine;
 
-public class EquipPanelCeil : ItemCeil
+public class EquipPanelCell : ItemCell
 {
     [SerializeField] private EquipItemSlot _slot;
     [SerializeField] private EquipItemType[] _availableItemTypes;
@@ -16,7 +16,7 @@ public class EquipPanelCeil : ItemCeil
         if (equipItem != null)
         {
             ItemManager.Instance.UnEquipItem(equipItem);
-            GameManager.Instance.Inventory.AddToInvetory(equipItem);
+            GameManager.Instance.Inventory.AddToInventory(equipItem);
             SetItem(null);
         }
     }

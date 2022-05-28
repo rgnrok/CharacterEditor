@@ -1,7 +1,6 @@
 ﻿ using UnityEngine;
 
-public interface IHover
- {
-     string guid { get; }
+public interface IHover : IIdentifiable
+{
      GameObject EntityGameObject { get; }
  }

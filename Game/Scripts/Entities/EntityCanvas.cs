@@ -20,8 +20,8 @@ public class EntityCanvas : MonoBehaviour
 
     public void Init(IBattleEntity entity)
     {
-        entity.BaseFSM.OnCurrentStateChanged += OnCurrentStateChangedHandler;
-        OnCurrentStateChangedHandler(entity.BaseFSM.CurrentState);
+        entity.FSM.OnCurrentStateChanged += OnCurrentStateChangedHandler;
+        OnCurrentStateChangedHandler(entity.FSM.CurrentState);
 
         _camera = Camera.main;
         _initialized = true;

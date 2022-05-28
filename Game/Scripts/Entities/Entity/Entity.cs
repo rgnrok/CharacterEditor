@@ -1,58 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using CharacterEditor.CharacterInventory;
-using StatSystem;
-using UnityEditor;
+﻿using StatSystem;
 using UnityEngine;
 
 namespace CharacterEditor
 {
-    public abstract class Entity<TGoData, TConfig> : IHover where TGoData : EntityGameObjectData<TConfig> where TConfig: EntityConfig
+    public abstract class Entity<TGoData, TConfig> : IIdentifiable where TGoData : EntityGameObjectData<TConfig> where TConfig: EntityConfig
     {
-        private bool _initialized;
+        public Texture2D Texture { get; }
 
-        public Texture2D Texture { get; private set; }
-//        public EntityConfig Config { get; private set; }
-//        public TData Data { get; protected set; }
-
-        public string guid { get; protected set; }
-        public string configGuid { get; protected set; }
-
-        public TGoData GameObjectData { get; protected set; }
+        public string Guid { get; }
+        public string ConfigGuid { get; }
+        public TGoData GameObjectData { get; }
 
         public StatCollection StatCollection { get; private set; }
 
-        public Vital Health
+        public Vital Health => 
+            StatCollection.GetStat<Vital>(StatType.Health);
+
+        public bool IsAlive() => 
+            Health.StatCurrentValue > 0;
+
+        public GameObject EntityGameObject => 
+            GameObjectData.Entity;
+
+        private bool _initialized;
+
+        protected Entity(EntitySaveData data, TGoData gameObjectData, Texture2D texture)
         {
-            get { return StatCollection.GetStat<Vital>(StatType.Health); }
-        }
-
-        public bool IsAlive()
-        {
-            return Health.StatCurrentValue > 0;
-        }
-
-        public virtual GameObject EntityGameObject { get { return GameObjectData.Entity;} }
-
-
-        protected Entity()
-        {
-        }
-
-        protected Entity(EntitySaveData data, TGoData gameObjectData, Texture2D texture) : this()
-        {
-            guid = data.guid;
-            configGuid = data.configGuid;
+            Guid = data.guid;
+            ConfigGuid = data.configGuid;
 
             GameObjectData = gameObjectData;
             Texture = texture;
             StatCollection = new DefaultStatCollection(data.currentHealthValue, data.currentManaValue, data.stats);
         }
 
-        protected Entity(string guid, TGoData gameObjectData, Texture2D texture) : this()
+        protected Entity(string guid, TGoData gameObjectData, Texture2D texture)
         {
-            this.guid = guid;
-            configGuid = gameObjectData.Config.guid;
+            Guid = guid;
+            ConfigGuid = gameObjectData.Config.guid;
 
             GameObjectData = gameObjectData;
             Texture = texture;
@@ -72,19 +57,21 @@ namespace CharacterEditor
             Health.OnCurrentValueChange += HealthChanged;
         }
 
-
         private void HealthChanged()
         {
             if (Health.StatCurrentValue <= 0)
-            {
                 Die();
-            }
         }
 
-        protected virtual void Die()
+        private void Die()
+        {
+            Health.OnCurrentValueChange -= HealthChanged;
+            OnDie();
+        }
+
+        protected virtual void OnDie()
         {
 
         }
     }
 }
-

@@ -92,8 +92,8 @@ namespace CharacterEditor
                 SetUpItems(character.EquipItems, character.FaceMeshItems);
                 UpdateStats(character.StatCollection);
 
-                guid = character.guid;
-                configGuid = character.configGuid;
+                guid = character.Guid;
+                configGuid = character.ConfigGuid;
                 position = character.GameObjectData.CharacterObject.transform.position;
                 rotation = character.GameObjectData.CharacterObject.transform.rotation;
                 portrait = character.Portrait.name.Replace("(Clone)", "").Trim();

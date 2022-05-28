@@ -1,11 +1,11 @@
 ﻿namespace EnemySystem
 {
-    public class EnemyAttackManager: EntityAttackManager
+    public class EnemyAttackComponent: EntityAttackComponent
     {
 
         protected Enemy _enemy;
 
-        public EnemyAttackManager(Enemy enemy): base(enemy.GameObjectData.Entity)
+        public EnemyAttackComponent(Enemy enemy): base(enemy.GameObjectData.Entity)
         {
             _enemy = enemy;
           

@@ -3,17 +3,17 @@ using UnityEngine.EventSystems;
 
 public abstract class DropCeil : MonoBehaviour, IDropHandler
 {
-    protected ItemCeil _ceil;
+    protected ItemCell Cell;
 
     void Awake()
     {
-        _ceil = GetComponent<ItemCeil>();
+        Cell = GetComponent<ItemCell>();
     }
 
     public virtual void OnDrop(PointerEventData eventData)
     {
         var drag = eventData.pointerDrag.GetComponent<ItemDragCeil>();
-        if (drag == null || _ceil == null) return;
+        if (drag == null || Cell == null) return;
 
 
         DropItem(drag);

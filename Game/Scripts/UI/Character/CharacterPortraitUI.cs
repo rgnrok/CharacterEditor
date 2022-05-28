@@ -45,7 +45,7 @@ namespace CharacterEditor
 
         private void OnChangeCharacterHandler(Character ch)
         {
-            var isVisible = ch != null && _character != null && ch.guid == _character.guid;
+            var isVisible = ch != null && _character != null && ch.Guid == _character.Guid;
             selectedBorder.gameObject.SetActive(isVisible);
         }
     }

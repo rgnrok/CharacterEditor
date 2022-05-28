@@ -24,7 +24,7 @@
 
         private void OnEnemyClickHandler(string characterGuid, IAttacked attacked)
         {
-            if (_character == null || _character.guid != characterGuid) return;
+            if (_character == null || _character.Guid != characterGuid) return;
 
             OnEnemyClick(attacked);
         }

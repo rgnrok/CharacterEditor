@@ -4,13 +4,6 @@ using CharacterEditor;
 
 public abstract class FSM : IFSM
 {
-        private readonly Dictionary<Type, IExitableState> _states = new Dictionary<Type, IExitableState>();
-
-        public event Action<IExitableState> OnCurrentStateChanged;
-
-        private IUpdatableState _currentUpdatableState;
-        private IExitableState _currentState;
-
         public IExitableState CurrentState
         {
             get => _currentState;
@@ -21,7 +14,13 @@ public abstract class FSM : IFSM
             }
         }
 
+        public event Action<IExitableState> OnCurrentStateChanged;
+
+        private readonly Dictionary<Type, IExitableState> _states = new Dictionary<Type, IExitableState>();
         private readonly List<FSMTransition> _transitions = new List<FSMTransition>();
+
+        private IUpdatableState _currentUpdatableState;
+        private IExitableState _currentState;
 
         public abstract void Start();
 

@@ -40,14 +40,12 @@ public abstract class EntitySaveData : ISerializable
     {
         guid = info.GetString("guid");
         configGuid = info.GetString("configPath");
-//        guid = configGuid; //todo
         position = (SerializableVector3)info.GetValue("position", typeof(SerializableVector3));
         rotation = (SerializableQuaternion)info.GetValue("rotation", typeof(SerializableQuaternion));
         currentHealthValue = info.GetInt32("currentHealthValue");
         currentManaValue = info.GetInt32("currentManaValue");
         stats = (Dictionary<StatType, int>)info.GetValue("stats", typeof(Dictionary<StatType, int>));
     }
-
 
     public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
     {
@@ -59,8 +57,4 @@ public abstract class EntitySaveData : ISerializable
         info.AddValue("currentManaValue", currentManaValue);
         info.AddValue("stats", stats);
     }
-
-
-   
 }
-

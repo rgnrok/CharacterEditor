@@ -34,10 +34,10 @@ namespace CharacterEditor
             {
                 get
                 {
-                    if (!_characterTextures.ContainsKey(_currentCharacter.guid))
-                        _characterTextures[_currentCharacter.guid] = new Texture2D(Constants.SKIN_TEXTURE_ATLAS_SIZE, Constants.SKIN_TEXTURE_ATLAS_SIZE, TextureFormat.RGB24, false);
+                    if (!_characterTextures.ContainsKey(_currentCharacter.Guid))
+                        _characterTextures[_currentCharacter.Guid] = new Texture2D(Constants.SKIN_TEXTURE_ATLAS_SIZE, Constants.SKIN_TEXTURE_ATLAS_SIZE, TextureFormat.RGB24, false);
 
-                    return _characterTextures[_currentCharacter.guid];
+                    return _characterTextures[_currentCharacter.Guid];
                 }
             }
 
@@ -46,10 +46,10 @@ namespace CharacterEditor
             {
                 get
                 {
-                    if (!_armorTextures.ContainsKey(_currentCharacter.guid))
-                        _armorTextures[_currentCharacter.guid] = new Texture2D(Constants.ARMOR_MESHES_ATLAS_SIZE, Constants.ARMOR_MESHES_ATLAS_SIZE, TextureFormat.RGB24, false);
+                    if (!_armorTextures.ContainsKey(_currentCharacter.Guid))
+                        _armorTextures[_currentCharacter.Guid] = new Texture2D(Constants.ARMOR_MESHES_ATLAS_SIZE, Constants.ARMOR_MESHES_ATLAS_SIZE, TextureFormat.RGB24, false);
 
-                    return _armorTextures[_currentCharacter.guid];
+                    return _armorTextures[_currentCharacter.Guid];
                 }
             }
 
@@ -58,10 +58,10 @@ namespace CharacterEditor
             {
                 get
                 {
-                    if (!_cloakTextures.ContainsKey(_currentCharacter.guid))
-                        _cloakTextures[_currentCharacter.guid] = null;
+                    if (!_cloakTextures.ContainsKey(_currentCharacter.Guid))
+                        _cloakTextures[_currentCharacter.Guid] = null;
 
-                    return _cloakTextures[_currentCharacter.guid];
+                    return _cloakTextures[_currentCharacter.Guid];
                 }
             }
             public bool IsReady { get; private set; }
@@ -122,7 +122,7 @@ namespace CharacterEditor
             {
                 if (_currentCharacter != null)
                 {
-                    if (_currentCharacter.guid == character.guid) return;
+                    if (_currentCharacter.Guid == character.Guid) return;
                     _currentCharacter.OnUnequipItem -= UnequipItemHandler;
                 }
 
@@ -151,7 +151,7 @@ namespace CharacterEditor
 
 
                 Dictionary<MaterialType, Material> chMaterials;
-                if (!_characterMaterials.TryGetValue(_currentCharacter.guid, out chMaterials))
+                if (!_characterMaterials.TryGetValue(_currentCharacter.Guid, out chMaterials))
                 {
                     chMaterials = new Dictionary<MaterialType, Material>
                     {
@@ -160,7 +160,7 @@ namespace CharacterEditor
                         {MaterialType.Cloak, new Material(defaultMaterial)},
                         {MaterialType.Armor, new Material(defaultMaterial)},
                     };
-                    _characterMaterials[_currentCharacter.guid] = chMaterials;
+                    _characterMaterials[_currentCharacter.Guid] = chMaterials;
                 }
 
                 // always update material for renderers
@@ -183,7 +183,7 @@ namespace CharacterEditor
                     foreach (var mesh in meshes.gameObjects) Destroy(mesh);
                     meshes.gameObjects.Clear();
 
-                    item.ItemMesh.UnloadTexturesAndMesh(_currentCharacter.configGuid);
+                    item.ItemMesh.UnloadTexturesAndMesh(_currentCharacter.ConfigGuid);
                 }
                 _unequipItemsQueue.Clear();
 
@@ -242,11 +242,11 @@ namespace CharacterEditor
                 meshInfo2.gameObjects.Clear();
 
                 // Left and Right hand has different mesh models
-                item1.ItemMesh.LoadTexturesAndMeshes(_currentCharacter.configGuid, slotType2);
-                item2.ItemMesh.LoadTexturesAndMeshes(_currentCharacter.configGuid, slotType1);
+                item1.ItemMesh.LoadTexturesAndMeshes(_currentCharacter.ConfigGuid, slotType2);
+                item2.ItemMesh.LoadTexturesAndMeshes(_currentCharacter.ConfigGuid, slotType1);
 
-                while (!item1.ItemMesh.IsReady(_currentCharacter.configGuid)) yield return null;
-                while (!item2.ItemMesh.IsReady(_currentCharacter.configGuid)) yield return null;
+                while (!item1.ItemMesh.IsReady(_currentCharacter.ConfigGuid)) yield return null;
+                while (!item2.ItemMesh.IsReady(_currentCharacter.ConfigGuid)) yield return null;
 
                 _currentCharacter.SwapItems(slotType1, slotType2);
 
@@ -276,8 +276,8 @@ namespace CharacterEditor
                 slotType = _currentCharacter.EquipItem(equipItem, slotType);
                 if (slotType == EquipItemSlot.Undefined) yield break;
 
-                equipItem.ItemMesh.LoadTexturesAndMeshes(_currentCharacter.configGuid, slotType);
-                while (!equipItem.ItemMesh.IsReady(_currentCharacter.configGuid)) yield return null;
+                equipItem.ItemMesh.LoadTexturesAndMeshes(_currentCharacter.ConfigGuid, slotType);
+                while (!equipItem.ItemMesh.IsReady(_currentCharacter.ConfigGuid)) yield return null;
 
                 InstanceMesh(equipItem, slotType);
                 if (withUpdateTextures) BuildTextures();
@@ -288,26 +288,26 @@ namespace CharacterEditor
             {
               
                 var emptyDic = new MeshInstanceInfo(MeshType.Undefined, new List<GameObject>());
-                if (!_meshInstances.ContainsKey(_currentCharacter.guid) ||
-                    !_meshInstances[_currentCharacter.guid].ContainsKey(itemGuid)) return emptyDic;
+                if (!_meshInstances.ContainsKey(_currentCharacter.Guid) ||
+                    !_meshInstances[_currentCharacter.Guid].ContainsKey(itemGuid)) return emptyDic;
 
-                return _meshInstances[_currentCharacter.guid][itemGuid];
+                return _meshInstances[_currentCharacter.Guid][itemGuid];
             }
 
             private void InstanceMesh(string itemGuid, ItemMesh mesh, Transform bone, int layer = 0)
             {
-                if (!_meshInstances.ContainsKey(_currentCharacter.guid))
-                    _meshInstances[_currentCharacter.guid] = new Dictionary<string, MeshInstanceInfo>();
+                if (!_meshInstances.ContainsKey(_currentCharacter.Guid))
+                    _meshInstances[_currentCharacter.Guid] = new Dictionary<string, MeshInstanceInfo>();
 
-                if (!_meshInstances[_currentCharacter.guid].ContainsKey(itemGuid))
-                    _meshInstances[_currentCharacter.guid][itemGuid] = new MeshInstanceInfo(mesh.MeshType, new List<GameObject>());
+                if (!_meshInstances[_currentCharacter.Guid].ContainsKey(itemGuid))
+                    _meshInstances[_currentCharacter.Guid][itemGuid] = new MeshInstanceInfo(mesh.MeshType, new List<GameObject>());
 
-                _meshInstances[_currentCharacter.guid][itemGuid].gameObjects.Add(mesh.InstanceMesh(bone, layer, false, false));//why disabled lod in old code ?
+                _meshInstances[_currentCharacter.Guid][itemGuid].gameObjects.Add(mesh.InstanceMesh(bone, layer, false, false));//why disabled lod in old code ?
             }
 
             private void InstanceMesh(EquipItem item, EquipItemSlot slot)
             {
-                var meshes = item.ItemMesh.GetItemMeshs(_currentCharacter.configGuid, slot);
+                var meshes = item.ItemMesh.GetItemMeshs(_currentCharacter.ConfigGuid, slot);
                 var meshType = Helper.GetHandMeshTypeBySlot(slot);
 
                 foreach (var mesh in meshes)
@@ -366,7 +366,7 @@ namespace CharacterEditor
 
                 foreach (var equipItem in _currentCharacter.EquipItems.Values)
                 {
-                    foreach (var texture in equipItem.ItemMesh.GetItemTextures(_currentCharacter.configGuid))
+                    foreach (var texture in equipItem.ItemMesh.GetItemTextures(_currentCharacter.ConfigGuid))
                     {
                         var textureName = texture.GetShaderTextureName();
                         if (textureName == null) continue;
@@ -391,7 +391,7 @@ namespace CharacterEditor
                 var meshes = new List<ItemMesh>();
                 foreach (var item in _currentCharacter.EquipItems)
                 {
-                    foreach (var mesh in item.Value.ItemMesh.GetItemMeshs(_currentCharacter.configGuid, item.Key))
+                    foreach (var mesh in item.Value.ItemMesh.GetItemMeshs(_currentCharacter.ConfigGuid, item.Key))
                     {
                         while (!mesh.IsReady) yield return null;
                         meshes.Add(mesh);
@@ -443,7 +443,7 @@ namespace CharacterEditor
                 }
 
                 Dictionary<MaterialType, Material> characterMaterials;
-                if (!_characterMaterials.TryGetValue(_currentCharacter.guid, out characterMaterials)) return;
+                if (!_characterMaterials.TryGetValue(_currentCharacter.Guid, out characterMaterials)) return;
 
                 var armorMaterial = characterMaterials[MaterialType.Armor];
                 armorMaterial.mainTexture = ArmorTexture;
@@ -504,7 +504,7 @@ namespace CharacterEditor
             private void UpdateModelRenderers()
             {
                 Dictionary<MaterialType, Material> chMaterials;
-                if (_characterMaterials.TryGetValue(_currentCharacter.guid, out chMaterials))
+                if (_characterMaterials.TryGetValue(_currentCharacter.Guid, out chMaterials))
                 {
                     chMaterials[MaterialType.Skin].mainTexture = CharacterTexture;
                 }
@@ -568,14 +568,14 @@ namespace CharacterEditor
 
             private void UpdateCloakRenders()
             {
-                _cloakTextures[_currentCharacter.guid] = null;
+                _cloakTextures[_currentCharacter.Guid] = null;
                 foreach (var equipItem in _currentCharacter.EquipItems.Values)
                 {
                     if (equipItem.ItemType != EquipItemType.Cloak) continue;
-                    foreach (var texture in equipItem.ItemMesh.GetItemTextures(_currentCharacter.configGuid))
+                    foreach (var texture in equipItem.ItemMesh.GetItemTextures(_currentCharacter.ConfigGuid))
                     {
                         if (texture.Type != TextureType.Cloak) continue;
-                        _cloakTextures[_currentCharacter.guid] = texture.Texture;
+                        _cloakTextures[_currentCharacter.Guid] = texture.Texture;
                         break;
                     }
                 }

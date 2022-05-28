@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using CharacterEditor;
-using CharacterEditor.CharacterInventory;
 using UnityEngine;
 
-public abstract class EntityAttackManager
+public abstract class EntityAttackComponent
 {
     protected MeleAttackComponent _meleAttackComponent;
     protected RangeAttackComponent _rangeAttackComponent;
@@ -21,7 +17,7 @@ public abstract class EntityAttackManager
 
     protected abstract AttackComponent GetCurrentAttackComponent();
 
-    public EntityAttackManager(GameObject go)
+    public EntityAttackComponent(GameObject go)
     {
         _meleAttackComponent = go.GetComponent<MeleAttackComponent>();
         _rangeAttackComponent = go.GetComponent<RangeAttackComponent>();

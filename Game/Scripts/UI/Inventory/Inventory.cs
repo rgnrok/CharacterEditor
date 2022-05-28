@@ -9,22 +9,22 @@ using UnityEngine.UI;
 public class Inventory : Popup
 {
 
-//    [SerializeField] private GameObject ceil;
+//    [SerializeField] private GameObject cell;
     [SerializeField] private GameObject inventoryCharacterItemPrefab;
 //    [SerializeField] private ScrollRect scrollView;
 
-//    private List<InventoryCeil> _ceils = new List<InventoryCeil>();
-    private Dictionary<string, InventoryCharacter> characters = new Dictionary<string, InventoryCharacter>();
+//    private List<InventoryCell> _cells = new List<InventoryCell>();
+    private Dictionary<string, InventoryCharacter> _inventoryCharacters = new Dictionary<string, InventoryCharacter>();
     private Character _currentCharacter;
 
-    //    private Dictionary<string, Dictionary<int, CharacterItemData>> _inventoryCeils = new Dictionary<string, Dictionary<int, CharacterItemData>>();
+    //    private Dictionary<string, Dictionary<int, CharacterItemData>> _inventoryCells = new Dictionary<string, Dictionary<int, CharacterItemData>>();
     //    public readonly Dictionary<string, Item> InventoryItems = new Dictionary<string, Item>();
 
 //    public readonly Dictionary<string, Dictionary<string, Item>> InventoryItems = new Dictionary<string, Dictionary<string, Item>>();
-//    private readonly Dictionary<string, Dictionary<int, string>> _inventoryCeils = new Dictionary<string, Dictionary<int, string>>();
+//    private readonly Dictionary<string, Dictionary<int, string>> _inventoryCells = new Dictionary<string, Dictionary<int, string>>();
 
-    private readonly Dictionary<string, int> _waitingAddItemCeils = new Dictionary<string, int>();
-    private readonly Dictionary<string, int> _waitingRemoveItemCeils = new Dictionary<string, int>();
+    private readonly Dictionary<string, int> _waitingAddItemCells = new Dictionary<string, int>();
+    private readonly Dictionary<string, int> _waitingRemoveItemCells = new Dictionary<string, int>();
     private ICommonLoader<GameObject> _gameObjectLoader;
     private IPathDataProvider _pathProvider;
 
@@ -38,19 +38,17 @@ public class Inventory : Popup
         base.OnEnable();
     }
 
-    public Dictionary<int, CharacterItemData> GetInventoryCeils(string characterId)
+    public Dictionary<int, CharacterItemData> GetInventoryCells(string characterId)
     {
-        InventoryCharacter characteInv;
-        if (characters.TryGetValue(characterId, out characteInv))
-            return characteInv.GetInventoryCeils();
+        if (_inventoryCharacters.TryGetValue(characterId, out var characteInv))
+            return characteInv.GetInventoryCells();
 
         return null;
     }
 
     public Dictionary<string, Item> GetCharacterItems(string characterId)
     {
-        InventoryCharacter characteInv;
-        if (characters.TryGetValue(characterId, out characteInv))
+        if (_inventoryCharacters.TryGetValue(characterId, out var characteInv))
             return characteInv.InventoryItems;
 
         return null;
@@ -68,22 +66,22 @@ public class Inventory : Popup
         // Add new
         foreach (var characterInfo in GameManager.Instance.Characters.Values)
         {
-            if (!characters.ContainsKey(characterInfo.guid))
+            if (!_inventoryCharacters.ContainsKey(characterInfo.Guid))
             {
                 var item = AddChild(inventoryCharacterItemPrefab).GetComponent<InventoryCharacter>();
-                characters[characterInfo.guid] = item;
+                _inventoryCharacters[characterInfo.Guid] = item;
             }
-            characters[characterInfo.guid].Init(characterInfo);
+            _inventoryCharacters[characterInfo.Guid].Init(characterInfo);
         }
 
         //Remove old
-        var keys = characters.Keys;
+        var keys = _inventoryCharacters.Keys;
         foreach (var characterInventoryGuid in keys)
         {
             if (!GameManager.Instance.Characters.ContainsKey(characterInventoryGuid))
             {
-                Destroy(characters[characterInventoryGuid].gameObject);
-                characters.Remove(characterInventoryGuid);
+                Destroy(_inventoryCharacters[characterInventoryGuid].gameObject);
+                _inventoryCharacters.Remove(characterInventoryGuid);
             }
         }
 
@@ -92,65 +90,62 @@ public class Inventory : Popup
         InnerUpdate();
     }
 
-    //    public void AddToInvetory(Item item)
-    //    {
-    //        if (_currentCharacter == null) return;
-    //        _currentCharacter.AddToInvetory(item);
-    //    }
 
 
-    public bool AddToInvetory(Item item)
+
+    public bool AddToInventory(Item item)
     {
         if (_currentCharacter == null) return false;
-        if (!characters.ContainsKey(_currentCharacter.guid)) return false;
-        return  characters[_currentCharacter.guid].AddItem(item);
+
+        if (!_inventoryCharacters.TryGetValue(_currentCharacter.Guid, out var inventoryCharacter)) return false;
+        return inventoryCharacter.AddItem(item);
     }
 
-    public bool AddToInvetory(PickUpItem pickUpItem)
+    public bool AddToInventory(PickUpItem pickUpItem)
     {
         var item = pickUpItem.Item;
         if (item == null) return false;
 
-        if (!AddToInvetory(item)) return false;
+        if (!AddToInventory(item)) return false;
         Destroy(pickUpItem.gameObject);
         return true;
 
     }
 
-    public bool AddToInvetory(Item item, InventoryCeil ceil)
+    public bool AddToInventory(Item item, InventoryCell cell)
     {
-        if (ceil == null)
+        if (cell == null)
         {
-            return AddToInvetory(item);
+            return AddToInventory(item);
         }
 
-        var ceil1Character = ceil.GetComponentInParent<InventoryCharacter>();
-        return ceil1Character.AddItem(item, ceil.Index);
+        var cell1Character = cell.GetComponentInParent<InventoryCharacter>();
+        return cell1Character.AddItem(item, cell.Index);
     }
 
-    public void SetItemToInvetory(string characterGuid, Item item, int ceilIndex)
+    public void SetItemToInvetory(string characterGuid, Item item, int cellIndex)
     {
-        if (!characters.ContainsKey(characterGuid))
-            characters[characterGuid] = AddChild(inventoryCharacterItemPrefab).GetComponent<InventoryCharacter>(); ;
+        if (!_inventoryCharacters.ContainsKey(characterGuid))
+            _inventoryCharacters[characterGuid] = AddChild(inventoryCharacterItemPrefab).GetComponent<InventoryCharacter>(); ;
 
-        characters[characterGuid].SetItem(item, ceilIndex);
+        _inventoryCharacters[characterGuid].SetItem(item, cellIndex);
     }
 
  
 
-    public void RemoveFromInvetory(InventoryCeil ceil)
+    public void RemoveFromInvetory(InventoryCell cell)
     {
-        var item = ceil.Item;
+        var item = cell.Item;
         if (item == null) return;
 
-        var ceil1Character = ceil.GetComponentInParent<InventoryCharacter>();
-        ceil1Character.RemoveItem(item.Guid, ceil.Index);
+        var cell1Character = cell.GetComponentInParent<InventoryCharacter>();
+        cell1Character.RemoveItem(item.Guid, cell.Index);
     }
 
-    public void RemoveFromInvetoryToGround(InventoryCeil ceil, Vector3 groundPosition)
+    public void RemoveFromInvetoryToGround(InventoryCell cell, Vector3 groundPosition)
     {
-        var item = ceil.Item;
-        RemoveFromInvetory(ceil);
+        var item = cell.Item;
+        RemoveFromInvetory(cell);
         //todo
         _gameObjectLoader.LoadByPath(_pathProvider.GetPath(item.Data.prefab), (path, prefab) =>
             {
@@ -182,68 +177,68 @@ public class Inventory : Popup
 
     private void AddToInventoryHandler(string characterId, Item item)
     {
-        if (_waitingAddItemCeils.Count != 0)
+        if (_waitingAddItemCells.Count != 0)
         {
-            foreach (var pair in _waitingAddItemCeils)
+            foreach (var pair in _waitingAddItemCells)
             {
-                characters[pair.Key].AddItem(item, pair.Value);
+                _inventoryCharacters[pair.Key].AddItem(item, pair.Value);
                 break;
             }
-            _waitingAddItemCeils.Clear();
+            _waitingAddItemCells.Clear();
             return;
         }
 
-        characters[characterId].AddItem(item);
+        _inventoryCharacters[characterId].AddItem(item);
     }
 
 
     private void RemoveFromInventoryHandler(string characterId, Item item)
     {
-        _waitingAddItemCeils.Clear();
+        _waitingAddItemCells.Clear();
 
-        if (_waitingRemoveItemCeils.Count != 0)
+        if (_waitingRemoveItemCells.Count != 0)
         {
-            foreach (var pair in _waitingRemoveItemCeils)
+            foreach (var pair in _waitingRemoveItemCells)
             {
-                characters[pair.Key].RemoveItem(item.Guid);
+                _inventoryCharacters[pair.Key].RemoveItem(item.Guid);
                 break;
             }
-            _waitingRemoveItemCeils.Clear();
+            _waitingRemoveItemCells.Clear();
             return;
         }
 
-        characters[characterId].RemoveItem(item.Guid);
+        _inventoryCharacters[characterId].RemoveItem(item.Guid);
     }
 
-    public void SwapCeils(ItemCeil ceil1, ItemCeil ceil2)
+    public void SwapCells(ItemCell cell1, ItemCell cell2)
     {
-        var ceil1Character = ceil1.GetComponentInParent<InventoryCharacter>();
-        var ceil2Character = ceil2.GetComponentInParent<InventoryCharacter>();
+        var cell1Character = cell1.GetComponentInParent<InventoryCharacter>();
+        var cell2Character = cell2.GetComponentInParent<InventoryCharacter>();
 
-        if (ceil1Character.CharacterGuid == ceil2Character.CharacterGuid)
+        if (cell1Character.CharacterGuid == cell2Character.CharacterGuid)
         {
-            ceil1Character.SwapCeils(ceil1, ceil2);
+            cell1Character.SwapCells(cell1, cell2);
             return;
         }
 
-        var ceil1Item = ceil1.Item;
-        var ceil2Item = ceil2.Item;
-        if (ceil1Item != null) ceil1Character.RemoveItem(ceil1Item.Guid);
-        if (ceil2Item != null) ceil2Character.RemoveItem(ceil2Item.Guid);
+        var cell1Item = cell1.Item;
+        var cell2Item = cell2.Item;
+        if (cell1Item != null) cell1Character.RemoveItem(cell1Item.Guid);
+        if (cell2Item != null) cell2Character.RemoveItem(cell2Item.Guid);
 
-        if (ceil2Item != null) ceil1Character.AddItem(ceil2Item, ceil1.Index);
-        if (ceil1Item != null) ceil2Character.AddItem(ceil1Item, ceil2.Index);
+        if (cell2Item != null) cell1Character.AddItem(cell2Item, cell1.Index);
+        if (cell1Item != null) cell2Character.AddItem(cell1Item, cell2.Index);
     }
 
 
     //todo work only with current character
-    public void UnEquipItemToCeil(EquipItem equipItem, ItemCeil ceil)
+    public void UnEquipItemToCell(EquipItem equipItem, ItemCell cell)
     {
-        var ceilCharacter = ceil.GetComponentInParent<InventoryCharacter>();
-        _waitingAddItemCeils[ceilCharacter.CharacterGuid] = ceil.Index;
+        var cellCharacter = cell.GetComponentInParent<InventoryCharacter>();
+        _waitingAddItemCells[cellCharacter.CharacterGuid] = cell.Index;
 
         ItemManager.Instance.UnEquipItem(equipItem);
-        AddToInvetory(equipItem);
+        AddToInventory(equipItem);
     }
 
 
@@ -253,11 +248,11 @@ public class Inventory : Popup
     }
 
 
-    public void EquipItem(EquipItem equipItem, ItemCeil ceil)
+    public void EquipItem(EquipItem equipItem, ItemCell cell)
     {
-        var ceilCharacter = ceil.GetComponentInParent<InventoryCharacter>();
-        _waitingRemoveItemCeils[ceilCharacter.CharacterGuid] = ceil.Index;
-        _waitingAddItemCeils[ceilCharacter.CharacterGuid] = ceil.Index;
+        var cellCharacter = cell.GetComponentInParent<InventoryCharacter>();
+        _waitingRemoveItemCells[cellCharacter.CharacterGuid] = cell.Index;
+        _waitingAddItemCells[cellCharacter.CharacterGuid] = cell.Index;
 
         ItemManager.Instance.EquipItem(equipItem);
     }

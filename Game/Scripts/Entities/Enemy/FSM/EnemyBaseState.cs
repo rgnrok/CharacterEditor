@@ -7,19 +7,19 @@ public class EnemyBaseState : IState
     protected EnemyGameObjectDetectColliderComponent _detectCollider;
     protected Enemy _enemy;
 
-    public EnemyBaseState(EnemyFSM fsm)
+    protected EnemyBaseState(EnemyFSM fsm)
     {
         _fsm = fsm;
         _enemy = fsm.Enemy;
         _detectCollider = _enemy.EntityGameObject.GetComponentInChildren<EnemyGameObjectDetectColliderComponent>();
     }
 
-    public void Enter()
+    public virtual void Enter()
     {
         _detectCollider.OnCharacterVisible += OnCharacterVisibleHandler;
     }
 
-    public void Exit()
+    public virtual void Exit()
     {
         _detectCollider.OnCharacterVisible -= OnCharacterVisibleHandler;
     }

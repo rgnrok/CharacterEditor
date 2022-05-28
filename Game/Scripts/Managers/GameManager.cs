@@ -137,7 +137,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
 
     private void RemoveCharacter(Character ch)
     {
-        if (!Characters.Remove(ch.guid)) return;
+        if (!Characters.Remove(ch.Guid)) return;
         OnRemoveCharacter?.Invoke(ch);
     }
 
@@ -154,7 +154,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
 //        if (CurrentCharacter != null && CurrentCharacter.guid == ch.guid) return;
 
         CurrentCharacter = ch;
-        Characters[ch.guid] = ch;
+        Characters[ch.Guid] = ch;
 
         ItemManager.Instance.SetCharacter(CurrentCharacter);
         CurrentCharacter.GameObjectData.CharacterObject.SetActive(true);
@@ -185,7 +185,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
         var enemy = GetEnemyByGoId(hit.collider.gameObject.GetInstanceID());
         if (enemy == null) return;
 
-        if (OnEnemyClick != null) OnEnemyClick(CurrentCharacter.guid, enemy);
+        if (OnEnemyClick != null) OnEnemyClick(CurrentCharacter.Guid, enemy);
     }
 
 
@@ -245,7 +245,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
             var pickUpItem = gameObjectHit.transform.GetComponent<PickUpItem>();
             if (pickUpItem == null) return;
 
-            Inventory.AddToInvetory(pickUpItem);
+            Inventory.AddToInventory(pickUpItem);
         }
         else
         {
@@ -270,7 +270,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
 
     private void ConvertToCharacter(Character character)
     {
-        _npcPlayerCharacters.Remove(character.guid);
+        _npcPlayerCharacters.Remove(character.Guid);
 
         var previewPrefab = Instantiate(character.GameObjectData.Config.PreviewPrefab);
         previewPrefab.transform.position = Vector3.zero;
@@ -370,13 +370,13 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
     private void OnPlayableNpcLoadedHandler(IList<Character> npcs)
     {
         foreach (var npc in npcs)
-            _npcPlayerCharacters[npc.guid] = npc;
+            _npcPlayerCharacters[npc.Guid] = npc;
     }
 
     private void OnEnemiesLoadedHandler(IList<Enemy> enemies)
     {
         foreach (var enemy in enemies)
-            Enemies[enemy.guid] = enemy;
+            Enemies[enemy.Guid] = enemy;
     }
 
     private void OnLoadDataHandler(SaveData saveData)

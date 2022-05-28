@@ -8,33 +8,33 @@ public class ContainerDropCeil : DropCeil
 {
     protected override void OnDropItem(ItemDragCeil drag)
     {
-        GameManager.Instance.ContainerPopup.SwapCeils(_ceil, drag.ParentCeil);
+        GameManager.Instance.ContainerPopup.SwapCeils(Cell, drag.ParentCell);
 
     }
 
     protected override void OnDropEquippedItem(EquipDragCeil drag)
     {
-        var draggedItemCeil = drag.ParentCeil as EquipPanelCeil;
-        if (_ceil.Item != null) return;
+        var draggedItemCeil = drag.ParentCell as EquipPanelCell;
+        if (Cell.Item != null) return;
 
         var equipItem = draggedItemCeil.Item as EquipItem;
         if (equipItem != null)
         {
-            GameManager.Instance.ContainerPopup.AddToContainer(_ceil as ContainerCeil, draggedItemCeil);
+            GameManager.Instance.ContainerPopup.AddToContainer(Cell as ContainerCell, draggedItemCeil);
         }
     }
 
     protected override void OnDropInventoryItem(InventoryDragCeil drag)
     {
-        var draggedItemCeil = drag.ParentCeil as InventoryCeil;
+        var draggedItemCeil = drag.ParentCell as InventoryCell;
         if (draggedItemCeil == null || draggedItemCeil.Item == null) return;
-        if (_ceil.Item != null) return;
+        if (Cell.Item != null) return;
 
-        GameManager.Instance.ContainerPopup.AddToContainer(_ceil as ContainerCeil, draggedItemCeil);
+        GameManager.Instance.ContainerPopup.AddToContainer(Cell as ContainerCell, draggedItemCeil);
     }
 
     protected override void OnDropContainerItem(ContainerDragCeil drag)
     {
-        GameManager.Instance.ContainerPopup.SwapCeils(_ceil, drag.ParentCeil);
+        GameManager.Instance.ContainerPopup.SwapCeils(Cell, drag.ParentCell);
     }
 }

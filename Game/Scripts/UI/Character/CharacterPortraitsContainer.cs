@@ -28,13 +28,13 @@ public class CharacterPortraitsContainer : MonoBehaviour
         if (portrait == null) return;
 
         portrait.Init(character);
-        portraits[character.guid] = portrait;
+        portraits[character.Guid] = portrait;
 
     }
 
     private void OnRemoveCharacterHandler(Character character)
     {
-        var characterGuid = character.guid;
+        var characterGuid = character.Guid;
         if (!portraits.ContainsKey(characterGuid)) return;
         portraits[characterGuid].Clean();
         portraits.Remove(characterGuid);

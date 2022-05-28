@@ -53,9 +53,9 @@ public class CharacterGameObjectData : EntityGameObjectData<CharacterConfig>
 
         var previewTransform = PreviewCharacterObject.transform;
         PreviewSkinMeshes = ParseSkinMeshes(previewTransform, Config.skinnedMeshes);
-        ShortRobeMeshes = ParseSkinMeshes(previewTransform, Config.shortRobeMeshes);
-        LongRobeMeshes = ParseSkinMeshes(previewTransform, Config.longRobeMeshes);
-        CloakMeshes = ParseSkinMeshes(previewTransform, Config.cloakMeshes);
+        PreviewShortRobeMeshes = ParseSkinMeshes(previewTransform, Config.shortRobeMeshes);
+        PreviewLongRobeMeshes = ParseSkinMeshes(previewTransform, Config.longRobeMeshes);
+        PreviewCloakMeshes = ParseSkinMeshes(previewTransform, Config.cloakMeshes);
 
         ParseMeshBones(previewTransform, out previewMeshBones);
     }

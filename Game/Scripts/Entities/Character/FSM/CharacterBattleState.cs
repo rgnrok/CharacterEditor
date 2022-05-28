@@ -7,7 +7,7 @@ using UnityEngine;
 public class CharacterBattleState : CharacterBaseState, IUpdatableState
 {
     private PlayerMoveComponent _moveComponent;
-    private CharacterAttackManager _attackManager;
+    private CharacterAttackComponent _attackComponent;
 
     private bool _isTurnComplete;
 

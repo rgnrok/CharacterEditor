@@ -46,7 +46,7 @@ public class PlayerMoveController : MonoBehaviour
         if (OnGroundClick != null)
         {
             var ch = GameManager.Instance.CurrentCharacter;
-            if (ch != null) OnGroundClick(ch.guid, hit.point);
+            if (ch != null) OnGroundClick(ch.Guid, hit.point);
         }
         _isGroundClick = false;
     }
@@ -78,10 +78,10 @@ public class PlayerMoveController : MonoBehaviour
         var colPointer = isAttack ? attackMovePointer : movePointer;
 
         GameObject pointer;
-        if (!collection.TryGetValue(character.guid, out pointer))
+        if (!collection.TryGetValue(character.Guid, out pointer))
         {
             pointer = Instantiate(colPointer, point + colPointer.transform.position, colPointer.transform.rotation);
-            collection[character.guid] = pointer;
+            collection[character.Guid] = pointer;
         }
 
         pointer.transform.position = point + colPointer.transform.position;
@@ -93,7 +93,7 @@ public class PlayerMoveController : MonoBehaviour
     public void HideCharacterPointer(Character character)
     {
         if (character == null) return;
-        HideCharacterPointer(character.guid);
+        HideCharacterPointer(character.Guid);
     }
 
     public void HideCharacterPointer(string characterGuid)

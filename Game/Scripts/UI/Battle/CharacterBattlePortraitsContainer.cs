@@ -44,26 +44,26 @@ public class CharacterBattlePortraitsContainer : MonoBehaviour
         if (portrait == null) return;
 
         portrait.Init(entity);
-        portraits[entity.guid] = portrait;
+        portraits[entity.Guid] = portrait;
     }
 
     private void OnEntityRemovedHandler(IBattleEntity entity)
     {
-        if (!portraits.ContainsKey(entity.guid)) return;
-        portraits[entity.guid].Clean();
-        portraits.Remove(entity.guid);
+        if (!portraits.ContainsKey(entity.Guid)) return;
+        portraits[entity.Guid].Clean();
+        portraits.Remove(entity.Guid);
     }
 
     private void OnTurnCompletedHandler(IBattleEntity entity)
     {
-        if (!portraits.ContainsKey(entity.guid)) return;
-        portraits[entity.guid].transform.SetSiblingIndex(transform.childCount);
-        portraits[entity.guid].SetSelected(false);
+        if (!portraits.ContainsKey(entity.Guid)) return;
+        portraits[entity.Guid].transform.SetSiblingIndex(transform.childCount);
+        portraits[entity.Guid].SetSelected(false);
     }
 
     private void OnTurnStartedHandler(IBattleEntity entity)
     {
-        if (!portraits.ContainsKey(entity.guid)) return;
-        portraits[entity.guid].SetSelected(true);
+        if (!portraits.ContainsKey(entity.Guid)) return;
+        portraits[entity.Guid].SetSelected(true);
     }
 }

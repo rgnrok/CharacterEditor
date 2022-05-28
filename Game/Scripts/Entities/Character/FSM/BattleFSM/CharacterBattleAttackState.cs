@@ -2,7 +2,7 @@
 
 public class CharacterBattleAttackPayloadState : CharacterBattleBasePayloadState<IAttacked>
 {
-    private CharacterAttackManager _attackManager;
+    private CharacterAttackComponent _attackComponent;
     private IAttacked _targetEntity;
 
     public CharacterBattleAttackPayloadState(CharacterBattleFSM fsm) : base(fsm)
@@ -12,8 +12,8 @@ public class CharacterBattleAttackPayloadState : CharacterBattleBasePayloadState
     public override void Enter(IAttacked targetEntity)
     {
         base.Enter(targetEntity);
-        _attackManager = _character.AttackManager;
-        _attackManager.OnAttackComplete += OnAttackCompleteHandler;
+        _attackComponent = _character.AttackComponent;
+        _attackComponent.OnAttackComplete += OnAttackCompleteHandler;
         _targetEntity = targetEntity;
 
         TryAttack(_targetEntity);
@@ -21,20 +21,20 @@ public class CharacterBattleAttackPayloadState : CharacterBattleBasePayloadState
 
     public override void Exit()
     {
-        if (_attackManager != null) _attackManager.OnAttackComplete -= OnAttackCompleteHandler;
+        if (_attackComponent != null) _attackComponent.OnAttackComplete -= OnAttackCompleteHandler;
         base.Exit();
     }
 
 
     private void TryAttack(IAttacked battleEntity)
     {
-        if (!_attackManager.IsAvailableDistance(battleEntity))
+        if (!_attackComponent.IsAvailableDistance(battleEntity))
         {
             _fsm.SpawnEvent((int)CharacterBattleFSM.CharacterBattleStateType.FindTarget);
             return;
         }
 
-        _attackManager.Attack(battleEntity);
+        _attackComponent.Attack(battleEntity);
 
     }
 

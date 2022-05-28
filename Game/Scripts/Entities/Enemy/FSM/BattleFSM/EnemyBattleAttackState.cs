@@ -2,7 +2,7 @@
 
 public class EnemyBattleAttackState : EnemyBattleBaseState<IBattleEntity>
 {
-    private EnemyAttackManager _attackManager;
+    private EnemyAttackComponent _attackComponent;
     private IBattleEntity _targetEntity;
 
     public EnemyBattleAttackState(EnemyBattleFSM fsm) : base(fsm)
@@ -13,8 +13,8 @@ public class EnemyBattleAttackState : EnemyBattleBaseState<IBattleEntity>
     public new void Enter(IBattleEntity targetEntity)
     {
         base.Enter(targetEntity);
-        _attackManager = _enemy.AttackManager;
-        _attackManager.OnAttackComplete += OnAttackCompleteHandler;
+        _attackComponent = _enemy.AttackComponent;
+        _attackComponent.OnAttackComplete += OnAttackCompleteHandler;
         _targetEntity = targetEntity;
 
         TryAttack(_targetEntity);
@@ -23,19 +23,19 @@ public class EnemyBattleAttackState : EnemyBattleBaseState<IBattleEntity>
     public new void Exit()
     {
         base.Exit();
-        if (_attackManager != null) _attackManager.OnAttackComplete -= OnAttackCompleteHandler;
+        if (_attackComponent != null) _attackComponent.OnAttackComplete -= OnAttackCompleteHandler;
     }
 
     private void TryAttack(IBattleEntity battleEntity)
     {
-        if (!_attackManager.IsAvailableDistance(battleEntity))
+        if (!_attackComponent.IsAvailableDistance(battleEntity))
         {
             _fsm.SpawnEvent((int)EnemyBattleFSM.EnemyBattleStateType.FindTarget);
 
             return;
         }
 
-        _attackManager.Attack(battleEntity);
+        _attackComponent.Attack(battleEntity);
 
     }
 

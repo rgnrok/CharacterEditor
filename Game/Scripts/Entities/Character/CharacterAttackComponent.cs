@@ -1,15 +1,11 @@
-﻿using System;
-using CharacterEditor.CharacterInventory;
-using UnityEngine;
-
-namespace CharacterEditor
+﻿namespace CharacterEditor
 {
-    public class CharacterAttackManager : EntityAttackManager
+    public class CharacterAttackComponent : EntityAttackComponent
     {
         private Character _character;
         private CharacterBattleFSM _characteBattleFsm;
 
-        public CharacterAttackManager(Character character) : base(character.GameObjectData.CharacterObject)
+        public CharacterAttackComponent(Character character) : base(character.GameObjectData.CharacterObject)
         {
             _character = character;
         }
@@ -19,7 +15,5 @@ namespace CharacterEditor
             var weapon = _character.GetWeapon();
             return _meleAttackComponent;
         }
-
-       
     }
 }

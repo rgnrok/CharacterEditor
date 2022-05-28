@@ -54,7 +54,7 @@ public class CharacterBattleMovePayloadState : CharacterBattleBasePayloadState<V
             _moveComponent.OnMoveCompleted -= OnMoveCompletedHandler;
        
         }
-        GameManager.Instance.PlayerMoveController.HideCharacterPointer(_character.guid);//todo ??
+        GameManager.Instance.PlayerMoveController.HideCharacterPointer(_character.Guid);//todo ??
         _fsm.SpawnEvent((int)CharacterBattleFSM.CharacterBattleStateType.FindTarget);
     }
 }

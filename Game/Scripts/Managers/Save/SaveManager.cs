@@ -75,7 +75,7 @@ namespace CharacterEditor
             if (GameManager.Instance != null)
                 _saveLoadService.SaveGame(saveName, SceneManager.GetActiveScene().name, GameManager.Instance);
             else 
-                _saveLoadService.CreateGame(saveName, _configManager.ConfigData,
+                _saveLoadService.CreateGame(saveName, _configManager.Config.guid,
                 TextureManager.Instance.CharacterTexture, TextureManager.Instance.CurrentCharacterPortrait,
                 MeshManager.Instance.SelectedSkinMeshes.Select(mw => mw.Mesh), MeshManager.Instance.FaceTexture);
         }

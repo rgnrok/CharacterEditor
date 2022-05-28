@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ItemCeil : MonoBehaviour, IPointerClickHandler {
+public class ItemCell : MonoBehaviour, IPointerClickHandler {
 
     [SerializeField] private Image itemImage;
 

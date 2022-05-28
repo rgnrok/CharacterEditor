@@ -6,15 +6,13 @@ using UnityEngine;
 
 namespace EnemySystem
 {
-    public class Enemy: Entity<EnemyGameObjectData, EnemyConfig>, IBattleEntity, IAttacked
+    public class Enemy: Entity<EnemyGameObjectData, EnemyConfig>, IBattleEntity, IAttacked, IHover
     {
         public Sprite Portrait { get; private set; }
-        public EnemyFSM FSM { get; private set; }
-        public FSM BaseFSM => FSM;
+        private EnemyFSM _enemyFSM;
+        public IFSM FSM => _enemyFSM;
 
-        public override GameObject EntityGameObject { get {return GameObjectData.Entity; } }
-
-        public EnemyAttackManager AttackManager { get; private set; }
+        public EnemyAttackComponent AttackComponent { get; private set; }
 
         public Vital ActionPoints { get { return StatCollection.GetStat<Vital>(StatType.ActionPoint); } }
 
@@ -49,39 +47,39 @@ namespace EnemySystem
         {
             base.InternalInit();
 
-            FSM = new EnemyFSM(this);
-            FSM.Start();
-            AttackManager = new EnemyAttackManager(this);
+            _enemyFSM = new EnemyFSM(this);
+            _enemyFSM.Start();
+            AttackComponent = new EnemyAttackComponent(this);
 
             var canvas = GameObjectData.Entity.GetComponentInChildren<EntityCanvas>();
             if (canvas != null) canvas.Init(this);
         }
 
-        protected override void Die()
+        protected override void OnDie()
         {
-            base.Die();
-            if (OnDied != null) OnDied(this);
-            FSM.SpawnEvent((int)EnemyFSM.EnemyStateType.Dead);
+            base.OnDie();
+            OnDied?.Invoke(this);
+            _enemyFSM.SpawnEvent((int)EnemyFSM.EnemyStateType.Dead);
         }
 
         public void StartBattle()
         {
-            FSM.SpawnEvent((int)EnemyFSM.EnemyStateType.Battle);
+            _enemyFSM.SpawnEvent((int)EnemyFSM.EnemyStateType.Battle);
         }
 
         public void StartTurn(List<IBattleEntity> enemies)
         {
-            FSM.StartTurn(enemies);
+            _enemyFSM.StartTurn(enemies);
         }
 
         public void ProcessTurn()
         {
-            FSM.ProcessTurn();
+            _enemyFSM.ProcessTurn();
         }
 
         bool IBattleEntity.IsTurnComplete()
         {
-            return FSM.IsTurnComplete();
+            return _enemyFSM.IsTurnComplete();
         }
     }
 }
