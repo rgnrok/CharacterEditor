@@ -2329,8 +2329,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skinRawImage: {fileID: 1075053166}
   armorRawImage: {fileID: 2101081079}
-  renderClothTexture: {fileID: 8400000, guid: a464c35955f63c64088c0c185019b78e, type: 2}
   clothRenderShaderMaterial: {fileID: 2100000, guid: 1e91c5a8650674e40bbca2d5e01fd08a,
+    type: 2}
+  armorRenderShaderMaterial: {fileID: 2100000, guid: 4d3fd518d8acb9348b2e67505a1f1aff,
     type: 2}
   defaultMaterial: {fileID: 2100000, guid: b5891ae6ac745024cab83ae227382648, type: 2}
 --- !u!114 &653876888

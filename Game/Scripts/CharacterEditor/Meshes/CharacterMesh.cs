@@ -57,7 +57,7 @@ namespace CharacterEditor
             private CharacterTexture _prevMeshTextureGroup;
       
             
-            public CharacterMesh(IMeshLoader loader, Dictionary<string, string[][]> meshAndTexturesPaths, MeshType type, bool isFace)
+            public CharacterMesh(IMeshLoader loader, ITextureLoader textureLoader, Dictionary<string, string[][]> meshAndTexturesPaths, MeshType type, bool isFace)
             {
                 _meshLoader = loader;
                 MeshType = type;
@@ -71,7 +71,7 @@ namespace CharacterEditor
                 foreach (var meshInfo in meshAndTexturesPaths)
                 {
                     _meshPaths[i] = meshInfo.Key;
-                    _textures[i] = loader.CreateMeshTexture(meshInfo.Value);
+                    _textures[i] = new MeshTexture(textureLoader, meshInfo.Value);
                     i++;
                 }
 

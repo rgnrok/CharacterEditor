@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Threading.Tasks;
+using UnityEngine;
 
 namespace CharacterEditor
 {
@@ -9,33 +10,30 @@ namespace CharacterEditor
             public readonly MeshType MeshType;
             public readonly string MeshPath;
 
-            private bool _isReady;
+            public Texture2D Texture =>
+                _itemTexture?.Texture;
 
-            public bool IsReady
-            {
-                get => _isReady && (_texture == null || _texture.IsReady);
-                private set => _isReady = value;
-            }
+            private readonly ItemTexture _itemTexture;
 
-
-            private ItemTexture _texture;
-            private readonly string _texturePath;
             private readonly IMeshLoader _loader;
 
-            private GameObject _mesh;
+            private GameObject _meshObject;
 
-            public ItemMesh(MeshType type, IMeshLoader loader, string meshPath, string texturePath = null)
+            public ItemMesh(MeshType type, IMeshLoader loader, string meshPath, ItemTexture itemTexture = null)
             {
                 MeshType = type;
-                _loader = loader;
                 MeshPath = meshPath;
-                _texturePath = texturePath;
+
+                _loader = loader;
+                _itemTexture = itemTexture;
             }
 
-            public void LoadMesh()
+            public async Task LoadMesh()
             {
-                IsReady = false;
-                _loader.LoadItemMesh(MeshPath, _texturePath, LoadingMesh);
+                _meshObject = await _loader.LoadByPath(MeshPath);
+
+                if (_itemTexture != null)
+                    await _itemTexture.LoadTexture();
             }
 
             public void UnLoadMesh()
@@ -43,19 +41,14 @@ namespace CharacterEditor
                 _loader.Unload(MeshPath);
             }
 
-            private void LoadingMesh(GameObject meshObject, ItemTexture texture)
-            {
-                IsReady = true;
-                _texture = texture;
-                _mesh = meshObject;
-            }
+     
 
             public GameObject InstanceMesh(Transform anchor, int layer = 0, bool active = false, bool withoutLOD = false)
             {
-                var meshObject = Object.Instantiate(_mesh, anchor.position, anchor.rotation, anchor);
+                var meshObject = Object.Instantiate(_meshObject, anchor.position, anchor.rotation, anchor);
                 if (layer != 0) Helper.SetLayerRecursively(meshObject, layer);
 
-                if (_texture != null || withoutLOD)
+                if (_itemTexture != null || withoutLOD)
                 {
                     var renders = meshObject.GetComponentsInChildren<MeshRenderer>();
                     if (withoutLOD)
@@ -71,10 +64,10 @@ namespace CharacterEditor
                         }
                     }
 
-                    if (_texture != null)
+                    if (_itemTexture != null)
                     {
                         foreach (var render in renders)
-                            render.material.mainTexture = _texture.Texture;
+                            render.material.mainTexture = _itemTexture.Texture;
                     }
                 }
 

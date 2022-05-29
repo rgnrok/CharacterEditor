@@ -34,7 +34,7 @@ public static partial class Helper
         }
     }
 
-    public static EquipItemSlot[] GetSlotsByItemType(EquipItemType type)
+    public static EquipItemSlot[] GetAvailableSlotsByItemType(EquipItemType type)
     {
         switch (type)
         {

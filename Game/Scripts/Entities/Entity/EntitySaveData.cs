@@ -16,7 +16,10 @@ public abstract class EntitySaveData : ISerializable
     public int currentManaValue;
     public Dictionary<StatType, int> stats;
 
-
+    public StatCollection GetStats()
+    {
+        return new DefaultStatCollection(currentHealthValue, currentManaValue, stats);
+    }
 
     public void UpdateStats(StatCollection statCollection)
     {

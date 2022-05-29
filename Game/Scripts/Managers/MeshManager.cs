@@ -256,7 +256,8 @@ namespace CharacterEditor
                 if (Array.IndexOf(CanChangeTypes, meshType) == -1) continue;
                 if (!data.meshBones.TryGetValue(meshType, out var bone)) continue;
 
-                var meshWrapper = new CharacterMeshWrapper(_meshInstanceCreator, _loaderService.MeshLoader, bone, _loaderService.DataManager, meshType, data.Config);
+                var characterMesh = MeshFactory.Create(_loaderService.MeshLoader, _loaderService.TextureLoader, _loaderService.DataManager, meshType, data.Config);
+                var meshWrapper = new CharacterMeshWrapper(_meshInstanceCreator, bone, characterMesh);
                 if (_defaultMeshValues.TryGetValue(meshType, out var defaultMeshValue))
                 {
                     meshWrapper.Mesh.SetMesh(defaultMeshValue);

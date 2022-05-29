@@ -19,26 +19,13 @@ namespace EnemySystem
 
         public event Action<IBattleEntity> OnDied;
 
-        public static Enemy Create(EnemySaveData data, EnemyGameObjectData gameObjectData, Texture2D texture, Sprite portrait)
-        {
-            var enemy = new Enemy(data, gameObjectData, texture, portrait);
-            enemy.Init();
-            return enemy;
-        }
-
-        public static Enemy Create(string guid, EnemyGameObjectData gameObjectData, Texture2D texture, Sprite portrait)
-        {
-            var enemy = new Enemy(guid, gameObjectData, texture, portrait);
-            enemy.Init();
-            return enemy;
-        }
-
-        private Enemy(EnemySaveData data, EnemyGameObjectData gameObjectData, Texture2D texture, Sprite portrait) : base(data, gameObjectData, texture)
+  
+        public Enemy(EnemySaveData data, EnemyGameObjectData gameObjectData, Texture2D texture, Sprite portrait) : base(data.guid, gameObjectData, texture, data.GetStats())
         {
             Portrait = portrait;
         }
 
-        private Enemy(string guid, EnemyGameObjectData gameObjectData, Texture2D texture, Sprite portrait) : base(guid, gameObjectData, texture)
+        public Enemy(string guid, StatCollection stats, EnemyGameObjectData gameObjectData, Texture2D texture, Sprite portrait) : base(guid, gameObjectData, texture, stats)
         {
             Portrait = portrait;
         }

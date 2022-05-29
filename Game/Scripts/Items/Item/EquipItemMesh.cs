@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CharacterEditor
 {
@@ -13,22 +14,7 @@ namespace CharacterEditor
 
             private readonly EquipItemData _equipItemData;
 
-            public bool IsReady(string configGuid)
-            {
-                if (_itemTextures.TryGetValue(configGuid, out var textures))
-                {
-                    foreach (var texture in textures)
-                        if (!texture.IsReady) return false;
-                }
-
-                if (_itemMeshes.TryGetValue(configGuid, out var meshes))
-                {
-                    foreach (var mesh in meshes)
-                        if (!mesh.IsReady) return false;
-                }
-
-                return true;
-            }
+         
 
             public EquipItemMesh(EquipItemData itemData, ITextureLoader textureLoader, IMeshLoader meshLoader, IPathDataProvider pathProvider)
             {
@@ -51,18 +37,18 @@ namespace CharacterEditor
                         var meshData = configData.models[i];
                         if (_equipItemData.itemType == EquipItemType.Weapon && meshData.availableMeshes.Length == 2)
                         {
-                            _itemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(MeshType.HandRight, meshLoader, pathProvider.GetPath(meshData.prefab), pathProvider.GetPath(meshData.texture));
-                            _additionalItemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(MeshType.HandLeft, meshLoader, pathProvider.GetPath(meshData.additionalPrefab), pathProvider.GetPath(meshData.additionalTexture));
+                            _itemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(MeshType.HandRight, meshLoader, pathProvider.GetPath(meshData.prefab), textureLoader, pathProvider.GetPath(meshData.texture));
+                            _additionalItemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(MeshType.HandLeft, meshLoader, pathProvider.GetPath(meshData.additionalPrefab), textureLoader, pathProvider.GetPath(meshData.additionalTexture));
                             continue;
                         }
 
-                        _itemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(meshData.availableMeshes[0], meshLoader, pathProvider.GetPath(meshData.prefab), pathProvider.GetPath(meshData.texture));
+                        _itemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(meshData.availableMeshes[0], meshLoader, pathProvider.GetPath(meshData.prefab), textureLoader, pathProvider.GetPath(meshData.texture));
                         _additionalItemMeshes[configData.configGuid][i] = null;
                     }
                 }
             }
 
-            public IEnumerable<ItemMesh> GetItemMeshes(string configGuid, bool isAdditional)
+            public ItemMesh[] GetItemMeshes(string configGuid, bool isAdditional)
             {
                 if (!_itemMeshes.TryGetValue(configGuid, out var itemMeshes)) return new ItemMesh[0];
                 if (_equipItemData.itemType != EquipItemType.Weapon) return itemMeshes;
@@ -72,20 +58,25 @@ namespace CharacterEditor
                 return additionalItemMeshes;
             }
 
-            public IEnumerable<ItemTexture> GetItemTextures(string configGuid)
+            public ItemTexture[] GetItemTextures(string configGuid)
             {
                 return _itemTextures.TryGetValue(configGuid, out var textures) ? textures : new ItemTexture[0];
             }
 
-            public void LoadTexturesAndMeshes(string characterGuid, bool isAdditional)
+            public async Task LoadTexturesAndMeshes(string characterGuid, bool isAdditional)
             {
                 var meshes = GetItemMeshes(characterGuid, isAdditional);
-                foreach (var itemMesh in meshes)
-                    itemMesh.LoadMesh();
-
                 var textures = GetItemTextures(characterGuid);
-                foreach (var itemTexture in textures)
-                    itemTexture.LoadTexture();
+
+                var waiterTasks = new Task[meshes.Length + textures.Length];
+                var i = 0;
+                for (i = 0; i < meshes.Length; i++)
+                    waiterTasks[i] = meshes[i].LoadMesh();
+
+                for (var j = 0; j < textures.Length; j++)
+                    waiterTasks[i + j] = textures[j].LoadTexture();
+
+                await Task.WhenAll(waiterTasks);
             }
 
             public void UnloadTexturesAndMesh(string characterGuid)

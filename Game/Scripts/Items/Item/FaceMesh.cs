@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace CharacterEditor
@@ -9,7 +10,6 @@ namespace CharacterEditor
         {
             public MeshType MeshType => _itemMesh.MeshType;
             public string MeshPath => _itemMesh.MeshPath;
-            public bool IsReady => _itemMesh.IsReady;
 
             public GameObject MeshInstance;
             public GameObject PreviewMeshInstance;
@@ -36,9 +36,9 @@ namespace CharacterEditor
                 }
             }
 
-            public void LoadTextureAndMesh()
+            public Task LoadTextureAndMesh()
             {
-                _itemMesh.LoadMesh();
+                return _itemMesh.LoadMesh();
             }
         }
     }

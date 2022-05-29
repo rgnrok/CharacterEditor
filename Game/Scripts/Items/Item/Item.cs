@@ -4,12 +4,9 @@
     {
         public class Item
         {
-            public ItemData Data { get; private set; }
+            public ItemData Data { get; }
 
-            public virtual string Guid
-            {
-                get { return Data.guid; }
-            }
+            public virtual string Guid => Data.guid;
 
             public Item(ItemData itemData)
             {

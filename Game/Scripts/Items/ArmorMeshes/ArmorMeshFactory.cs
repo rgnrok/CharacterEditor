@@ -4,7 +4,7 @@
     {
         public class ArmorMeshFactory
         {
-            public static ItemMesh Create(MeshType meshType, IMeshLoader loader, string meshPath, string texturePath)
+            public static ItemMesh Create(MeshType meshType, IMeshLoader loader, string meshPath, ITextureLoader textureLoader, string texturePath)
             {
                 switch (meshType)
                 {
@@ -21,7 +21,8 @@
                     case MeshType.Helm:
                     case MeshType.Belt:
                     case MeshType.BeltAdd:
-                        return new ItemMesh(meshType, loader, meshPath, texturePath);
+                        var itemTexture = new ItemTexture(textureLoader, texturePath);
+                        return new ItemMesh(meshType, loader, meshPath, itemTexture);
                 }
                 return null;
             }

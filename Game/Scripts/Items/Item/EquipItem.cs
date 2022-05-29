@@ -13,49 +13,29 @@ namespace CharacterEditor
 
             public readonly Dictionary<StatType, List<StatModifier>> Stats = new Dictionary<StatType, List<StatModifier>>();
 
-            public EquipItemType ItemType
-            {
-                get { return Data.itemType; }
-            }
+            public EquipItemType ItemType => 
+                Data.itemType;
 
-            public EquipItemSubType ItemSubType
-            {
-                get { return Data.itemSubType; }
-            }
+            public EquipItemSubType ItemSubType => 
+                Data.itemSubType;
 
-            public bool IsTwoHandItem
-            {
-                get { return Data.itemSubType == EquipItemSubType.Bow || Data.itemSubType == EquipItemSubType.TwoHand;}
-            }
-           
-            private EquipItemData _equipItemData;
-            public new EquipItemData Data
-            {
-                get
-                {
-                    if (_equipItemData == null) _equipItemData = base.Data as EquipItemData;
-                    return _equipItemData;
-                }
-            }
+            public bool IsTwoHandItem => 
+                Data.itemSubType == EquipItemSubType.Bow || Data.itemSubType == EquipItemSubType.TwoHand;
 
-            private string _guid;
-            public override string Guid
-            {
-                get { return _guid; }
-            }
+            public new EquipItemData Data { get; }
 
-            public string DataGuid
-            {
-                get { return Data.guid; }
-            }
-            
-            public EquipItem(ItemData itemData, EquipItemMesh eiMesh) : this(null, itemData, eiMesh, new StatData[0])
+            private readonly string _guid;
+            public override string Guid => _guid;
+
+            public string DataGuid => Data.guid;
+
+            public EquipItem(EquipItemData itemData, EquipItemMesh eiMesh) : this(null, itemData, eiMesh, new StatData[0])
             {
                 if (Data.randomStats)
                 {
                     var statTypes = Enum.GetValues(typeof(StatType));
                     var modifierTypes = Enum.GetValues(typeof(ModifierType));
-                    for (int i = 0; i < Data.randomStatsCount; i++)
+                    for (var i = 0; i < Data.randomStatsCount; i++)
                     {
                         var type = (StatType) Random.Range(1, (int) statTypes.GetValue(statTypes.Length - 1) + 1);
                         var modType = (ModifierType)Random.Range(1, (int)modifierTypes.GetValue(modifierTypes.Length - 1) + 1);
@@ -77,8 +57,9 @@ namespace CharacterEditor
                 }
             }
 
-            public EquipItem(string guid, ItemData itemData, EquipItemMesh eiMesh, StatData[] stats) : base(itemData)
+            public EquipItem(string guid, EquipItemData itemData, EquipItemMesh eiMesh, StatData[] stats) : base(itemData)
             {
+                Data = itemData;
                 _guid = guid ?? System.Guid.NewGuid().ToString();
                 ItemMesh = eiMesh;
 

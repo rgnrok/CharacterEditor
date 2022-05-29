@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
 using System.Runtime.Serialization;
 using StatSystem;
 
@@ -17,8 +16,7 @@ namespace CharacterEditor
 
             public CharacterItemData(Item item)
             {
-                var eqItem = item as EquipItem;
-                if (eqItem != null) SetUpItemData(eqItem);
+                if (item is EquipItem eqItem) SetUpItemData(eqItem);
                 else SetUpItemData(item);
             }
 
@@ -40,10 +38,12 @@ namespace CharacterEditor
                     var statType = statPair.Key;
                     foreach (var modifier in statPair.Value)
                     {
-                        var statData = new StatData();
-                        statData.type = statType;
-                        statData.modType = modifier.Type;
-                        statData.value = modifier.Value;
+                        var statData = new StatData
+                        {
+                            type = statType,
+                            modType = modifier.Type,
+                            value = modifier.Value
+                        };
 
                         statList.Add(statData);
                     }

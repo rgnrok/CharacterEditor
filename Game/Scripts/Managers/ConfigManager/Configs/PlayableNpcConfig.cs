@@ -10,9 +10,9 @@ namespace CharacterEditor
     public class EquipItemSlotItem
     {
         public EquipItemSlot itemSlot;
-        public ItemData item;
+        public EquipItemData item;
 
-        public EquipItemSlotItem(EquipItemSlot slot, ItemData itemData)
+        public EquipItemSlotItem(EquipItemSlot slot, EquipItemData itemData)
         {
             itemSlot = slot;
             item = itemData;

@@ -90,7 +90,6 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
         // _gameStateMachine = new GameStateMachine(new SceneLoader(this), AllServices.Container);
 
         _saveLoadService = AllServices.Container.Single<ISaveLoadService>();
-        _saveLoadService = AllServices.Container.Single<ISaveLoadService>();
         _saveLoadService.OnCharactersLoaded += OnCharactersLoadedHandler;
         _saveLoadService.OnPlayableNpcLoaded += OnPlayableNpcLoadedHandler;
         _saveLoadService.OnEnemiesLoaded += OnEnemiesLoadedHandler;

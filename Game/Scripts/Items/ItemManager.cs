@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using CharacterEditor.Services;
 using UnityEngine;
 using UnityEngine.UI;
@@ -25,8 +26,10 @@ namespace CharacterEditor
 
             [SerializeField] private RawImage skinRawImage;
             [SerializeField] private RawImage armorRawImage;
-            [SerializeField] private RenderTexture renderClothTexture;
+
+
             [SerializeField] private Material clothRenderShaderMaterial;
+            [SerializeField] private Material armorRenderShaderMaterial;
 
 
             private Dictionary<string, Texture2D> _characterTextures;
@@ -64,7 +67,6 @@ namespace CharacterEditor
                     return _cloakTextures[_currentCharacter.Guid];
                 }
             }
-            public bool IsReady { get; private set; }
 
             private Character _currentCharacter;
             private readonly List<Renderer> _modelRenders = new List<Renderer>();
@@ -74,10 +76,6 @@ namespace CharacterEditor
 
             private TextureShaderType _currentShaderType;
             private Shader _particleShader;
-
-            private Coroutine _buildCoroutine;
-            private Coroutine _clothCoroutine;
-            private Coroutine _armorCoroutine;
 
          
             private Dictionary<string, Dictionary<string, MeshInstanceInfo>> _meshInstances;
@@ -96,12 +94,17 @@ namespace CharacterEditor
             private Dictionary<string, Dictionary<MaterialType, Material>> _characterMaterials;
             private MergeTextureService _mergeTextureService;
 
+            private Material _tmpArmorRenderShaderMaterial;
+            private Material _tmpClothRenderShaderMaterial;
+            private RenderTexture _renderClothTexture;
+            private RenderTexture _renderArmorTexture;
+            private ISaveLoadService _saveLoadService;
+
 
             private void Awake()
             {
                 if (Instance != null) Destroy(gameObject);
                 Instance = this;
-                IsReady = true;
 
                 _armorTextures = new Dictionary<string, Texture2D>();
                 _characterTextures = new Dictionary<string, Texture2D>();
@@ -112,6 +115,16 @@ namespace CharacterEditor
                 _particleShader = Shader.Find("Particles/Additive (Soft)");
 
                 _mergeTextureService = new MergeTextureService();
+
+                _tmpArmorRenderShaderMaterial = new Material(armorRenderShaderMaterial);
+                _tmpClothRenderShaderMaterial = new Material(clothRenderShaderMaterial);
+
+                _renderArmorTexture = new RenderTexture(Constants.ARMOR_MESHES_ATLAS_SIZE, Constants.ARMOR_MESHES_ATLAS_SIZE, 0, RenderTextureFormat.ARGB32);
+                _renderClothTexture = new RenderTexture(Constants.SKIN_TEXTURE_ATLAS_SIZE, Constants.SKIN_TEXTURE_ATLAS_SIZE, 0, RenderTextureFormat.ARGB32);
+
+
+                // _saveLoadService = AllServices.Container.Single<ISaveLoadService>();
+                // _saveLoadService.OnCharactersLoaded += OnCharactersLoadedHandler;
             }
 
 
@@ -123,11 +136,11 @@ namespace CharacterEditor
                 if (_currentCharacter != null)
                 {
                     if (_currentCharacter.Guid == character.Guid) return;
-                    _currentCharacter.OnUnequipItem -= UnEquipItemHandler;
+                    _currentCharacter.OnUnEquipItem -= UnEquipItemHandler;
                 }
 
                 _currentCharacter = character;
-                _currentCharacter.OnUnequipItem += UnEquipItemHandler;
+                _currentCharacter.OnUnEquipItem += UnEquipItemHandler;
 
                 _modelRenders.Clear();
                 _modelRenders.AddRange(character.GameObjectData.SkinMeshes);
@@ -208,27 +221,24 @@ namespace CharacterEditor
                 if (OnUnEquip != null) OnUnEquip(item);
             }
 
-            public void EquipItem(EquipItem item, EquipItemSlot slotType = EquipItemSlot.Undefined)
+            public async Task EquipItem(EquipItem item, EquipItemSlot slotType = EquipItemSlot.Undefined)
             {
-                StartCoroutine(EquipItemCoroutine(item, slotType, true));
+                await EquipItemInner(item, slotType);
+                BuildTextures();
             }
 
-            public void EquipItems(Dictionary<EquipItemSlot, EquipItem> equipItems)
+            public async Task EquipItems(Dictionary<EquipItemSlot, EquipItem> equipItems)
             {
-                IsReady = false;
-                StartCoroutine(EquipItemsCoroutine(equipItems));
+                foreach (var itemPair in equipItems)
+                    await EquipItemInner(itemPair.Value, itemPair.Key);
+
+                BuildTextures();
             }
 
-            public void SwapEquipedItem(EquipItemSlot slotType1, EquipItemSlot slotType2)
+            public async void SwapEquipedItem(EquipItemSlot slotType1, EquipItemSlot slotType2)
             {
-                StartCoroutine(SwapEquipedItemCoroutine(slotType1, slotType2));
-            }
-
-            private IEnumerator SwapEquipedItemCoroutine(EquipItemSlot slotType1, EquipItemSlot slotType2)
-            {
-                EquipItem item1, item2;
-                if (!_currentCharacter.EquipItems.TryGetValue(slotType1, out item1) || !_currentCharacter.EquipItems.TryGetValue(slotType2, out item2)) yield break;
-                if (!_currentCharacter.IsEquip(item1) || !_currentCharacter.IsEquip(item2)) yield break;
+                if (!_currentCharacter.EquipItems.TryGetValue(slotType1, out var item1) || !_currentCharacter.EquipItems.TryGetValue(slotType2, out var item2)) return;
+                if (!_currentCharacter.IsEquip(item1) || !_currentCharacter.IsEquip(item2)) return;
 
                 var meshInfo1 = GetItemMeshes(item1.Guid);
                 var meshInfo2 = GetItemMeshes(item2.Guid);
@@ -242,11 +252,8 @@ namespace CharacterEditor
                 meshInfo2.gameObjects.Clear();
 
                 // Left and Right hand has different mesh models
-                item1.ItemMesh.LoadTexturesAndMeshes(_currentCharacter.ConfigGuid, slotType2.IsAdditionalSlot());
-                item2.ItemMesh.LoadTexturesAndMeshes(_currentCharacter.ConfigGuid, slotType1.IsAdditionalSlot());
-
-                while (!item1.ItemMesh.IsReady(_currentCharacter.ConfigGuid)) yield return null;
-                while (!item2.ItemMesh.IsReady(_currentCharacter.ConfigGuid)) yield return null;
+                await item1.ItemMesh.LoadTexturesAndMeshes(_currentCharacter.ConfigGuid, slotType2.IsAdditionalSlot());
+                await item2.ItemMesh.LoadTexturesAndMeshes(_currentCharacter.ConfigGuid, slotType1.IsAdditionalSlot());
 
                 _currentCharacter.SwapItems(slotType1, slotType2);
 
@@ -255,33 +262,24 @@ namespace CharacterEditor
                 BuildTextures();
             }
 
-            private IEnumerator EquipItemsCoroutine(Dictionary<EquipItemSlot, EquipItem> equipItems)
-            {
-                foreach (var itemPair in equipItems)
-                    yield return StartCoroutine(EquipItemCoroutine(itemPair.Value, itemPair.Key, false));
+         
 
-                BuildTextures();
-            }
-
-            private IEnumerator EquipItemCoroutine(EquipItem equipItem, EquipItemSlot slotType, bool withUpdateTextures)
+            private async Task EquipItemInner(EquipItem equipItem, EquipItemSlot slotType)
             {
                 if (_currentCharacter.IsEquip(equipItem))
                 {
                     _currentCharacter.UnEquipItem(equipItem);
-                    if (withUpdateTextures) BuildTextures();
-                    if (OnUnEquip != null) OnUnEquip(equipItem);
-                    yield break;
+                    OnUnEquip?.Invoke(equipItem);
+                    return;
                 }
 
                 slotType = _currentCharacter.EquipItem(equipItem, slotType);
-                if (slotType == EquipItemSlot.Undefined) yield break;
+                if (slotType == EquipItemSlot.Undefined) return;
 
-                equipItem.ItemMesh.LoadTexturesAndMeshes(_currentCharacter.ConfigGuid, slotType.IsAdditionalSlot());
-                while (!equipItem.ItemMesh.IsReady(_currentCharacter.ConfigGuid)) yield return null;
+                await equipItem.ItemMesh.LoadTexturesAndMeshes(_currentCharacter.ConfigGuid, slotType.IsAdditionalSlot());
 
                 InstanceMesh(equipItem, slotType);
-                if (withUpdateTextures) BuildTextures();
-                if (OnEquip != null) OnEquip(equipItem);
+                OnEquip?.Invoke(equipItem);
             }
             
             private MeshInstanceInfo GetItemMeshes(string itemGuid)
@@ -332,30 +330,13 @@ namespace CharacterEditor
 
             private void BuildTextures()
             {
-                IsReady = false;
-
-                if (_buildCoroutine != null) StopCoroutine(_buildCoroutine);
-                if (_clothCoroutine != null) StopCoroutine(_clothCoroutine);
-                if (_armorCoroutine != null) StopCoroutine(_armorCoroutine);
-
-                _buildCoroutine = StartCoroutine(BuildTexturesCoroutine());
-            }
-
-            private IEnumerator BuildTexturesCoroutine()
-            {
-                yield return _clothCoroutine = StartCoroutine(MergeClothTextures());
-                yield return _armorCoroutine = StartCoroutine(BuildArmorTexture());
+                MergeClothTextures();
+                BuildArmorTexture();
 
                 UpdateModelTextures();
-
-                _buildCoroutine = null;
-                IsReady = true;
             }
             
-            /*
-             * Combining the texture of the character
-             */
-            private IEnumerator MergeClothTextures()
+            private void MergeClothTextures()
             {
                 var mergeTextures = new Dictionary<string, Texture2D>(_currentCharacter.EquipItems.Count)
                 {
@@ -369,60 +350,37 @@ namespace CharacterEditor
                         var textureName = Helper.GetShaderTextureName(texture.Type);
                         if (textureName == null) continue;
                 
-                        while (!texture.IsReady) yield return null;
                         mergeTextures[textureName] = texture.Texture;
                     }
                 }
                 
-                _mergeTextureService.MergeTextures(clothRenderShaderMaterial, renderClothTexture, mergeTextures);
-                
-                RenderTexture.active = renderClothTexture;
-                CharacterTexture.ReadPixels(new Rect(0, 0, renderClothTexture.width, renderClothTexture.height), 0, 0);
-                CharacterTexture.Apply();
-
-                _clothCoroutine = null;
+                MergeTexture(_tmpClothRenderShaderMaterial, _renderClothTexture, CharacterTexture, mergeTextures);
             }
 
-
-            private IEnumerator BuildArmorTexture()
+            private void BuildArmorTexture()
             {
-                var meshes = new List<ItemMesh>();
+                var mergeTextures = new Dictionary<string, Texture2D>();
                 foreach (var item in _currentCharacter.EquipItems)
                 {
                     foreach (var mesh in item.Value.ItemMesh.GetItemMeshes(_currentCharacter.ConfigGuid, item.Key.IsAdditionalSlot()))
                     {
-                        while (!mesh.IsReady) yield return null;
-                        meshes.Add(mesh);
+                        var textureName = Helper.GetShaderTextureName(mesh.MeshType);
+                        if (textureName == null) continue;
+
+                        mergeTextures[textureName] = mesh.Texture;
                     }
                 }
 
-                //Create empty atlas
-                if (meshes.Count == 0)
-                {
-                    if (armorRawImage != null)
-                    {
-                        armorRawImage.enabled = false;
-                        armorRawImage.texture = ArmorTexture;
-                    }
-                    yield break;
-                }
+                MergeTexture(_tmpArmorRenderShaderMaterial, _renderArmorTexture, ArmorTexture, mergeTextures);
+            }
 
-                const int size = Constants.ARMOR_MESHES_ATLAS_SIZE;
-                const int meshTextureSize = Constants.MESH_TEXTURE_SIZE;
+            private void MergeTexture(Material shaderMaterial, RenderTexture renderTexture, Texture2D resultTexture, Dictionary<string, Texture2D> mergeTextures)
+            {
+                _mergeTextureService.MergeTextures(shaderMaterial, renderTexture, mergeTextures);
 
-                //Insert mesh textures in atlas
-                // foreach (var selectedMesh in meshes)
-                // {
-                //     var position = selectedMesh.AtlasPosition;
-                //     var x = meshTextureSize * (position % (size / meshTextureSize));
-                //     var y = (size - meshTextureSize) - (meshTextureSize * position / size) * meshTextureSize;
-                //
-                //     ArmorTexture.SetPixels32(x, y, meshTextureSize, meshTextureSize,
-                //         selectedMesh.Texture.GetPixels32());
-                // }
-
-                ArmorTexture.Apply();
-                _armorCoroutine = null;
+                RenderTexture.active = renderTexture;
+                resultTexture.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
+                resultTexture.Apply();
             }
 
             private void UpdateTexturesAndMeshes()
@@ -584,61 +542,6 @@ namespace CharacterEditor
                     if (CloakTexture != null) cloakRender.material.mainTexture = CloakTexture;
                 }
             }
-
-//            public void SetShader(TextureShaderType shader)
-//            {
-//                _currentShaderType = shader;
-//
-//                var materialInfo = GetShaderMaterial(shader);
-//                if (materialInfo == null) return;
-//
-//                var material = materialInfo.skinMaterial;
-//                material.mainTexture = CharacterTexture;
-//                foreach (var render in _modelRenders)
-//                    render.material = material;
-//                foreach (var render in _longRobeRenders)
-//                    render.material = material;
-//                foreach (var render in _shortRobeRenders)
-//                    render.material = material;
-//
-//                var cloakMaterial = materialInfo.cloakMaterial;
-//                cloakMaterial.mainTexture = CloakTexture;
-//                foreach (var render in _cloakRenders)
-//                    render.material = cloakMaterial;
-//
-//                var armorMaterial = materialInfo.armorMeshMaterial;
-//                armorMaterial.mainTexture = ArmorTexture;
-//                foreach (var item in _currentCharacter.EquipItems.Values)
-//                {
-//                    var meshInfo = GetItemMeshes(item.Guid);
-//                    foreach (var meshItem in meshInfo.gameObjects)
-//                    {
-//                        foreach (var meshRenderer in meshItem.GetComponentsInChildren<MeshRenderer>())
-//                            meshRenderer.material = armorMaterial;
-//                    }
-//                }
-//
-//                var faceMaterial = materialInfo.faceMeshMaterial;
-//                faceMaterial.mainTexture = _currentCharacter.FaceMeshTexture;
-//                foreach (var item in _currentCharacter.FaceMeshItems.Values)
-//                {
-//                    foreach (var meshRenderer in item.MeshInstance.GetComponentsInChildren<MeshRenderer>())
-//                        meshRenderer.material = faceMaterial;
-//
-//                    if (item.PreviewMeshInstance == null) continue;
-//
-//                    foreach (var meshRenderer in item.PreviewMeshInstance.GetComponentsInChildren<MeshRenderer>())
-//                        meshRenderer.material = faceMaterial;
-//                }
-//            }
-
-//            private MaterialInfo GetShaderMaterial(TextureShaderType shader)
-//            {
-//                foreach (var mat in Materials)
-//                    if (mat.shader == shader) return mat;
-//
-//                return null;
-//            }
 
           
         }

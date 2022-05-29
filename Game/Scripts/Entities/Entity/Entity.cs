@@ -24,24 +24,15 @@ namespace CharacterEditor
 
         private bool _initialized;
 
-        protected Entity(EntitySaveData data, TGoData gameObjectData, Texture2D texture)
-        {
-            Guid = data.guid;
-            ConfigGuid = data.configGuid;
 
-            GameObjectData = gameObjectData;
-            Texture = texture;
-            StatCollection = new DefaultStatCollection(data.currentHealthValue, data.currentManaValue, data.stats);
-        }
-
-        protected Entity(string guid, TGoData gameObjectData, Texture2D texture)
+        protected Entity(string guid, TGoData gameObjectData, Texture2D texture, StatCollection stats)
         {
             Guid = guid;
             ConfigGuid = gameObjectData.Config.guid;
 
             GameObjectData = gameObjectData;
             Texture = texture;
-            StatCollection = new DefaultStatCollection();
+            StatCollection = stats;
         }
 
         public void Init()

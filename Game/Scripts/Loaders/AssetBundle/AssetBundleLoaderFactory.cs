@@ -22,7 +22,7 @@ namespace CharacterEditor
             }
 
             public IMeshLoader CreateMeshLoader() => 
-                new MeshLoader(CreateTextureLoader(), _coroutineRunner);
+                new MeshLoader(_coroutineRunner);
 
             public ITextureLoader CreateTextureLoader() => 
                 new TextureLoader(_coroutineRunner);

@@ -5,7 +5,7 @@ namespace CharacterEditor
 {
     public class MeshFactory
     {
-        public static CharacterMesh Create(IMeshLoader loader, IDataManager dataManager, MeshType meshType, CharacterConfig characterConfig)
+        public static CharacterMesh Create(IMeshLoader loader, ITextureLoader textureLoader, IDataManager dataManager, MeshType meshType, CharacterConfig characterConfig)
         {
             var meshTexturesPath = dataManager.ParseCharacterMeshes(characterConfig, meshType);
             switch (meshType)
@@ -13,9 +13,9 @@ namespace CharacterEditor
                 case MeshType.Beard:
                 case MeshType.FaceFeature:
                 case MeshType.Hair:
-                    return new CharacterMesh(loader, meshTexturesPath, meshType, true);
+                    return new CharacterMesh(loader, textureLoader, meshTexturesPath, meshType, true);
                 default:
-                    return new CharacterMesh(loader, meshTexturesPath, meshType, false);
+                    return new CharacterMesh(loader, textureLoader, meshTexturesPath, meshType, false);
             }
         }
     }

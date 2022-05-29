@@ -69,7 +69,7 @@ namespace CharacterEditor
             Texture2D characterTexture, Sprite portrait,
             IEnumerable<CharacterMesh> faceMeshes, Texture2D faceMeshTexture)
         {
-            var guid = Guid.NewGuid() +characterGuid;
+            var guid = Guid.NewGuid() + characterGuid;
             var portraitName = portrait.name.SanitizeName();
             var characterData = new CharacterSaveData(guid, characterGuid, portraitName);
 

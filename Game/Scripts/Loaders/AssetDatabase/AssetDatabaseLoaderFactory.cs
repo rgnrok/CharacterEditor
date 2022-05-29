@@ -11,7 +11,7 @@ namespace CharacterEditor
         public class AssetDatabaseLoaderFactory : ILoaderFactory
         {
             public IMeshLoader CreateMeshLoader() => 
-                new MeshLoader(CreateTextureLoader());
+                new MeshLoader();
 
             public ITextureLoader CreateTextureLoader() => 
                 new TextureLoader();

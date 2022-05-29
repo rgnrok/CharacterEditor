@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using UnityEngine;
 
 namespace CharacterEditor
@@ -8,8 +8,6 @@ namespace CharacterEditor
         public class ItemTexture
         {
             public readonly TextureType Type;
-
-            public bool IsReady { get; private set; }
 
             public Texture2D Texture { get; private set; }
 
@@ -23,18 +21,9 @@ namespace CharacterEditor
                 Type = type;
             }
 
-            public void LoadTexture()
+            public async Task LoadTexture()
             {
-                IsReady = false;
-                _textureLoader.LoadByPath(_texturePath, LoadingTexture);
-            }
-
-            private void LoadingTexture(string path, Texture2D texture)
-            {
-                if (!path.Equals(_texturePath)) return;
-
-                Texture = texture;
-                IsReady = true;
+                Texture = await _textureLoader.LoadByPath(_texturePath);
             }
         }
     }

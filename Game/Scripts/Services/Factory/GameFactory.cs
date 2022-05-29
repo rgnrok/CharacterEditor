@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CharacterEditor.CharacterInventory;
 using CharacterEditor.Mesh;
 using EnemySystem;
+using StatSystem;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -79,25 +80,28 @@ namespace CharacterEditor.Services
             var equipItems = new Dictionary<EquipItemSlot, EquipItem>();
             var faceMeshItems = new Dictionary<MeshType, FaceMesh>();
 
-            //todo only equipItems
+            //todo add in inventory only equipItems!
             foreach (var ceilPair in characterData.inventoryCells)
             {
                 var itemData = ceilPair.Value;
 
                 if (!items.TryGetValue(itemData.dataGuid, out var data)) continue;
+                if (!(data is EquipItemData equipItemData)) continue;
 
-                var eiMesh = new EquipItemMesh((EquipItemData) data, _loaderService.TextureLoader, _loaderService.MeshLoader, _loaderService.PathDataProvider);
-                GameManager.Instance.Inventory.SetItemToInventory(characterData.guid,
-                    new EquipItem(itemData.guid, data, eiMesh, itemData.stats), ceilPair.Key);
+                var eiMesh = new EquipItemMesh(equipItemData, _loaderService.TextureLoader, _loaderService.MeshLoader, _loaderService.PathDataProvider);
+                var equipItem = new EquipItem(itemData.guid, equipItemData, eiMesh, itemData.stats);
+
+                GameManager.Instance.Inventory.SetItemToInventory(characterData.guid, equipItem, ceilPair.Key);
             }
 
             // Equip items from inventory
             foreach (var pair in characterData.equipItems)
             {
                 if (!items.TryGetValue(pair.Value.dataGuid, out var data)) continue;
-                //todo use ready created item?
-                var eiMesh = new EquipItemMesh((EquipItemData) data, _loaderService.TextureLoader, _loaderService.MeshLoader, _loaderService.PathDataProvider);
-                equipItems[pair.Key] = new EquipItem(pair.Value.guid, data, eiMesh, pair.Value.stats);
+                if (!(data is EquipItemData equipItemData)) continue;
+
+                var eiMesh = new EquipItemMesh(equipItemData, _loaderService.TextureLoader, _loaderService.MeshLoader, _loaderService.PathDataProvider);
+                equipItems[pair.Key] = new EquipItem(pair.Value.guid, equipItemData, eiMesh, pair.Value.stats);
             }
 
             foreach (var pair in characterData.faceMeshItems)
@@ -121,14 +125,14 @@ namespace CharacterEditor.Services
             go.layer = Constants.LAYER_NPC;
 
             var goData = new CharacterGameObjectData(config.characterConfig, go, null);
-            var character = new Character(config.guid, goData, skinTexture, faceTexture, portraitIcon);
+            var stats = new DefaultStatCollection(); //tmp load from config in feature
+            var character = new Character(config.guid, stats, goData, skinTexture, faceTexture, portraitIcon);
 
             var equipItems = new Dictionary<EquipItemSlot, EquipItem>();
             var faceMeshItems = new Dictionary<MeshType, FaceMesh>();
             foreach (var itemInfo in config.equipItems)
             {
-                //todo use ready created item?
-                var eiMesh = new EquipItemMesh((EquipItemData)itemInfo.item, _loaderService.TextureLoader, _loaderService.MeshLoader, _loaderService.PathDataProvider);
+                var eiMesh = new EquipItemMesh(itemInfo.item, _loaderService.TextureLoader, _loaderService.MeshLoader, _loaderService.PathDataProvider);
                 equipItems[itemInfo.itemSlot] = new EquipItem(itemInfo.item, eiMesh);
             }
 
@@ -160,7 +164,9 @@ namespace CharacterEditor.Services
 
             foreach (var skinMesh in goData.SkinMeshes) skinMesh.material = skinMaterial;
 
-            var enemy = Enemy.Create(guid, goData, null, portraitIcon);
+            var stats = new DefaultStatCollection(); //tmp load from config in feature
+            var enemy = new Enemy(guid, stats, goData, null, portraitIcon);
+            enemy.Init();
 
             var prefabPaths = new List<string>();
             foreach (var bone in config.prefabBoneData.armorBones)
@@ -252,15 +258,12 @@ namespace CharacterEditor.Services
         {
             foreach (var faceMeshPair in faceMeshItems.Values)
             {
-                faceMeshPair.LoadTextureAndMesh();
-                while (!faceMeshPair.IsReady) await Task.Yield();
+                await faceMeshPair.LoadTextureAndMesh();
                 character.AddFaceMesh(faceMeshPair);
             }
             
-            while (!ItemManager.Instance.IsReady) await Task.Yield();
             ItemManager.Instance.SetCharacter(character);
-            ItemManager.Instance.EquipItems(equipItems);
-            while (!ItemManager.Instance.IsReady) await Task.Yield();
+            await ItemManager.Instance.EquipItems(equipItems);
         }
     }
 }

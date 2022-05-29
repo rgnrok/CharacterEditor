@@ -8,19 +8,18 @@ namespace CharacterEditor
     {
         private readonly IMeshInstanceCreator _meshFactory;
         private readonly Transform _meshBone;
-        public CharacterMesh Mesh { get; private set; }
+        public CharacterMesh Mesh { get; }
 
         public GameObject MeshInstance { get; private set; }
 
         public bool IsEmptyMesh =>
             Mesh.LoadedMeshObject == null;
 
-        public CharacterMeshWrapper(IMeshInstanceCreator meshFactory, IMeshLoader meshLoader, Transform meshBone, IDataManager dataManager, MeshType meshType, CharacterConfig characterConfig)
+        public CharacterMeshWrapper(IMeshInstanceCreator meshFactory, Transform meshBone, CharacterMesh mesh)
         {
             _meshFactory = meshFactory;
             _meshBone = meshBone;
-
-            Mesh = MeshFactory.Create(meshLoader, dataManager, meshType, characterConfig);
+            Mesh = mesh;
         }
 
         public GameObject CreateMeshInstance()

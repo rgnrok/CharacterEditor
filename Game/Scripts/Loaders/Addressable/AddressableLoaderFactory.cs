@@ -18,7 +18,7 @@ namespace CharacterEditor
             }
 
             public IMeshLoader CreateMeshLoader() =>
-                new MeshLoader(CreateTextureLoader());
+                new MeshLoader();
 
             public ITextureLoader CreateTextureLoader() =>
                 new TextureLoader();

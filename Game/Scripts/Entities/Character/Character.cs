@@ -26,25 +26,22 @@ namespace CharacterEditor
         public float Speed { get { return StatCollection.GetStat<Attribute>(StatType.Speed).StatValue / 100f; } }
 
         public event Action<EquipItem, EquipItemSlot> OnEquipItem;
-        public event Action<EquipItem> OnUnequipItem;
+        public event Action<EquipItem> OnUnEquipItem;
 
         public event Action<string, Item> OnAddToInventory;
         public event Action<string, Item> OnRemoveFromInventory;
 
         public event Action<IBattleEntity> OnDied;
 
-
-        public Character(CharacterSaveData data, CharacterGameObjectData gameObjectData, Texture2D texture, Texture2D faceMeshTexture, Sprite portrait) : base(data, gameObjectData, texture)
+        public Character(string guid, StatCollection stats, CharacterGameObjectData gameObjectData, Texture2D texture, Texture2D faceMeshTexture, Sprite portrait) : base(guid, gameObjectData, texture, stats)
         {
             FaceMeshTexture = faceMeshTexture;
             Portrait = portrait;
-            InventoryCells = data.inventoryCells;
         }
 
-        public Character(string guid, CharacterGameObjectData gameObjectData, Texture2D texture, Texture2D faceMeshTexture, Sprite portrait) : base(guid, gameObjectData, texture)
+        public Character(CharacterSaveData data, CharacterGameObjectData gameObjectData, Texture2D texture, Texture2D faceMeshTexture, Sprite portrait) : this(data.guid, data.GetStats(), gameObjectData, texture, faceMeshTexture, portrait)
         {
-            FaceMeshTexture = faceMeshTexture;
-            Portrait = portrait;
+            InventoryCells = data.inventoryCells;
         }
 
         protected override void OnDie()
@@ -69,6 +66,7 @@ namespace CharacterEditor
             if (canvas != null) canvas.Init(this);
         }
 
+        #region IBattleEntity
 
         public void StartBattle()
         {
@@ -90,6 +88,8 @@ namespace CharacterEditor
             _characterFSM.ProcessTurn();
         }
 
+        #endregion
+
         public int CalculateAP(float distance, IAttacked attackedEntity = null)
         {
             var movePoints = Mathf.CeilToInt(distance / Speed);
@@ -104,21 +104,20 @@ namespace CharacterEditor
         public bool IsEquip(EquipItem item)
         {
             foreach (var equipPair in EquipItems)
-                if (equipPair.Value.Guid == item.Guid)
-                    return true;
+                if (equipPair.Value.Guid == item.Guid) return true;
 
             return false;
         }
 
-        public EquipItemSlot EquipItem(EquipItem item, EquipItemSlot slotType = EquipItemSlot.Undefined)
+        public EquipItemSlot EquipItem(EquipItem item, EquipItemSlot slotType)
         {
-            slotType = UnequipOldItems(item, slotType);
+            slotType = UnEquipOldItem(item, slotType);
             if (slotType == EquipItemSlot.Undefined) return slotType;
 
             EquipItems[slotType] = item;
-            if (OnEquipItem != null) OnEquipItem(item, slotType);
+            OnEquipItem?.Invoke(item, slotType);
 
-            RemoveFromInvetory(item);
+            RemoveFromInventory(item);
 
             foreach (var statPair in item.Stats)
             {
@@ -130,85 +129,66 @@ namespace CharacterEditor
             return slotType;
         }
 
-        private EquipItemSlot UnequipOldItems(EquipItem item, EquipItemSlot slotType)
+        private EquipItemSlot UnEquipOldItem(EquipItem newItem, EquipItemSlot newItemSlot)
         {
-            if (item.Data.itemType == EquipItemType.Weapon)
+            if (newItem.ItemType == EquipItemType.Weapon)
+                return UnEquipOldWeapon(newItem, newItemSlot);
+
+            if (newItem.ItemType == EquipItemType.Shield)
+                return UnEquipOldShield();
+
+            UnEquipItem(newItemSlot);
+            return newItemSlot;
+        }
+
+        private EquipItemSlot UnEquipOldWeapon(EquipItem newItem, EquipItemSlot newItemSlot)
+        {
+            // If new item is 2 hand
+            if (newItem.IsTwoHandItem)
             {
-                // If new item is 2 hand
-                if (item.IsTwoHandItem)
-                {
-                    UnEquipItem(EquipItemSlot.HandRight);
-                    UnEquipItem(EquipItemSlot.HandLeft);
+                UnEquipItem(EquipItemSlot.HandRight);
+                UnEquipItem(EquipItemSlot.HandLeft);
 
-                    return item.Data.itemSubType == EquipItemSubType.Bow ? EquipItemSlot.HandLeft : EquipItemSlot.HandRight;
-                }
-
-                // If old item is 2 hand
-                if (EquipItems.ContainsKey(EquipItemSlot.HandRight) && EquipItems[EquipItemSlot.HandRight].ItemSubType == EquipItemSubType.TwoHand)
-                {
-                    UnEquipItem(EquipItemSlot.HandRight);
-                    return slotType != EquipItemSlot.Undefined ? slotType : EquipItemSlot.HandRight;
-                }
-
-                // If old item is 2 bow
-                if (EquipItems.ContainsKey(EquipItemSlot.HandLeft) && EquipItems[EquipItemSlot.HandLeft].ItemSubType == EquipItemSubType.Bow)
-                {
-                    UnEquipItem(EquipItemSlot.HandLeft);
-                    return slotType != EquipItemSlot.Undefined ? slotType : EquipItemSlot.HandLeft;
-                }
-
-                if (slotType != EquipItemSlot.Undefined)
-                {
-                    if (!EquipItems.ContainsKey(slotType)) return slotType;
-                    UnEquipItem(slotType);
-                    return slotType;
-                }
-                else
-                {
-                    // Find free slot
-                    if (!EquipItems.ContainsKey(EquipItemSlot.HandRight)) return EquipItemSlot.HandRight;
-                    if (!EquipItems.ContainsKey(EquipItemSlot.HandLeft)) return EquipItemSlot.HandLeft;
-
-                    UnEquipItem(EquipItemSlot.HandRight);
-                    return EquipItemSlot.HandRight;
-                }
+                return newItem.ItemSubType == EquipItemSubType.Bow ? EquipItemSlot.HandLeft : EquipItemSlot.HandRight;
             }
 
-            // If shield unequip 2hand weapon
-            if (item.ItemType == EquipItemType.Shield)
+            // If old item is 2 hand
+            if (EquipItems.ContainsKey(EquipItemSlot.HandRight) && EquipItems[EquipItemSlot.HandRight].ItemSubType == EquipItemSubType.TwoHand)
             {
-                if ((EquipItems.ContainsKey(EquipItemSlot.HandRight) &&
-                     EquipItems[EquipItemSlot.HandRight].ItemSubType == EquipItemSubType.TwoHand) ||
-                    (EquipItems.ContainsKey(EquipItemSlot.HandLeft) &&
-                     EquipItems[EquipItemSlot.HandLeft].ItemSubType == EquipItemSubType.Bow))
-                {
-                    UnEquipItem(EquipItemSlot.HandRight);
-                    UnEquipItem(EquipItemSlot.HandLeft);
-                    return EquipItemSlot.HandLeft;
-                }
+                UnEquipItem(EquipItemSlot.HandRight);
+                return newItemSlot != EquipItemSlot.Undefined ? newItemSlot : EquipItemSlot.HandRight;
             }
 
-
-            var slots = Helper.GetSlotsByItemType(item.ItemType);
-            if (slots.Length > 1)
+            // If old item is 2 bow
+            if (EquipItems.ContainsKey(EquipItemSlot.HandLeft) && EquipItems[EquipItemSlot.HandLeft].ItemSubType == EquipItemSubType.Bow)
             {
-                // Find Free slot
-                foreach (var neededSlot in slots)
-                {
-                    if (!EquipItems.ContainsKey(neededSlot))
-                    {
-                        slotType = neededSlot;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                slotType = slots[0];
+                UnEquipItem(EquipItemSlot.HandLeft);
+                return newItemSlot != EquipItemSlot.Undefined ? newItemSlot : EquipItemSlot.HandLeft;
             }
 
-            UnEquipItem(slotType);
-            return slotType;
+            if (newItemSlot != EquipItemSlot.Undefined)
+            {
+                if (!EquipItems.ContainsKey(newItemSlot)) return newItemSlot;
+                UnEquipItem(newItemSlot);
+                return newItemSlot;
+            }
+
+            // Find free slot
+            if (!EquipItems.ContainsKey(EquipItemSlot.HandRight)) return EquipItemSlot.HandRight;
+            if (!EquipItems.ContainsKey(EquipItemSlot.HandLeft)) return EquipItemSlot.HandLeft;
+
+            UnEquipItem(EquipItemSlot.HandRight);
+            return EquipItemSlot.HandRight;
+        }
+
+        private EquipItemSlot UnEquipOldShield()
+        {
+            if (EquipItems.ContainsKey(EquipItemSlot.HandRight) && EquipItems[EquipItemSlot.HandRight].ItemSubType == EquipItemSubType.TwoHand)
+                UnEquipItem(EquipItemSlot.HandRight);
+
+            UnEquipItem(EquipItemSlot.HandLeft);
+            return EquipItemSlot.HandLeft;
+
         }
 
         public void UnEquipItem(EquipItem equipItem)
@@ -231,8 +211,9 @@ namespace CharacterEditor
 
             var item = EquipItems[slotType];
             EquipItems.Remove(slotType);
+
             if (addToInventory && OnAddToInventory != null) OnAddToInventory(Guid, item);  //todo remove can unequip to ground, inventory, container and etc
-            if (OnUnequipItem != null) OnUnequipItem(item);
+            OnUnEquipItem?.Invoke(item);
 
             foreach (var statPair in item.Stats)
             {
@@ -249,12 +230,10 @@ namespace CharacterEditor
             item.Equip(GameObjectData.meshBones, GameObjectData.previewMeshBones);
         }
 
-        public void RemoveFromInvetory(Item item)
+        private void RemoveFromInventory(Item item)
         {
-            if (OnRemoveFromInventory != null) OnRemoveFromInventory(Guid, item);
+            OnRemoveFromInventory?.Invoke(Guid, item);
         }
-
-    
 
         public void SwapItems(EquipItemSlot slot1, EquipItemSlot slot2)
         {
@@ -267,8 +246,7 @@ namespace CharacterEditor
 
         public EquipItem GetWeapon()
         {
-            EquipItem item;
-            if (EquipItems.TryGetValue(EquipItemSlot.HandRight, out item) &&
+            if (EquipItems.TryGetValue(EquipItemSlot.HandRight, out var item) &&
                 item.ItemType == EquipItemType.Weapon) return item;
 
             if (EquipItems.TryGetValue(EquipItemSlot.HandLeft, out item) &&
