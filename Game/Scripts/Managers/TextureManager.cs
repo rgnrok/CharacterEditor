@@ -147,7 +147,7 @@ namespace CharacterEditor
                 }
                 else
                 {
-                    _currentCharacterTextures[type].SetTexture(mainTexture.SelectedTexture);
+                    _currentCharacterTextures[type].SetTexture(mainTexture.SelectedTextureIndex);
                 }
             }
 
@@ -172,7 +172,7 @@ namespace CharacterEditor
                 }
                 else
                 {
-                    _currentCharacterTextures[type].SetColor(mainTexture.SelectedColor);
+                    _currentCharacterTextures[type].SetColor(mainTexture.SelectedColorIndex);
                 }
             }
 
@@ -196,7 +196,7 @@ namespace CharacterEditor
                 }
                 else
                 {
-                    _currentCharacterTextures[type].SetTexture(mainTexture.SelectedTexture);
+                    _currentCharacterTextures[type].SetTexture(mainTexture.SelectedTextureIndex);
                 }
             }
 
@@ -221,7 +221,7 @@ namespace CharacterEditor
                 }
                 else
                 {
-                    _currentCharacterTextures[type].SetColor(mainTexture.SelectedColor);
+                    _currentCharacterTextures[type].SetColor(mainTexture.SelectedColorIndex);
                 }
             }
 
@@ -287,7 +287,7 @@ namespace CharacterEditor
                 if (color == -1)
                 {
                     _currentCharacterTextures[sameColorType].Shuffle(true);
-                    color = _currentCharacterTextures[sameColorType].SelectedColor;
+                    color = _currentCharacterTextures[sameColorType].SelectedColorIndex;
                     continue;
                 }
 
@@ -319,7 +319,7 @@ namespace CharacterEditor
             var mergeTextures = new Dictionary<string, Texture2D>();
             foreach (var texture in _currentCharacterTextures.Values)
             {
-                var textureName = texture.GetShaderTextureName();
+                var textureName = Helper.GetShaderTextureName(texture.Type);
                 if (textureName == null) continue;
 
                 var isIgnoredType = _ignoreTypes != null && Array.IndexOf(_ignoreTypes, texture.Type) != -1;
@@ -396,7 +396,7 @@ namespace CharacterEditor
             if (skinned.Count == 0) return;
 
             var skinnedTexture = _currentCharacterTextures[skinned[0]];
-            if (skinnedTexture.SelectedTexture == 0)
+            if (skinnedTexture.SelectedTextureIndex == 0)
                 skinnedTexture.MoveNext();
         }
 
@@ -420,7 +420,7 @@ namespace CharacterEditor
             portrait.sprite = _currentCharacterPortrait.Next;
 
         public int GetSelectedTextureColor(TextureType type) => 
-            _currentCharacterTextures[type].SelectedColor;
+            _currentCharacterTextures[type].SelectedColorIndex;
       
     }
 }

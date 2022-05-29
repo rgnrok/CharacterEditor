@@ -119,7 +119,7 @@ namespace CharacterEditor
 
                 faceMeshItems = new Dictionary<MeshType, string>();
                 foreach (var faceMesh in characterFaceMeshItems)
-                    faceMeshItems[faceMesh.Key] = faceMesh.Value.PrefabPath;
+                    faceMeshItems[faceMesh.Key] = faceMesh.Value.MeshPath;
             }
 
             public override void GetObjectData(SerializationInfo info, StreamingContext context)

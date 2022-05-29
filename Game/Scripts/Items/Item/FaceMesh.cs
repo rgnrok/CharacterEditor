@@ -7,39 +7,38 @@ namespace CharacterEditor
     {
         public class FaceMesh
         {
-            public ItemMesh ItemMesh { get; private set; }
-            public MeshType MeshType { get; private set; }
+            public MeshType MeshType => _itemMesh.MeshType;
+            public string MeshPath => _itemMesh.MeshPath;
+            public bool IsReady => _itemMesh.IsReady;
 
             public GameObject MeshInstance;
             public GameObject PreviewMeshInstance;
-            public string PrefabPath { get; private set; }
 
-            public FaceMesh(IMeshLoader loader, MeshType type, string prefabPath)
+            private readonly ItemMesh _itemMesh;
+
+            public FaceMesh(ItemMesh itemMesh)
             {
-                PrefabPath = prefabPath;
-                MeshType = type;
-                ItemMesh = FaceMeshFactory.Create(type, loader, prefabPath);
+                _itemMesh = itemMesh;
             }
 
             public void Equip(Dictionary<MeshType, Transform> meshBones, Dictionary<MeshType, Transform> previewMeshBones)
             {
-                if (meshBones.TryGetValue(ItemMesh.MeshType, out var anchor))
-                    MeshInstance = ItemMesh.InstanceMesh(anchor, 0, true);
+                if (meshBones.TryGetValue(MeshType, out var anchor))
+                    MeshInstance = _itemMesh.InstanceMesh(anchor, 0, true);
 
                 if (previewMeshBones != null)
                 {
-                    Transform previewAnchor;
-                    if (previewMeshBones.TryGetValue(ItemMesh.MeshType, out previewAnchor))
+                    if (previewMeshBones.TryGetValue(MeshType, out var previewAnchor))
                     {
-                        PreviewMeshInstance = ItemMesh.InstanceMesh(previewAnchor, 0, true, true);
+                        PreviewMeshInstance = _itemMesh.InstanceMesh(previewAnchor, 0, true, true);
                         Helper.SetLayerRecursively(PreviewMeshInstance, Constants.LAYER_CHARACTER_PREVIEW);
                     }
                 }
             }
 
-            public void LoadTextureAndMesh(string guid)
+            public void LoadTextureAndMesh()
             {
-                ItemMesh.LoadMesh();
+                _itemMesh.LoadMesh();
             }
         }
     }

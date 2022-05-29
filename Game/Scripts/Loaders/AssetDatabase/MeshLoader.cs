@@ -16,14 +16,12 @@ namespace CharacterEditor
             public MeshLoader(ITextureLoader textureLoader)
             {
                 _textureLoader = textureLoader;
-        
             }
 
             public MeshTexture CreateMeshTexture(string[][] textures) =>
                 new MeshTexture(_textureLoader, textures);
 
  
-
             public void LoadItemMesh(string meshPath, string texturePath, Action<GameObject, ItemTexture> callback)
             {
                 var meshObject = AssetDatabase.LoadAssetAtPath<GameObject>(meshPath);

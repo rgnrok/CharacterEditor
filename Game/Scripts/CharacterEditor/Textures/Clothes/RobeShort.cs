@@ -9,20 +9,20 @@
             }
 
             public override void MoveNext() {
-                if (SelectedTexture == _textures.Length - 1 && _textures.Length > 1) {
-                    SelectedTexture = 1; //Skip empty robe
+                if (SelectedTextureIndex == _textures.Length - 1 && _textures.Length > 1) {
+                    SelectedTextureIndex = 1; //Skip empty robe
                 }
                 else {
-                    SelectedTexture++;
+                    SelectedTextureIndex++;
                 }
             }
 
             public override void MovePrev() {
-                if (SelectedTexture == 1 && _textures.Length > 1) {
-                    SelectedTexture = _textures.Length - 1; //Skip empty robe
+                if (SelectedTextureIndex == 1 && _textures.Length > 1) {
+                    SelectedTextureIndex = _textures.Length - 1; //Skip empty robe
                 }
                 else {
-                    SelectedTexture--;
+                    SelectedTextureIndex--;
                 }
             }
         }

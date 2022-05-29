@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using StatSystem;
 
 namespace CharacterEditor
 {
@@ -7,39 +6,25 @@ namespace CharacterEditor
     {
         public class EquipItemMesh
         {
-            protected readonly Dictionary<string, ItemTexture[]> _itemTextures = new Dictionary<string, ItemTexture[]>();
-            protected readonly Dictionary<string, ItemMesh[]> _originalItemMeshes = new Dictionary<string, ItemMesh[]>();
-            protected readonly Dictionary<string, ItemMesh[]> _additionalItemMeshes = new Dictionary<string, ItemMesh[]>();
-            protected readonly Dictionary<string, ItemMesh[]> _itemMeshes = new Dictionary<string, ItemMesh[]>();
+            private readonly Dictionary<string, ItemTexture[]> _itemTextures = new Dictionary<string, ItemTexture[]>();
 
+            private readonly Dictionary<string, ItemMesh[]> _itemMeshes = new Dictionary<string, ItemMesh[]>();
+            private readonly Dictionary<string, ItemMesh[]> _additionalItemMeshes = new Dictionary<string, ItemMesh[]>();
 
             private readonly EquipItemData _equipItemData;
-            public new EquipItemData Data
-            {
-                get
-                {
-                    return _equipItemData;
-                }
-            }
 
             public bool IsReady(string configGuid)
             {
-                ItemTexture[] textures;
-                if (_itemTextures.TryGetValue(configGuid, out textures))
+                if (_itemTextures.TryGetValue(configGuid, out var textures))
                 {
                     foreach (var texture in textures)
-                    {
                         if (!texture.IsReady) return false;
-                    }
                 }
 
-                ItemMesh[] meshes;
-                if (_itemMeshes.TryGetValue(configGuid, out meshes))
+                if (_itemMeshes.TryGetValue(configGuid, out var meshes))
                 {
                     foreach (var mesh in meshes)
-                    {
                         if (!mesh.IsReady) return false;
-                    }
                 }
 
                 return true;
@@ -49,7 +34,7 @@ namespace CharacterEditor
             {
                 _equipItemData = itemData;
 
-                foreach (var configData in Data.configsItems)
+                foreach (var configData in _equipItemData.configsItems)
                 {
                     _itemTextures[configData.configGuid] = new ItemTexture[configData.textures.Length];
                     for (var i = 0; i < configData.textures.Length; i++)
@@ -58,67 +43,54 @@ namespace CharacterEditor
                         _itemTextures[configData.configGuid][i] = ClothTextureFactory.Create(textureData.textureType, textureLoader, pathProvider.GetPath(textureData.texture));
                     }
 
-                    _originalItemMeshes[configData.configGuid] = new ItemMesh[configData.models.Length];
-                    _additionalItemMeshes[configData.configGuid] = new ItemMesh[configData.models.Length];
-                    for (var i = 0; i < configData.models.Length; i++)
+                    var meshesCount = configData.models.Length;
+                    _itemMeshes[configData.configGuid] = new ItemMesh[meshesCount];
+                    _additionalItemMeshes[configData.configGuid] = new ItemMesh[meshesCount];
+                    for (var i = 0; i < meshesCount; i++)
                     {
                         var meshData = configData.models[i];
-                        if (Data.itemType == EquipItemType.Weapon && meshData.availableMeshes.Length == 2)
+                        if (_equipItemData.itemType == EquipItemType.Weapon && meshData.availableMeshes.Length == 2)
                         {
-                            _originalItemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(MeshType.HandRight, meshLoader, pathProvider.GetPath(meshData.prefab), pathProvider.GetPath(meshData.texture));
+                            _itemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(MeshType.HandRight, meshLoader, pathProvider.GetPath(meshData.prefab), pathProvider.GetPath(meshData.texture));
                             _additionalItemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(MeshType.HandLeft, meshLoader, pathProvider.GetPath(meshData.additionalPrefab), pathProvider.GetPath(meshData.additionalTexture));
                             continue;
                         }
 
-                        _originalItemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(meshData.availableMeshes[0], meshLoader, pathProvider.GetPath(meshData.prefab), pathProvider.GetPath(meshData.texture));
+                        _itemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(meshData.availableMeshes[0], meshLoader, pathProvider.GetPath(meshData.prefab), pathProvider.GetPath(meshData.texture));
                         _additionalItemMeshes[configData.configGuid][i] = null;
                     }
-
-                    _itemMeshes = new Dictionary<string, ItemMesh[]>(_originalItemMeshes);
                 }
             }
 
-            public ItemMesh[] GetItemMeshs(string configGuid, EquipItemSlot slot)
+            public IEnumerable<ItemMesh> GetItemMeshes(string configGuid, bool isAdditional)
             {
-                if (!_itemMeshes.ContainsKey(configGuid)) return new ItemMesh[0];
-                if (Data.itemType != EquipItemType.Weapon) return _itemMeshes[configGuid];
+                if (!_itemMeshes.TryGetValue(configGuid, out var itemMeshes)) return new ItemMesh[0];
+                if (_equipItemData.itemType != EquipItemType.Weapon) return itemMeshes;
 
-                var meshes = new List<ItemMesh>(_itemMeshes[configGuid]);
-                for (var i = 0; i < meshes.Count; i++)
-                {
-                    var additionalMesh = _additionalItemMeshes.ContainsKey(configGuid) ? _additionalItemMeshes[configGuid][i] : null;
-                    meshes[i] = (slot == EquipItemSlot.HandLeft && additionalMesh != null)
-                        ? _additionalItemMeshes[configGuid][i]
-                        : _originalItemMeshes[configGuid][i];
-                }
-                _itemMeshes[configGuid] = meshes.ToArray();
-                return _itemMeshes[configGuid];
+                if (!isAdditional) return itemMeshes;
+                if (!_additionalItemMeshes.TryGetValue(configGuid, out var additionalItemMeshes)) return new ItemMesh[0];
+                return additionalItemMeshes;
             }
 
-            public ItemTexture[] GetItemTextures(string configGuid)
+            public IEnumerable<ItemTexture> GetItemTextures(string configGuid)
             {
-                ItemTexture[] textures;
-                return _itemTextures.TryGetValue(configGuid, out textures) ? textures : new ItemTexture[0];
+                return _itemTextures.TryGetValue(configGuid, out var textures) ? textures : new ItemTexture[0];
             }
 
-            public void LoadTexturesAndMeshes(string guid, EquipItemSlot slotType)
+            public void LoadTexturesAndMeshes(string characterGuid, bool isAdditional)
             {
-                var meshes = GetItemMeshs(guid, slotType);
+                var meshes = GetItemMeshes(characterGuid, isAdditional);
                 foreach (var itemMesh in meshes)
                     itemMesh.LoadMesh();
 
-                ItemTexture[] textures;
-                if (_itemTextures.TryGetValue(guid, out textures))
-                {
-                    foreach (var itemTexture in textures)
-                        itemTexture.LoadTexture();
-                }
+                var textures = GetItemTextures(characterGuid);
+                foreach (var itemTexture in textures)
+                    itemTexture.LoadTexture();
             }
 
-            public void UnloadTexturesAndMesh(string guid)
+            public void UnloadTexturesAndMesh(string characterGuid)
             {
-                ItemMesh[] meshes;
-                if (!_itemMeshes.TryGetValue(guid, out meshes)) return;
+                if (!_itemMeshes.TryGetValue(characterGuid, out var meshes)) return;
 
                 foreach (var mesh in meshes)
                     mesh.UnLoadMesh();

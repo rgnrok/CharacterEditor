@@ -14,30 +14,30 @@ namespace CharacterEditor
             public GameObject LoadedMeshObject { get; private set; }
 
             public CharacterTexture Texture => 
-                _textures[SelectedMesh != -1 ? SelectedMesh : 0];
+                _textures[SelectedMeshIndex != -1 ? SelectedMeshIndex : 0];
 
             public string MeshPath => 
-                SelectedMesh == -1 ? null : _meshPaths[SelectedMesh];
+                SelectedMeshIndex == -1 ? null : _meshPaths[SelectedMeshIndex];
 
             private int MeshesCount => _meshPaths?.Length ?? 0;
 
             // -1 without mesh
-            private int _selectedMesh = -1;
-            public int SelectedMesh
+            private int _selectedMeshIndex = -1;
+            public int SelectedMeshIndex
             {
-                get => _selectedMesh;
+                get => _selectedMeshIndex;
                 private set
                 {
                     value = Helper.GetActualIndex(value, MeshesCount, -1);
-                    if (_selectedMesh == value && LoadedMeshObject != null) return;
+                    if (_selectedMeshIndex == value && LoadedMeshObject != null) return;
       
                     _prevMeshPath = MeshPath;
-                    _prevMeshTexture = Texture;
+                    _prevMeshTextureGroup = Texture;
 
                     LoadedMeshObject = null;
 
-                    _selectedMesh = value;
-                    if (_selectedMesh != -1)
+                    _selectedMeshIndex = value;
+                    if (_selectedMeshIndex != -1)
                         LoadMesh();
                 }
             }
@@ -54,7 +54,7 @@ namespace CharacterEditor
             private readonly string[] _meshPaths;
 
             private string _prevMeshPath;
-            private CharacterTexture _prevMeshTexture;
+            private CharacterTexture _prevMeshTextureGroup;
       
             
             public CharacterMesh(IMeshLoader loader, Dictionary<string, string[][]> meshAndTexturesPaths, MeshType type, bool isFace)
@@ -91,14 +91,14 @@ namespace CharacterEditor
 
             public void ClearPrevMesh()
             {
-                ClearMesh(_prevMeshPath, _prevMeshTexture);
+                ClearMesh(_prevMeshPath, _prevMeshTextureGroup);
             }
 
             private void UnsetMesh()
             {
                 ClearMesh(MeshPath, Texture);
                 LoadedMeshObject = null;
-                SelectedMesh = -1;
+                SelectedMeshIndex = -1;
             }
 
             private void ClearMesh(string meshPath, CharacterTexture texture)
@@ -107,33 +107,32 @@ namespace CharacterEditor
 
                 _meshLoader.Unload(meshPath);
                 texture.UnloadTexture();
-
             }
 
             public void MoveNext()
             {
-                if (SelectedMesh != -1 && Texture.HasNext())
+                if (SelectedMeshIndex != -1 && Texture.HasNext())
                 {
                     Texture.MoveNext();
                 }
                 else
                 {
-                    var color = Texture.SelectedColor;
-                    SelectedMesh++;
+                    var color = Texture.SelectedColorIndex;
+                    SelectedMeshIndex++;
                     Texture.SetTextureAndColor(0, color);
                 }
             }
 
             public void MovePrev()
             {
-                if (SelectedMesh != -1 && Texture.HasPrev())
+                if (SelectedMeshIndex != -1 && Texture.HasPrev())
                 {
                     Texture.MovePrev();
                 }
                 else
                 {
-                    var color = Texture.SelectedColor;
-                    SelectedMesh--;
+                    var color = Texture.SelectedColorIndex;
+                    SelectedMeshIndex--;
                     Texture.SetTextureAndColor(0, color);
                 }
             }
@@ -145,7 +144,7 @@ namespace CharacterEditor
 
             public void Shuffle(int color = -1)
             {
-                SelectedMesh = UnityEngine.Random.Range(-1, MeshesCount);
+                SelectedMeshIndex = UnityEngine.Random.Range(-1, MeshesCount);
 
                 if (color == -1) Texture.Shuffle();
                 else Texture.ShuffleWithColor(color);
@@ -153,7 +152,7 @@ namespace CharacterEditor
             
             public void SetMesh(int mesh)
             {
-                SelectedMesh = mesh;
+                SelectedMeshIndex = mesh;
             }
 
             public void SetTexture(int texture)

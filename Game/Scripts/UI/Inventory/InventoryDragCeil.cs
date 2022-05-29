@@ -6,6 +6,6 @@ public class InventoryDragCeil : ItemDragCeil
     {
         if (!(itemCell is InventoryCell inventoryCell)) return;
 
-        GameManager.Instance.Inventory.RemoveFromInvetoryToGround(inventoryCell, position);
+        GameManager.Instance.Inventory.RemoveFromInventoryToGround(inventoryCell, position);
     }
 }

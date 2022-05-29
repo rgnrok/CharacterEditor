@@ -6,47 +6,47 @@ namespace CharacterEditor
     {
         public class ItemMesh
         {
-            public MeshType MeshType { get; private set; }
-            public ItemTexture Texture { get; private set; }
-
-            public readonly int AtlasPosition;
+            public readonly MeshType MeshType;
+            public readonly string MeshPath;
 
             private bool _isReady;
+
             public bool IsReady
             {
-                get { return _isReady && (Texture == null || Texture.IsReady); }
-                private set { _isReady = value; }
+                get => _isReady && (_texture == null || _texture.IsReady);
+                private set => _isReady = value;
             }
 
-            private string _meshPath;
-            private string _texturePath;
-            private GameObject _mesh;
-            private IMeshLoader _loader;
 
-            protected ItemMesh(IMeshLoader loader, string meshPath, string texturePath, MeshType type, int position)
+            private ItemTexture _texture;
+            private readonly string _texturePath;
+            private readonly IMeshLoader _loader;
+
+            private GameObject _mesh;
+
+            public ItemMesh(MeshType type, IMeshLoader loader, string meshPath, string texturePath = null)
             {
                 MeshType = type;
-                AtlasPosition = position;
                 _loader = loader;
-                _meshPath = meshPath;
+                MeshPath = meshPath;
                 _texturePath = texturePath;
             }
 
             public void LoadMesh()
             {
                 IsReady = false;
-                _loader.LoadItemMesh(_meshPath, _texturePath, LoadingMesh);
+                _loader.LoadItemMesh(MeshPath, _texturePath, LoadingMesh);
             }
 
             public void UnLoadMesh()
             {
-                _loader.Unload(_meshPath);
+                _loader.Unload(MeshPath);
             }
 
             private void LoadingMesh(GameObject meshObject, ItemTexture texture)
             {
                 IsReady = true;
-                Texture = texture;
+                _texture = texture;
                 _mesh = meshObject;
             }
 
@@ -55,7 +55,7 @@ namespace CharacterEditor
                 var meshObject = Object.Instantiate(_mesh, anchor.position, anchor.rotation, anchor);
                 if (layer != 0) Helper.SetLayerRecursively(meshObject, layer);
 
-                if (Texture != null || withoutLOD)
+                if (_texture != null || withoutLOD)
                 {
                     var renders = meshObject.GetComponentsInChildren<MeshRenderer>();
                     if (withoutLOD)
@@ -71,10 +71,10 @@ namespace CharacterEditor
                         }
                     }
 
-                    if (Texture != null)
+                    if (_texture != null)
                     {
                         foreach (var render in renders)
-                            render.material.mainTexture = Texture.Texture;
+                            render.material.mainTexture = _texture.Texture;
                     }
                 }
 

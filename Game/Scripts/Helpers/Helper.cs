@@ -160,6 +160,8 @@ public static partial class Helper
         return null;
     }
 
+    public static bool IsAdditionalSlot(this EquipItemSlot equipSlot) => 
+        equipSlot == EquipItemSlot.HandLeft;
 
     public static MeshType GetHandMeshTypeBySlot(EquipItemSlot type)
     {

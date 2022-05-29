@@ -123,7 +123,7 @@ public class Inventory : Popup
         return cell1Character.AddItem(item, cell.Index);
     }
 
-    public void SetItemToInvetory(string characterGuid, Item item, int cellIndex)
+    public void SetItemToInventory(string characterGuid, Item item, int cellIndex)
     {
         if (!_inventoryCharacters.ContainsKey(characterGuid))
             _inventoryCharacters[characterGuid] = AddChild(inventoryCharacterItemPrefab).GetComponent<InventoryCharacter>(); ;
@@ -133,7 +133,7 @@ public class Inventory : Popup
 
  
 
-    public void RemoveFromInvetory(InventoryCell cell)
+    public void RemoveFromInventory(InventoryCell cell)
     {
         var item = cell.Item;
         if (item == null) return;
@@ -142,10 +142,10 @@ public class Inventory : Popup
         cell1Character.RemoveItem(item.Guid, cell.Index);
     }
 
-    public void RemoveFromInvetoryToGround(InventoryCell cell, Vector3 groundPosition)
+    public void RemoveFromInventoryToGround(InventoryCell cell, Vector3 groundPosition)
     {
         var item = cell.Item;
-        RemoveFromInvetory(cell);
+        RemoveFromInventory(cell);
         //todo
         _gameObjectLoader.LoadByPath(_pathProvider.GetPath(item.Data.prefab), (path, prefab) =>
             {

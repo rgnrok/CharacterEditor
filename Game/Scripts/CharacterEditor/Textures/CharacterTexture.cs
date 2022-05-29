@@ -1,148 +1,105 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace CharacterEditor
 {
-    public class CharacterTexture
+    public class CharacterTexture 
     {
         public readonly TextureType Type;
 
         public bool IsReady { get; private set; }
         
-
         public Texture2D Current { get; private set; }
 
-        private int _selectedTexture;
-        public int SelectedTexture
+        private int _selectedTextureIndex;
+        public int SelectedTextureIndex
         {
-            get => _selectedTexture;
-            protected set => SetTextureAndColor(value, SelectedColor);
+            get => _selectedTextureIndex;
+            protected set => SetTextureAndColor(value, SelectedColorIndex);
         }
 
-        private int _selectedColor;
-        public int SelectedColor
+        private int _selectedColorIndex;
+        public int SelectedColorIndex
         {
-            get => _selectedColor;
-            private set => SetTextureAndColor(SelectedTexture, value);
+            get => _selectedColorIndex;
+            private set => SetTextureAndColor(SelectedTextureIndex, value);
         }
 
         private readonly ITextureLoader _textureLoader;
         protected readonly string[][] _textures;
 
-
         private string _prevTexturePath;
         private string _lastLoadPath;
 
-        public event Action OnTextureLoaded;
-
-        public CharacterTexture(ITextureLoader loader, string[][] texturePaths, TextureType type = TextureType.Undefined)
+        protected CharacterTexture(ITextureLoader loader, string[][] texturePaths)
         {
             _textureLoader = loader;
             _textures = texturePaths;
-            Type = type;
-
-            if (type == TextureType.Undefined) IsReady = true;  //todo check
-            else LoadTexture();
+            IsReady = true;
         }
 
-        public string GetShaderTextureName() => 
-            Helper.GetShaderTextureName(Type);
-
-        private int GetTextureNumber(int value) => 
-            Helper.GetActualIndex(value, _textures.Length);
-
-        private int GetColorNumber(int value) => 
-            Helper.GetActualIndex(value, _textures[SelectedTexture].Length);
+        public CharacterTexture(ITextureLoader loader, string[][] texturePaths, TextureType type, bool loadOnStart = true) : this(loader, texturePaths)
+        {
+            Type = type;
+            if (loadOnStart) LoadTexture();
+        }
 
         public void UnloadTexture(string path = null)
         {
-            path = path ?? _textures[SelectedTexture][SelectedColor];
+            path = path ?? _textures[SelectedTextureIndex][SelectedColorIndex];
             _textureLoader.Unload(path);
         }
 
-        private void LoadTexture()
-        {
-            //todo Check FOR Mesh Textures without type
-            IsReady = false;
+        public virtual void MoveNext() => 
+            SelectedTextureIndex++;
 
-            _lastLoadPath = _textures[SelectedTexture][SelectedColor];
-            _textureLoader.LoadByPath(_lastLoadPath, LoadingTexture);
-        }
+        public bool HasNext() => 
+            SelectedTextureIndex != _textures.Length - 1;
 
-        private void LoadingTexture(string path, Texture2D texture)
-        {
-            if (_lastLoadPath.Equals(path))
-            {
-                if (path != _prevTexturePath && _prevTexturePath != null)
-                {
-                    UnloadTexture(_prevTexturePath);
-                }
+        public virtual void MovePrev() => 
+            SelectedTextureIndex--;
 
-                Current = texture;
+        public bool HasPrev() => 
+            SelectedTextureIndex != 0;
 
-                IsReady = true;
-                OnTextureLoaded?.Invoke();
-            }
-        }
+        public void SetTexture(int num) => 
+            SelectedTextureIndex = num;
 
-        public virtual void MoveNext() {
-            SelectedTexture++;
-        }
-
-        public bool HasNext() {
-            return SelectedTexture != _textures.Length - 1;
-        }
-
-        public virtual void MovePrev() {
-            SelectedTexture--;
-        }
-
-        public bool HasPrev() {
-            return SelectedTexture != 0;
-        }
-
-        public void SetTexture(int num)
-        {
-            SelectedTexture = num;
-        }
-
-        public void Reset() {
-            SelectedTexture = 0;
-        }
+        public void Reset() => 
+            SelectedTextureIndex = 0;
 
         public void Shuffle(bool withColor = false)
         {
-            var texture = UnityEngine.Random.Range(0, _textures.Length);
+            var texture = Random.Range(0, _textures.Length);
             if (withColor)
             {
-                var color = UnityEngine.Random.Range(0, _textures[texture].Length);
+                var color = Random.Range(0, _textures[texture].Length);
                 SetTextureAndColor(texture, color);
                 return;
             }
-            SelectedTexture = texture;
+            SelectedTextureIndex = texture;
         }
 
         public void ShuffleWithColor(int color)
         {
-            var texture = UnityEngine.Random.Range(0, _textures.Length);
+            var texture = Random.Range(0, _textures.Length);
             SetTextureAndColor(texture, color);
         }
 
         public void MoveNextColor() {
-            SelectedColor++;
+            SelectedColorIndex++;
         }
 
         public void MovePrevColor() {
-            SelectedColor--;
+            SelectedColorIndex--;
         }
 
         public void SetColor(int num)
         {
-            SelectedColor = num;
+            SelectedColorIndex = num;
         }
 
         public void ResetColor() {
-            SelectedColor = 0;
+            SelectedColorIndex = 0;
         }
         
         // Set texture and color with once loading
@@ -151,12 +108,36 @@ namespace CharacterEditor
             textNum = GetTextureNumber(textNum);
             colorNum = GetColorNumber(colorNum);
 
-            if (Current != null && _selectedTexture == textNum && _selectedColor == colorNum) return;
+            if (Current != null && _selectedTextureIndex == textNum && _selectedColorIndex == colorNum) return;
 
-            _prevTexturePath = Current != null ? _textures[SelectedTexture][SelectedColor] : null;
-            _selectedTexture = textNum;
-            _selectedColor = colorNum;
+            _prevTexturePath = Current != null ? _textures[SelectedTextureIndex][SelectedColorIndex] : null;
+            _selectedTextureIndex = textNum;
+            _selectedColorIndex = colorNum;
             LoadTexture();
+        }
+        private int GetTextureNumber(int value) =>
+            Helper.GetActualIndex(value, _textures.Length);
+
+        private int GetColorNumber(int value) =>
+            Helper.GetActualIndex(value, _textures[SelectedTextureIndex].Length);
+
+        private void LoadTexture()
+        {
+            IsReady = false;
+
+            _lastLoadPath = _textures[SelectedTextureIndex][SelectedColorIndex];
+            _textureLoader.LoadByPath(_lastLoadPath, LoadingTexture);
+        }
+
+        private void LoadingTexture(string path, Texture2D texture)
+        {
+            if (!_lastLoadPath.Equals(path)) return;
+
+            if (path != _prevTexturePath && _prevTexturePath != null)
+                UnloadTexture(_prevTexturePath);
+
+            Current = texture;
+            IsReady = true;
         }
     }
 }

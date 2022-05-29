@@ -183,8 +183,8 @@ namespace CharacterEditor
                     {
                         if (!_currentCharacterMeshes.TryGetValue(typeGroup[i], out var meshWrapper)) continue;
 
-                        meshWrapper.Mesh.SetMesh(firstMeshForGroup.SelectedMesh);
-                        meshWrapper.Mesh.SetTextureAndColor(firstMeshForGroup.Texture.SelectedTexture, firstMeshForGroup.Texture.SelectedColor);
+                        meshWrapper.Mesh.SetMesh(firstMeshForGroup.SelectedMeshIndex);
+                        meshWrapper.Mesh.SetTextureAndColor(firstMeshForGroup.Texture.SelectedTextureIndex, firstMeshForGroup.Texture.SelectedColorIndex);
                     }
                 }
             }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using CharacterEditor.CharacterInventory;
 using UnityEngine;
 
@@ -28,6 +29,19 @@ namespace CharacterEditor
 
                     callback.Invoke(mesh, texture);
                 });
+            }
+
+            public async Task<(GameObject mesh, ItemTexture texture)> LoadItemMesh(string meshPath, string texturePath)
+            {
+                ItemTexture texture = null;
+                if (texturePath != null)
+                {
+                    texture = new ItemTexture(_textureLoader, texturePath);
+                    texture.LoadTexture();
+                }
+
+                var mesh = await LoadByPath(meshPath);
+                return (mesh, texture);
             }
 
             public MeshTexture CreateMeshTexture(string[][] textures)

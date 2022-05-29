@@ -134,7 +134,7 @@ public class ContainerPopup : Popup
         if (item == null) return;
 
         ContainerItems[item.Guid] = item;
-        GameManager.Instance.Inventory.RemoveFromInvetory(inventoryCell);
+        GameManager.Instance.Inventory.RemoveFromInventory(inventoryCell);
         _currentContainer.AddItem(containerCell.Index, item);
         SetCeilItem(containerCell, item);
     }

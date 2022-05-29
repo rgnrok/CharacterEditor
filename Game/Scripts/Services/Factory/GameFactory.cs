@@ -87,7 +87,7 @@ namespace CharacterEditor.Services
                 if (!items.TryGetValue(itemData.dataGuid, out var data)) continue;
 
                 var eiMesh = new EquipItemMesh((EquipItemData) data, _loaderService.TextureLoader, _loaderService.MeshLoader, _loaderService.PathDataProvider);
-                GameManager.Instance.Inventory.SetItemToInvetory(characterData.guid,
+                GameManager.Instance.Inventory.SetItemToInventory(characterData.guid,
                     new EquipItem(itemData.guid, data, eiMesh, itemData.stats), ceilPair.Key);
             }
 
@@ -101,7 +101,7 @@ namespace CharacterEditor.Services
             }
 
             foreach (var pair in characterData.faceMeshItems)
-                faceMeshItems[pair.Key] = new FaceMesh(_loaderService.MeshLoader, pair.Key, pair.Value);
+                faceMeshItems[pair.Key] = FaceMeshFactory.Create(pair.Key, pair.Value, _loaderService.MeshLoader);
 
             await EquipItems(character, equipItems, faceMeshItems);
 
@@ -133,7 +133,7 @@ namespace CharacterEditor.Services
             }
 
             foreach (var faceMesh in config.faceMeshs)
-                faceMeshItems[faceMesh.meshType] = new FaceMesh(_loaderService.MeshLoader, faceMesh.meshType, _loaderService.PathDataProvider.GetPath(faceMesh.meshPath));
+                faceMeshItems[faceMesh.meshType] = FaceMeshFactory.Create(faceMesh.meshType, _loaderService.PathDataProvider.GetPath(faceMesh.meshPath), _loaderService.MeshLoader);
 
             await EquipItems(character, equipItems, faceMeshItems);
 
@@ -252,8 +252,8 @@ namespace CharacterEditor.Services
         {
             foreach (var faceMeshPair in faceMeshItems.Values)
             {
-                faceMeshPair.LoadTextureAndMesh(character.ConfigGuid);
-                while (!faceMeshPair.ItemMesh.IsReady) await Task.Yield();
+                faceMeshPair.LoadTextureAndMesh();
+                while (!faceMeshPair.IsReady) await Task.Yield();
                 character.AddFaceMesh(faceMeshPair);
             }
             

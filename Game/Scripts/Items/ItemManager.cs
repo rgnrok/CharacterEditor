@@ -123,11 +123,11 @@ namespace CharacterEditor
                 if (_currentCharacter != null)
                 {
                     if (_currentCharacter.Guid == character.Guid) return;
-                    _currentCharacter.OnUnequipItem -= UnequipItemHandler;
+                    _currentCharacter.OnUnequipItem -= UnEquipItemHandler;
                 }
 
                 _currentCharacter = character;
-                _currentCharacter.OnUnequipItem += UnequipItemHandler;
+                _currentCharacter.OnUnequipItem += UnEquipItemHandler;
 
                 _modelRenders.Clear();
                 _modelRenders.AddRange(character.GameObjectData.SkinMeshes);
@@ -242,8 +242,8 @@ namespace CharacterEditor
                 meshInfo2.gameObjects.Clear();
 
                 // Left and Right hand has different mesh models
-                item1.ItemMesh.LoadTexturesAndMeshes(_currentCharacter.ConfigGuid, slotType2);
-                item2.ItemMesh.LoadTexturesAndMeshes(_currentCharacter.ConfigGuid, slotType1);
+                item1.ItemMesh.LoadTexturesAndMeshes(_currentCharacter.ConfigGuid, slotType2.IsAdditionalSlot());
+                item2.ItemMesh.LoadTexturesAndMeshes(_currentCharacter.ConfigGuid, slotType1.IsAdditionalSlot());
 
                 while (!item1.ItemMesh.IsReady(_currentCharacter.ConfigGuid)) yield return null;
                 while (!item2.ItemMesh.IsReady(_currentCharacter.ConfigGuid)) yield return null;
@@ -276,7 +276,7 @@ namespace CharacterEditor
                 slotType = _currentCharacter.EquipItem(equipItem, slotType);
                 if (slotType == EquipItemSlot.Undefined) yield break;
 
-                equipItem.ItemMesh.LoadTexturesAndMeshes(_currentCharacter.ConfigGuid, slotType);
+                equipItem.ItemMesh.LoadTexturesAndMeshes(_currentCharacter.ConfigGuid, slotType.IsAdditionalSlot());
                 while (!equipItem.ItemMesh.IsReady(_currentCharacter.ConfigGuid)) yield return null;
 
                 InstanceMesh(equipItem, slotType);
@@ -307,27 +307,25 @@ namespace CharacterEditor
 
             private void InstanceMesh(EquipItem item, EquipItemSlot slot)
             {
-                var meshes = item.ItemMesh.GetItemMeshs(_currentCharacter.ConfigGuid, slot);
+                var meshes = item.ItemMesh.GetItemMeshes(_currentCharacter.ConfigGuid, slot.IsAdditionalSlot());
                 var meshType = Helper.GetHandMeshTypeBySlot(slot);
 
                 foreach (var mesh in meshes)
                 {
                     var boneMesh = meshType != MeshType.Undefined ? meshType : mesh.MeshType;
 
-                    Transform bone;
-                    if (_currentCharacter.GameObjectData.meshBones.TryGetValue(boneMesh, out bone))
+                    if (_currentCharacter.GameObjectData.meshBones.TryGetValue(boneMesh, out var bone))
                         InstanceMesh(item.Guid, mesh, bone);
 
                     if (_currentCharacter.GameObjectData.previewMeshBones != null)
                     {
-                        Transform previewBone;
-                        if (_currentCharacter.GameObjectData.previewMeshBones.TryGetValue(boneMesh, out previewBone))
+                        if (_currentCharacter.GameObjectData.previewMeshBones.TryGetValue(boneMesh, out var previewBone))
                             InstanceMesh(item.Guid, mesh, previewBone, Constants.LAYER_CHARACTER_PREVIEW);
                     }
                 }
             }
 
-            private void UnequipItemHandler(EquipItem item)
+            private void UnEquipItemHandler(EquipItem item)
             {
                 _unequipItemsQueue.Add(item);
             }
@@ -368,7 +366,7 @@ namespace CharacterEditor
                 {
                     foreach (var texture in equipItem.ItemMesh.GetItemTextures(_currentCharacter.ConfigGuid))
                     {
-                        var textureName = texture.GetShaderTextureName();
+                        var textureName = Helper.GetShaderTextureName(texture.Type);
                         if (textureName == null) continue;
                 
                         while (!texture.IsReady) yield return null;
@@ -391,7 +389,7 @@ namespace CharacterEditor
                 var meshes = new List<ItemMesh>();
                 foreach (var item in _currentCharacter.EquipItems)
                 {
-                    foreach (var mesh in item.Value.ItemMesh.GetItemMeshs(_currentCharacter.ConfigGuid, item.Key))
+                    foreach (var mesh in item.Value.ItemMesh.GetItemMeshes(_currentCharacter.ConfigGuid, item.Key.IsAdditionalSlot()))
                     {
                         while (!mesh.IsReady) yield return null;
                         meshes.Add(mesh);
@@ -413,15 +411,15 @@ namespace CharacterEditor
                 const int meshTextureSize = Constants.MESH_TEXTURE_SIZE;
 
                 //Insert mesh textures in atlas
-                foreach (var selectedMesh in meshes)
-                {
-                    var position = selectedMesh.AtlasPosition;
-                    var x = meshTextureSize * (position % (size / meshTextureSize));
-                    var y = (size - meshTextureSize) - (meshTextureSize * position / size) * meshTextureSize;
-
-                    ArmorTexture.SetPixels32(x, y, meshTextureSize, meshTextureSize,
-                        selectedMesh.Texture.GetPixels32());
-                }
+                // foreach (var selectedMesh in meshes)
+                // {
+                //     var position = selectedMesh.AtlasPosition;
+                //     var x = meshTextureSize * (position % (size / meshTextureSize));
+                //     var y = (size - meshTextureSize) - (meshTextureSize * position / size) * meshTextureSize;
+                //
+                //     ArmorTexture.SetPixels32(x, y, meshTextureSize, meshTextureSize,
+                //         selectedMesh.Texture.GetPixels32());
+                // }
 
                 ArmorTexture.Apply();
                 _armorCoroutine = null;
@@ -482,8 +480,8 @@ namespace CharacterEditor
 
                 foreach (var faceMesh in _currentCharacter.FaceMeshItems.Values)
                 {
-                    faceMesh.MeshInstance.SetActive(!hidedMeshes.Contains(faceMesh.ItemMesh.MeshType));
-                    if (faceMesh.PreviewMeshInstance != null) faceMesh.PreviewMeshInstance.SetActive(!hidedMeshes.Contains(faceMesh.ItemMesh.MeshType));
+                    faceMesh.MeshInstance.SetActive(!hidedMeshes.Contains(faceMesh.MeshType));
+                    if (faceMesh.PreviewMeshInstance != null) faceMesh.PreviewMeshInstance.SetActive(!hidedMeshes.Contains(faceMesh.MeshType));
 
                     // todo start
                     faceMeshMaterial.mainTexture = _currentCharacter.FaceMeshTexture;

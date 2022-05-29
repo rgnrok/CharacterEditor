@@ -58,11 +58,12 @@ namespace CharacterEditor
         protected override void InternalInit()
         {
             base.InternalInit();
-            AttackComponent = new CharacterAttackComponent(this);
-            MoveComponent = EntityGameObject.GetComponent<PlayerMoveComponent>();
 
             _characterFSM = new CharacterFSM(this);
             _characterFSM.Start();
+
+            AttackComponent = new CharacterAttackComponent(this);
+            MoveComponent = EntityGameObject.GetComponent<PlayerMoveComponent>();
 
             var canvas = EntityGameObject.GetComponentInChildren<EntityCanvas>();
             if (canvas != null) canvas.Init(this);

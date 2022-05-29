@@ -48,6 +48,7 @@
             LongRobe = EquipItemSubType.LongRobe,
             ShortRobe = EquipItemSubType.ShortRobe,
         }
+
         public enum EquipItemWeaponSubType
         {
             Undefined,
