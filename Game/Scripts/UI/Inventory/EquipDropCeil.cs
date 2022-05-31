@@ -1,11 +1,18 @@
 ﻿using System;
+using CharacterEditor;
 using CharacterEditor.CharacterInventory;
+using CharacterEditor.Services;
 
 public class EquipDropCeil : DropCeil {
 
     protected EquipItemType[] _itemTypes;
     private EquipItemSlot _slot;
+    private ICharacterEquipItemService _characterEquipItemService;
 
+    private void Awake()
+    {
+        _characterEquipItemService = AllServices.Container.Single<ICharacterEquipItemService>();
+    }
 
     public void Start()
     {
@@ -30,10 +37,10 @@ public class EquipDropCeil : DropCeil {
     {
         var item = drag.ParentCell.Item as EquipItem;
         if (item == null || _itemTypes == null || Array.IndexOf(_itemTypes, item.ItemType) == -1) return;
-        if (!ItemManager.Instance.CanEquip(item)) return;
+        if (!_characterEquipItemService.CanEquip(item)) return;
 
         // todo maybe need force unequip old item
-        ItemManager.Instance.EquipItem(item, _slot);
+        _characterEquipItemService.EquipItem(item, _slot);
     }
 
     protected override void OnDropEquippedItem(EquipDragCeil drag)
@@ -45,7 +52,7 @@ public class EquipDropCeil : DropCeil {
         var currentItem = Cell.Item as EquipItem;
         if (newItem == null || Array.IndexOf(_itemTypes, newItem.ItemType) == -1) return;
         if (Cell.Item != null && Array.IndexOf(parentCeil.AvailableTypes, currentItem.ItemType) == -1) return;
-        
-        ItemManager.Instance.SwapEquipedItem(_slot, parentCeil.ItemSlot);
+
+        _characterEquipItemService.SwapEquippedItem(_slot, parentCeil.ItemSlot);
     }
 }

@@ -16,7 +16,7 @@ namespace CharacterEditor
             [SerializeField]
             private Material material;
 
-            private Dictionary<MaterialType, Material> _materialInstance = new Dictionary<MaterialType, Material>(4, EnumComparer.MaterialType);
+            private Dictionary<MaterialType, Material> _materialInstance = new Dictionary<MaterialType, Material>(5, EnumComparer.MaterialType);
             public Material GetMaterial(MaterialType type)
             {
                 if (!_materialInstance.TryGetValue(type, out var materialInstance))

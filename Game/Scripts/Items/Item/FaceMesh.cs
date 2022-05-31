@@ -24,13 +24,13 @@ namespace CharacterEditor
             public void Equip(Dictionary<MeshType, Transform> meshBones, Dictionary<MeshType, Transform> previewMeshBones)
             {
                 if (meshBones.TryGetValue(MeshType, out var anchor))
-                    MeshInstance = _itemMesh.InstanceMesh(anchor, 0, true);
+                    MeshInstance = _itemMesh.InstantiateMesh(anchor, 0, true);
 
                 if (previewMeshBones != null)
                 {
                     if (previewMeshBones.TryGetValue(MeshType, out var previewAnchor))
                     {
-                        PreviewMeshInstance = _itemMesh.InstanceMesh(previewAnchor, 0, true, true);
+                        PreviewMeshInstance = _itemMesh.InstantiateMesh(previewAnchor, 0, true);
                         Helper.SetLayerRecursively(PreviewMeshInstance, Constants.LAYER_CHARACTER_PREVIEW);
                     }
                 }

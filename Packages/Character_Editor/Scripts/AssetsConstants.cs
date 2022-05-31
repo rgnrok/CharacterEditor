@@ -11,5 +11,9 @@
 
         public const string GameRootPath = "Assets/Game";
         public static readonly string GameStaticDataPath = $"{GameRootPath}/Data";
+
+        public static readonly string ArmorMergeMaterialPathKey = "ArmorMergeMaterialPathKey";
+        public static readonly string ClothMergeMaterialPathKey = "ClothMergeMaterialPathKey";
+        public static readonly string DefaultMaterialPathKey = "DefaultMaterialPathKey";
     }
 }

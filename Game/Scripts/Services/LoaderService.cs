@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace CharacterEditor.Services
 {
-    class LoaderService : ILoaderService
+    public class LoaderService : ILoaderService
     {
         private readonly ICoroutineRunner _coroutineRunner;
         private readonly ILoaderFactory _loaderFactory;

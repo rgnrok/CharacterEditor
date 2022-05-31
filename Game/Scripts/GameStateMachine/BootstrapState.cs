@@ -29,6 +29,8 @@ namespace Game
 
         private void RegisterServices()
         {
+            _services.RegisterSingle<IRegisterService>(new RegisterService(_services));
+
             RegisterStaticDataService();
 
             _services.RegisterSingle<IFSM>(_fsm);
@@ -36,22 +38,10 @@ namespace Game
             _services.RegisterSingle<InputManager>(new InputManager());
             _services.RegisterSingle<IMergeTextureService>(new MergeTextureService());
             _services.RegisterSingle<ILoaderService>(new LoaderService(_services.Single<IStaticDataService>(), _coroutineRunner));
-            RegisterGameFactory();
 
             _services.RegisterSingle<IConfigManager>(new ConfigManager());
             _services.RegisterSingle<ISaveLoadStorage>(new FileSaveLoadStorage());
-            _services.RegisterSingle<ISaveLoadService>(new SaveLoadService(
-                _services.Single<ISaveLoadStorage>(), 
-                _services.Single<ILoaderService>(), 
-                _services.Single<IGameFactory>()
-                ));
-        }
-
-        private void RegisterGameFactory()
-        {
-            var gameFactory = new GameFactory(_services.Single<ILoaderService>());
-            _services.RegisterSingle<IGameFactory>(gameFactory);
-            _services.RegisterSingle<IMeshInstanceCreator>(gameFactory);
+            _services.RegisterSingle<ISaveService>(new SaveService(_services.Single<ISaveLoadStorage>()));
         }
 
         private void RegisterStaticDataService()

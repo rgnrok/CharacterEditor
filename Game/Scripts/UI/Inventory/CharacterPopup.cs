@@ -1,5 +1,6 @@
 ﻿using System;
 using CharacterEditor.CharacterInventory;
+using CharacterEditor.Services;
 using UnityEngine;
 
 namespace CharacterEditor
@@ -19,14 +20,14 @@ namespace CharacterEditor
         [SerializeField] private EquipPanelCell _leftHandCell;
 
         private Character _currentCharacter;
-        private ItemManager _itemManager;
+        private ICharacterEquipItemService _itemManager;
         private GameManager _gameManager;
 
         private PointerYRotateComponent _characterRotateComponent;
 
         void Awake()
         {
-            _itemManager = ItemManager.Instance;
+            _itemManager = AllServices.Container.Single<ICharacterEquipItemService>();
             _gameManager = GameManager.Instance;
 
             _characterRotateComponent = GetComponentInChildren<PointerYRotateComponent>();

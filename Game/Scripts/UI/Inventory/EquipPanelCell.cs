@@ -1,21 +1,28 @@
 ﻿using System.Collections.Generic;
+using CharacterEditor;
 using CharacterEditor.CharacterInventory;
+using CharacterEditor.Services;
 using UnityEngine;
 
 public class EquipPanelCell : ItemCell
 {
     [SerializeField] private EquipItemSlot _slot;
     [SerializeField] private EquipItemType[] _availableItemTypes;
+    private ICharacterEquipItemService _characterEquipItemService;
 
     public EquipItemSlot ItemSlot { get { return _slot; } }
     public EquipItemType[] AvailableTypes { get { return _availableItemTypes; } }
-    
+
+    private void Awake()
+    {
+        _characterEquipItemService = AllServices.Container.Single<ICharacterEquipItemService>();
+    }
+
     protected override void OnClickHandler()
     {
-        var equipItem = Item as EquipItem;
-        if (equipItem != null)
+        if (Item is EquipItem equipItem)
         {
-            ItemManager.Instance.UnEquipItem(equipItem);
+            _characterEquipItemService.UnEquipItem(equipItem);
             GameManager.Instance.Inventory.AddToInventory(equipItem);
             SetItem(null);
         }

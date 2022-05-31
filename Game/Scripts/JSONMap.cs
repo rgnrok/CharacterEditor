@@ -13,6 +13,7 @@ namespace CharacterEditor
             public List<GuidPathMap> playableNpc = new List<GuidPathMap>();
             public List<GuidPathMap> enemies = new List<GuidPathMap>();
             public List<GuidPathMap> containers = new List<GuidPathMap>();
+            public List<GuidPathMap> materials = new List<GuidPathMap>();
         }
 
         [Serializable]

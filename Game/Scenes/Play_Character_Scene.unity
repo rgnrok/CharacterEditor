@@ -1123,6 +1123,7 @@ GameObject:
   - component: {fileID: 350260629}
   - component: {fileID: 350260631}
   - component: {fileID: 350260630}
+  - component: {fileID: 350260632}
   m_Layer: 5
   m_Name: Textures
   m_TagString: Untagged
@@ -1184,6 +1185,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 350260628}
   m_CullTransparentMesh: 0
+--- !u!114 &350260632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 350260628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83551949fa4abcb449b8e0ae65704cae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skinImage: {fileID: 1075053166}
+  armorImage: {fileID: 2101081079}
 --- !u!1 &415908825
 GameObject:
   m_ObjectHideFlags: 0
@@ -2215,7 +2230,6 @@ GameObject:
   m_Component:
   - component: {fileID: 653876882}
   - component: {fileID: 653876884}
-  - component: {fileID: 653876887}
   - component: {fileID: 653876881}
   - component: {fileID: 653876886}
   - component: {fileID: 653876883}
@@ -2315,25 +2329,6 @@ MonoBehaviour:
     type: 3}
   attackMovePointer: {fileID: 1661229665271084, guid: 231996bb23e4d4041a4031f6aa112edb,
     type: 3}
---- !u!114 &653876887
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 653876880}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9187f2a6c7544d341861041f1399563c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  skinRawImage: {fileID: 1075053166}
-  armorRawImage: {fileID: 2101081079}
-  clothRenderShaderMaterial: {fileID: 2100000, guid: 1e91c5a8650674e40bbca2d5e01fd08a,
-    type: 2}
-  armorRenderShaderMaterial: {fileID: 2100000, guid: 4d3fd518d8acb9348b2e67505a1f1aff,
-    type: 2}
-  defaultMaterial: {fileID: 2100000, guid: b5891ae6ac745024cab83ae227382648, type: 2}
 --- !u!114 &653876888
 MonoBehaviour:
   m_ObjectHideFlags: 0

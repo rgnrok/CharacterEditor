@@ -43,32 +43,17 @@ namespace CharacterEditor
 
      
 
-            public GameObject InstanceMesh(Transform anchor, int layer = 0, bool active = false, bool withoutLOD = false)
+            public GameObject InstantiateMesh(Transform anchor, int layer = 0, bool active = false)
             {
                 var meshObject = Object.Instantiate(_meshObject, anchor.position, anchor.rotation, anchor);
                 if (layer != 0) Helper.SetLayerRecursively(meshObject, layer);
 
-                if (_itemTexture != null || withoutLOD)
+                if (_itemTexture != null)
                 {
                     var renders = meshObject.GetComponentsInChildren<MeshRenderer>();
-                    if (withoutLOD)
-                    {
-                        var LODGroup = meshObject.GetComponent<LODGroup>();
-                        if (LODGroup != null)
-                        {
-                            GameObject.Destroy(LODGroup);
-                            for (var i = 1; i < renders.Length; i++)
-                            {
-                                GameObject.Destroy(renders[i].gameObject);
-                            }
-                        }
-                    }
+                    foreach (var render in renders)
+                        render.material.mainTexture = _itemTexture.Texture;
 
-                    if (_itemTexture != null)
-                    {
-                        foreach (var render in renders)
-                            render.material.mainTexture = _itemTexture.Texture;
-                    }
                 }
 
                 meshObject.SetActive(active);

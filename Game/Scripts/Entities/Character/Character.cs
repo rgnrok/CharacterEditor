@@ -56,11 +56,11 @@ namespace CharacterEditor
         {
             base.InternalInit();
 
-            _characterFSM = new CharacterFSM(this);
-            _characterFSM.Start();
-
             AttackComponent = new CharacterAttackComponent(this);
             MoveComponent = EntityGameObject.GetComponent<PlayerMoveComponent>();
+
+            _characterFSM = new CharacterFSM(this);
+            _characterFSM.Start();
 
             var canvas = EntityGameObject.GetComponentInChildren<EntityCanvas>();
             if (canvas != null) canvas.Init(this);
@@ -191,7 +191,7 @@ namespace CharacterEditor
 
         }
 
-        public void UnEquipItem(EquipItem equipItem)
+        public bool UnEquipItem(EquipItem equipItem)
         {
             var slotType = EquipItemSlot.Undefined;
             foreach (var itemPair in EquipItems)
@@ -202,12 +202,14 @@ namespace CharacterEditor
                 break;
             }
 
-            UnEquipItem(slotType, false);
+            if (slotType == EquipItemSlot.Undefined) return false;
+
+            return UnEquipItem(slotType, false);
         }
 
-        private void UnEquipItem(EquipItemSlot slotType, bool addToInventory = true)
+        private bool UnEquipItem(EquipItemSlot slotType, bool addToInventory = true)
         {
-            if (!EquipItems.ContainsKey(slotType)) return;
+            if (!EquipItems.ContainsKey(slotType)) return false;
 
             var item = EquipItems[slotType];
             EquipItems.Remove(slotType);
@@ -221,6 +223,7 @@ namespace CharacterEditor
                     StatCollection.RemoveStatModifier(statPair.Key, modifier, false);
             }
             StatCollection.UpdateStatModifiers();
+            return true;
         }
 
         public void AddFaceMesh(FaceMesh item)

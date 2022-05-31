@@ -12,24 +12,38 @@ namespace Game
         private readonly ILoaderService _loaderService;
         private readonly SceneLoader _sceneLoader;
         private readonly LoadingCurtain _loadingCurtain;
-        private readonly IGameFactory _gameFactory;
         private readonly IConfigManager _configManager;
+        private readonly IRegisterService _registerService;
 
-        public CreateGameState(FSM fsm, SceneLoader sceneLoader, LoadingCurtain loadingCurtain, ILoaderService loaderService, IGameFactory gameFactory, IConfigManager configManager) 
+        private ICreateGameFactory _gameFactory;
+
+        public CreateGameState(FSM fsm, SceneLoader sceneLoader, LoadingCurtain loadingCurtain,
+            ILoaderService loaderService, IConfigManager configManager, IRegisterService registerService) 
         {
             _fsm = fsm;
             _sceneLoader = sceneLoader;
             _loadingCurtain = loadingCurtain;
             _loaderService = loaderService;
-            _gameFactory = gameFactory;
             _configManager = configManager;
+            _registerService = registerService;
         }
 
         public async void Enter()
         {
             _loadingCurtain.SetLoading(0);
             await _loaderService.Initialize();
+
+            RegisterServices();
+
             _sceneLoader.Load(CREATE_CHARACTER_SCENE, OnSceneLoaded);
+        }
+
+        private void RegisterServices()
+        {
+            var gameFactory = new CreateGameFactory(_loaderService);
+            _gameFactory = gameFactory;
+            _registerService.Register<ICreateGameFactory>(gameFactory);
+            _registerService.Register<IMeshInstanceCreator>(gameFactory);
         }
 
         public void Exit()

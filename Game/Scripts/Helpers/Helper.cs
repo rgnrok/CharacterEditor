@@ -224,4 +224,9 @@ public static partial class Helper
 
     public static string SanitizeName(this string name) =>
         name.Replace("(Clone)", "").Trim();
+
+    public static Texture2D CreateGameMergeTexture(int size)
+    {
+        return new Texture2D(size, size, TextureFormat.RGB24, false);
+    }
 }

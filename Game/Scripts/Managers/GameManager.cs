@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CharacterEditor;
 using CharacterEditor.CharacterInventory;
+using CharacterEditor.Services;
 using EnemySystem;
 using Game;
 using UnityEngine;
@@ -54,8 +55,9 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
     public ContainerPopup ContainerPopup { get { return containerPopup; } }
     #endregion
 
-    private ISaveLoadService _saveLoadService;
+    private ILoadSaveService _saveLoadService;
     private InputManager _inputManager;
+    private ICharacterEquipItemService _equipItemService;
 
     // private GameStateMachine _gameStateMachine;
 
@@ -89,11 +91,17 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
         HoverManager = GetComponent<HoverManager>();
         // _gameStateMachine = new GameStateMachine(new SceneLoader(this), AllServices.Container);
 
-        _saveLoadService = AllServices.Container.Single<ISaveLoadService>();
-        _saveLoadService.OnCharactersLoaded += OnCharactersLoadedHandler;
-        _saveLoadService.OnPlayableNpcLoaded += OnPlayableNpcLoadedHandler;
-        _saveLoadService.OnEnemiesLoaded += OnEnemiesLoadedHandler;
-        _saveLoadService.OnLoadData += OnLoadDataHandler;
+        _saveLoadService = AllServices.Container.Single<ILoadSaveService>();
+        if (_saveLoadService != null)
+        {
+            _saveLoadService.OnCharactersLoaded += OnCharactersLoadedHandler;
+            _saveLoadService.OnPlayableNpcLoaded += OnPlayableNpcLoadedHandler;
+            _saveLoadService.OnEnemiesLoaded += OnEnemiesLoadedHandler;
+            _saveLoadService.OnLoadData += OnLoadDataHandler;
+        }
+
+        _equipItemService = AllServices.Container.Single<ICharacterEquipItemService>();
+
     }
 
     private void Start()
@@ -155,7 +163,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
         CurrentCharacter = ch;
         Characters[ch.Guid] = ch;
 
-        ItemManager.Instance.SetCharacter(CurrentCharacter);
+        _equipItemService.SetCharacter(CurrentCharacter);
         CurrentCharacter.GameObjectData.CharacterObject.SetActive(true);
 
 

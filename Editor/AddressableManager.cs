@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using CharacterEditor;
+using CharacterEditor.Services;
 using CharacterEditor.AssetDatabaseLoader;
 using CharacterEditor.CharacterInventory;
 using CharacterEditor.JSONMap;
@@ -31,6 +32,7 @@ namespace Editor
 
         private const string ICONS_GROUP_NAME = "Icons";
         private const string CURSORS_GROUP_NAME = "Cursors";
+        private const string MATERIALS_GROUP_NAME = "Materials";
 
         [MenuItem("Tools/Character Editor/Refresh Addressables")]
         public static void RefreshAddressable()
@@ -64,6 +66,7 @@ namespace Editor
             dataMap.playableNpc = ParsePlayableNpc();
             dataMap.enemies = ParseEnemies();
             dataMap.containers = ParseContainers();
+            dataMap.materials = ParseMaterials();
             UpdateIcons();
 
             DisplayProgressBar("Save addressablesInfo", "", 0.9f);
@@ -109,6 +112,28 @@ namespace Editor
                 EditorUtility.CopySerialized(containerData, containerData);
             }
             AssetDatabase.SaveAssets();
+
+            return map;
+        }
+
+        private static List<GuidPathMap> ParseMaterials()
+        {
+            var staticData = new StaticDataService();
+            staticData.LoadData();
+
+            var armorMatPath = AssetDatabase.GetAssetPath(staticData.GameData.ArmorMergeMaterial);
+            var clothMatPath = AssetDatabase.GetAssetPath(staticData.GameData.ClothMergeMaterial);
+            var defaultMatPath = AssetDatabase.GetAssetPath(staticData.GameData.BaseMaterial);
+            SetupAddressable(armorMatPath, MATERIALS_GROUP_NAME, AssetsConstants.ArmorMergeMaterialPathKey);
+            SetupAddressable(clothMatPath, MATERIALS_GROUP_NAME, AssetsConstants.ClothMergeMaterialPathKey);
+            SetupAddressable(defaultMatPath, MATERIALS_GROUP_NAME, AssetsConstants.DefaultMaterialPathKey);
+
+            var map = new List<GuidPathMap>()
+            {
+                new GuidPathMap() {guid = AssetsConstants.ArmorMergeMaterialPathKey, path = armorMatPath},
+                new GuidPathMap() {guid = AssetsConstants.ClothMergeMaterialPathKey, path = clothMatPath},
+                new GuidPathMap() {guid = AssetsConstants.DefaultMaterialPathKey, path = defaultMatPath},
+            };
 
             return map;
         }

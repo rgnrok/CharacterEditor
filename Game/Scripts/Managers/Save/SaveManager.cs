@@ -10,7 +10,7 @@ namespace CharacterEditor
         public GameObject saveLoadPopup;
         private SaveLoadPopup _saveLoadPopupInstance;
 
-        private ISaveLoadService _saveLoadService;
+        private ISaveService _saveService;
         private IConfigManager _configManager;
         private IFSM _gameStateMachine;
         private Transform _canvas;
@@ -22,7 +22,7 @@ namespace CharacterEditor
         {
             if (Instance != null) Destroy(gameObject);
             Instance = this;
-            _saveLoadService = AllServices.Container.Single<ISaveLoadService>();
+            _saveService = AllServices.Container.Single<ISaveService>();
             _configManager = AllServices.Container.Single<IConfigManager>();
             _gameStateMachine = AllServices.Container.Single<IFSM>();
 
@@ -60,7 +60,7 @@ namespace CharacterEditor
 
         public string[] GetSaves()
         {
-            return _saveLoadService.GetSaves();
+            return _saveService.GetSaves();
         }
 
 
@@ -73,9 +73,9 @@ namespace CharacterEditor
         public void Save(string saveName)
         {
             if (GameManager.Instance != null)
-                _saveLoadService.SaveGame(saveName, SceneManager.GetActiveScene().name, GameManager.Instance);
+                _saveService.SaveGame(saveName, SceneManager.GetActiveScene().name, GameManager.Instance);
             else 
-                _saveLoadService.CreateGame(saveName, _configManager.Config.guid,
+                _saveService.CreateGame(saveName, _configManager.Config.guid,
                 TextureManager.Instance.CharacterTexture, TextureManager.Instance.CurrentCharacterPortrait,
                 MeshManager.Instance.SelectedSkinMeshes.Select(mw => mw.Mesh), MeshManager.Instance.FaceTexture);
         }

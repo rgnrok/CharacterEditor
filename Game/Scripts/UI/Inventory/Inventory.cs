@@ -27,7 +27,13 @@ public class Inventory : Popup
     private readonly Dictionary<string, int> _waitingRemoveItemCells = new Dictionary<string, int>();
     private ICommonLoader<GameObject> _gameObjectLoader;
     private IPathDataProvider _pathProvider;
+    private ICharacterEquipItemService _characterEquipItemService;
 
+
+    private void Awake()
+    {
+        _characterEquipItemService = AllServices.Container.Single<ICharacterEquipItemService>();
+    }
 
     protected override void OnEnable()
     {
@@ -237,7 +243,7 @@ public class Inventory : Popup
         var cellCharacter = cell.GetComponentInParent<InventoryCharacter>();
         _waitingAddItemCells[cellCharacter.CharacterGuid] = cell.Index;
 
-        ItemManager.Instance.UnEquipItem(equipItem);
+        _characterEquipItemService.UnEquipItem(equipItem);
         AddToInventory(equipItem);
     }
 
@@ -254,6 +260,6 @@ public class Inventory : Popup
         _waitingRemoveItemCells[cellCharacter.CharacterGuid] = cell.Index;
         _waitingAddItemCells[cellCharacter.CharacterGuid] = cell.Index;
 
-        ItemManager.Instance.EquipItem(equipItem);
+        _characterEquipItemService.EquipItem(equipItem);
     }
 }

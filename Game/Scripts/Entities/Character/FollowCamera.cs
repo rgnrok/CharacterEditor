@@ -1,5 +1,6 @@
 ﻿using System;
 using CharacterEditor;
+using CharacterEditor.Services;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -21,7 +22,7 @@ public class FollowCamera : MonoBehaviour
     private Camera _camera;
 
     private float _cameraOffsetDistance;
-    private ISaveLoadService _saveLoadService;
+    private ILoadSaveService _saveLoadSaveService;
 
     public event Action OnPositionChanged;
     public event Action OnZoomChanged;
@@ -31,8 +32,8 @@ public class FollowCamera : MonoBehaviour
     {
         _camera = GetComponent<Camera>();
 
-        _saveLoadService = AllServices.Container.Single<ISaveLoadService>();
-        _saveLoadService.OnLoadData += OnLoadDataHandler;
+        _saveLoadSaveService = AllServices.Container.Single<ILoadSaveService>();
+        if (_saveLoadSaveService != null) _saveLoadSaveService.OnLoadData += OnLoadSaveDataHandler;
     }
 
     private void Start()
@@ -52,8 +53,8 @@ public class FollowCamera : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (_saveLoadService != null)
-            _saveLoadService.OnLoadData -= OnLoadDataHandler;
+        if (_saveLoadSaveService != null)
+            _saveLoadSaveService.OnLoadData -= OnLoadSaveDataHandler;
 
     }
 
@@ -65,7 +66,7 @@ public class FollowCamera : MonoBehaviour
         if (force) ChangePosition(target.position + _offset);
     }
 
-    private void OnLoadDataHandler(SaveData obj)
+    private void OnLoadSaveDataHandler(SaveData obj)
     {
         SetFocus(GameManager.Instance.CurrentCharacter.GameObjectData.CharacterObject.transform, true, true);
     }

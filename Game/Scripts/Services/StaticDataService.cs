@@ -6,20 +6,21 @@ using UnityEngine;
 
 namespace CharacterEditor.Services
 {
-    class StaticDataService : IStaticDataService
+    public class StaticDataService : IStaticDataService
     {
-        private const string GAME_STATIC_DATA_PATH = "StaticData/LoaderData";
+        private const string GAME_STATIC_DATA_PATH = "StaticData/GameData";
         private const string LEVEL_STATIC_DATA_PATH = "StaticData/Levels";
 
-        public LoaderType LoaderType => _loaderData.LoaderType;
-        public MeshAtlasType MeshAtlasType => _loaderData.MeshAtlasType;
+        public GameStaticData GameData => _gameData;
+        public LoaderType LoaderType => _gameData.LoaderType;
+        public MeshAtlasType MeshAtlasType => _gameData.MeshAtlasType;
 
-        private LoaderStaticData _loaderData;
+        private GameStaticData _gameData;
         private Dictionary<string, LevelStaticData> _levels;
 
         public void LoadData()
         {
-            _loaderData = Resources.Load<LoaderStaticData>(GAME_STATIC_DATA_PATH);
+            _gameData = Resources.Load<GameStaticData>(GAME_STATIC_DATA_PATH);
             LoadLevels();
         }
 

@@ -1,16 +1,17 @@
 ﻿using CharacterEditor;
+using CharacterEditor.Services;
 
 namespace Game
 {
     public class LoadProgressState : IState
     {
         private readonly IFSM _fsm;
-        private readonly ISaveLoadService _saveLoadService;
+        private readonly ISaveService _saveService;
 
-        public LoadProgressState(IFSM fsm, ISaveLoadService saveLoadService)
+        public LoadProgressState(IFSM fsm, ISaveService saveService)
         {
             _fsm = fsm;
-            _saveLoadService = saveLoadService;
+            _saveService = saveService;
         }
 
         public void Enter()
@@ -25,7 +26,7 @@ namespace Game
 
         private void LoadProgress()
         {
-            var lastSave = _saveLoadService.GetLastSave();
+            var lastSave = _saveService.GetLastSave();
             if (string.IsNullOrEmpty(lastSave)) _fsm.SpawnEvent((int) GameStateMachine.GameStateType.CreateGame);
             else _fsm.SpawnEvent((int)GameStateMachine.GameStateType.LoadGame, lastSave);
         }

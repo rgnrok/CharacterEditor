@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CharacterEditor;
 using CharacterEditor.CharacterInventory;
+using CharacterEditor.Services;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,8 +19,12 @@ public class ContainerPopup : Popup
 
     private Character _currentCharacter;
     private Container _currentContainer;
+    private ICharacterEquipItemService _characterEquipItemService;
 
-
+    private void Awake()
+    {
+        _characterEquipItemService = AllServices.Container.Single<ICharacterEquipItemService>();
+    }
 
 
     public void Init(Container container)
@@ -145,7 +150,7 @@ public class ContainerPopup : Popup
         var item = equipCell.Item as EquipItem;
         if (item == null) return;
 
-        ItemManager.Instance.UnEquipItem(item);
+        _characterEquipItemService.UnEquipItem(item);
         equipCell.SetItem(null);
 
         ContainerItems[item.Guid] = item;

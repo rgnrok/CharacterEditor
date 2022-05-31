@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CharacterEditor.CharacterInventory;
-using CharacterEditor.Mesh;
 using EnemySystem;
 using StatSystem;
 using UnityEngine;
@@ -10,39 +9,17 @@ using Object = UnityEngine.Object;
 
 namespace CharacterEditor.Services
 {
-    public class GameFactory : IGameFactory, IMeshInstanceCreator
+    public class GameFactory : IGameFactory
     {
         private readonly ILoaderService _loaderService;
+        private readonly ICharacterEquipItemService _equipItemService;
 
         public event Action<Character> OnCharacterSpawned;
 
-        public GameFactory(ILoaderService loaderService)
+        public GameFactory(ILoaderService loaderService, ICharacterEquipItemService equipItemService)
         {
             _loaderService = loaderService;
-        }
-
-        public GameObject CreateMeshInstance(CharacterMesh characterMesh, Transform anchor)
-        {
-            if (characterMesh.LoadedMeshObject == null) return null;
-
-            var meshInstantiate = Object.Instantiate(characterMesh.LoadedMeshObject, anchor.position, anchor.rotation, anchor);
-            foreach (var render in meshInstantiate.GetComponentsInChildren<MeshRenderer>())
-                if (render.material != null) render.material.mainTexture = characterMesh.Texture.Current;
-
-            return meshInstantiate;
-        }
-
-        public async Task<CharacterGameObjectData> SpawnCreateCharacter(CharacterConfig config)
-        {
-            if (config.CreateGamePrefab == null)
-                config.CreateGamePrefab = await LoadConfigPrefab(config.createGamePrefabPath);
-
-            var prefabInstance = Object.Instantiate(config.CreateGamePrefab);
-            prefabInstance.SetActive(false);
-
-            var gameObjectData = new CharacterGameObjectData(config, prefabInstance);
-
-            return gameObjectData;
+            _equipItemService = equipItemService;
         }
 
         public async Task<Character> CreateGameCharacter(CharacterSaveData characterData, CharacterConfig config, Texture2D skinTexture, Texture2D faceTexture, Vector3 position)
@@ -51,7 +28,6 @@ namespace CharacterEditor.Services
 
             if (config.PreviewPrefab == null)
                 config.PreviewPrefab = await LoadConfigPrefab(config.previewPrefabPath);
-
             if (config.Prefab == null)
                 config.Prefab = await LoadConfigPrefab(config.prefabPath);
 
@@ -253,7 +229,7 @@ namespace CharacterEditor.Services
             }
         }
 
-        //todo need remove ItemManager.Instance
+
         private async Task EquipItems(Character character, Dictionary<EquipItemSlot, EquipItem> equipItems, Dictionary<MeshType, FaceMesh> faceMeshItems)
         {
             foreach (var faceMeshPair in faceMeshItems.Values)
@@ -261,9 +237,9 @@ namespace CharacterEditor.Services
                 await faceMeshPair.LoadTextureAndMesh();
                 character.AddFaceMesh(faceMeshPair);
             }
-            
-            ItemManager.Instance.SetCharacter(character);
-            await ItemManager.Instance.EquipItems(equipItems);
+
+            _equipItemService.SetCharacter(character);
+            await _equipItemService.EquipItems(equipItems);
         }
     }
 }
