@@ -1,20 +1,22 @@
-﻿namespace CharacterEditor
+﻿using CharacterEditor.Services;
+
+namespace CharacterEditor
 {
     public class Popup : GameUI
     {
         private bool _isShow;
-        private InputManager _inputManager;
+        private IInputService _inputService;
 
         void Start()
         {
-            _inputManager = AllServices.Container.Single<InputManager>();
-            _inputManager.EscapePress += EscapePressHandler;
+            _inputService = AllServices.Container.Single<IInputService>();
+            _inputService.EscapePress += EscapePressHandler;
         }
 
         private void OnDestroy()
         {
-            if (_inputManager != null)
-                _inputManager.EscapePress -= EscapePressHandler;
+            if (_inputService != null)
+                _inputService.EscapePress -= EscapePressHandler;
         }
 
 

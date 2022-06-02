@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using CharacterEditor;
+using CharacterEditor.Services;
 using UnityEngine;
 
 public class CharacterBattleFindTargetPayloadState : CharacterBattleBasePayloadState<List<IBattleEntity>>
@@ -9,25 +10,15 @@ public class CharacterBattleFindTargetPayloadState : CharacterBattleBasePayloadS
     private List<IBattleEntity> _entities;
     private CharacterAttackComponent _attackComponent;
     private IAttacked _selectedTarget;
-    private InputManager _inputManager;
+    private IInputService _inputService;
+    private readonly ICharacterManageService _characterManageService;
 
 
-    public CharacterBattleFindTargetPayloadState(CharacterBattleFSM fsm) : base(fsm)
+    public CharacterBattleFindTargetPayloadState(CharacterBattleFSM fsm, IInputService inputService, ICharacterManageService characterManageService) : base(fsm)
     {
+        _inputService = inputService;
+        _characterManageService = characterManageService;
     }
-
-    public override void Exit()
-    {
-        base.Exit();
-        GameManager.Instance.RenderPathController.SetCharacter(null);
-        GameManager.Instance.OnEnemyClick -= OnEnemyClickHandler;
-        GameManager.Instance.PlayerMoveController.OnGroundClick -= OnGroundClickHandler;
-
-        if (_inputManager != null)
-            _inputManager.SpacePress -= OnSpacePressHandler;
-    }
-
-
 
     public override void Enter(List<IBattleEntity> entities)
     {
@@ -37,19 +28,28 @@ public class CharacterBattleFindTargetPayloadState : CharacterBattleBasePayloadS
         _attackComponent = _character.AttackComponent;
 
         GameManager.Instance.OnEnemyClick += OnEnemyClickHandler;
-        GameManager.Instance.PlayerMoveController.OnGroundClick += OnGroundClickHandler;
 
-        _inputManager = AllServices.Container.Single<InputManager>();
-        _inputManager.SpacePress += OnSpacePressHandler;
-
+        _inputService.GroundClick += OnGroundClickHandler;
+        _inputService.SpacePress += OnSpacePressHandler;
 
         AfterSwitching();
     }
 
+    public override void Exit()
+    {
+        base.Exit();
+        GameManager.Instance.RenderPathController.SetCharacter(null);
+        GameManager.Instance.OnEnemyClick -= OnEnemyClickHandler;
+        _inputService.GroundClick -= OnGroundClickHandler;
+
+        if (_inputService != null)
+            _inputService.SpacePress -= OnSpacePressHandler;
+    }
+
+
     private void AfterSwitching()
     {
         GameManager.Instance.RenderPathController.SetCharacter(_character);
-
         CheckTurnEnd();
     }
 
@@ -94,9 +94,9 @@ public class CharacterBattleFindTargetPayloadState : CharacterBattleBasePayloadS
         Attack(attacked);
     }
 
-    private void OnGroundClickHandler(string characterGuid, Vector3 point)
+    private void OnGroundClickHandler(Vector3 point)
     {
-        if (_character == null || _character.Guid != characterGuid) return;
+        if (_character != _characterManageService.CurrentCharacter) return;
 
         _fsm.SpawnEvent((int)CharacterBattleFSM.CharacterBattleStateType.Move, point);
         _character.ActionPoints.StatCurrentValue--; //todo

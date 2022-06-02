@@ -56,8 +56,9 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
     #endregion
 
     private ILoadSaveService _saveLoadService;
-    private InputManager _inputManager;
+    private IInputService _inputService;
     private ICharacterEquipItemService _equipItemService;
+    private ICharacterManageService _characterManageService;
 
     // private GameStateMachine _gameStateMachine;
 
@@ -70,18 +71,6 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
 
         _followCamera = Camera.main.GetComponent<FollowCamera>();
 
-
-        _inputManager = AllServices.Container.Single<InputManager>();
-        _inputManager.SetupCamera(_followCamera);
-        _inputManager.CharacterGameObjectClick += CharacterGameObjectClickHandler;
-        _inputManager.EnemyGameObjectClick += EnemyGameObjectClickHandler;
-        _inputManager.NpcGameObjectClick += NpcGameObjectClickHandler;
-        _inputManager.ToggleInventory += ToggleInventoryHandler;
-        _inputManager.ToggleCharacterInfo += ToggleCharacterInfoHandler;
-        _inputManager.ContainerGameObjectClick += ContainerGameObjectClickHandler;
-        _inputManager.PickUpObjectClick += PickUpObjectClickHandler;
-        _inputManager.OnChangeMouseRaycastHit += OnChangeMouseRaycastHitHandler;
-
         PlayerMoveController = GetComponent<PlayerMoveController>();
         RenderPathController = GetComponent<RenderPathController>();
 
@@ -90,6 +79,24 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
 
         HoverManager = GetComponent<HoverManager>();
         // _gameStateMachine = new GameStateMachine(new SceneLoader(this), AllServices.Container);
+
+        InitServices();
+    }
+
+    private void InitServices()
+    {
+        _inputService = AllServices.Container.Single<IInputService>();
+        if (_inputService != null)
+        {
+            _inputService.SetupCamera(_followCamera);
+            _inputService.CharacterGameObjectClick += CharacterGameObjectClickHandler;
+            _inputService.EnemyGameObjectClick += EnemyGameObjectClickHandler;
+            _inputService.NpcGameObjectClick += NpcGameObjectClickHandler;
+            _inputService.ToggleInventory += ToggleInventoryHandler;
+            _inputService.ToggleCharacterInfo += ToggleCharacterInfoHandler;
+            _inputService.PickUpObjectClick += PickUpObjectClickHandler;
+            _inputService.OnChangeMouseRaycastHit += OnChangeMouseRaycastHitHandler;
+        }
 
         _saveLoadService = AllServices.Container.Single<ILoadSaveService>();
         if (_saveLoadService != null)
@@ -101,13 +108,13 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
         }
 
         _equipItemService = AllServices.Container.Single<ICharacterEquipItemService>();
-
+        _characterManageService = AllServices.Container.Single<ICharacterManageService>();
     }
 
     private void Start()
     {
         Canvas = GameObject.Find("Canvas").transform;
-        PlayerMoveController.CurrentCharacterPositionChanged += CurrentCharacterPositionChangedHandler;
+        // PlayerMoveController.CurrentCharacterPositionChanged += CurrentCharacterPositionChangedHandler;
         // _gameStateMachine.Start();
     }
 
@@ -121,16 +128,15 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
             _saveLoadService.OnLoadData -= OnLoadDataHandler;
         }
 
-        if (_inputManager != null)
+        if (_inputService != null)
         {
-            _inputManager.CharacterGameObjectClick -= CharacterGameObjectClickHandler;
-            _inputManager.EnemyGameObjectClick -= EnemyGameObjectClickHandler;
-            _inputManager.NpcGameObjectClick -= NpcGameObjectClickHandler;
-            _inputManager.ToggleInventory -= ToggleInventoryHandler;
-            _inputManager.ToggleCharacterInfo -= ToggleCharacterInfoHandler;
-            _inputManager.ContainerGameObjectClick -= ContainerGameObjectClickHandler;
-            _inputManager.PickUpObjectClick -= PickUpObjectClickHandler;
-            _inputManager.OnChangeMouseRaycastHit -= OnChangeMouseRaycastHitHandler;
+            _inputService.CharacterGameObjectClick -= CharacterGameObjectClickHandler;
+            _inputService.EnemyGameObjectClick -= EnemyGameObjectClickHandler;
+            _inputService.NpcGameObjectClick -= NpcGameObjectClickHandler;
+            _inputService.ToggleInventory -= ToggleInventoryHandler;
+            _inputService.ToggleCharacterInfo -= ToggleCharacterInfoHandler;
+            _inputService.PickUpObjectClick -= PickUpObjectClickHandler;
+            _inputService.OnChangeMouseRaycastHit -= OnChangeMouseRaycastHitHandler;
         }
     }
 
@@ -172,6 +178,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
         if (focus) _followCamera.SetFocus(CurrentCharacter.GameObjectData.CharacterObject.transform, true);
 
         OnChangeCharacter?.Invoke(CurrentCharacter);
+        _characterManageService.SelectCharacter(ch);
     }
 
 
@@ -218,31 +225,20 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
         characterPopup.Toggle();
     }
 
-    private void ContainerGameObjectClickHandler(RaycastHit containerHit)
+    public void OpenContainer(Container container)
     {
-        PlayerMoveController.CurrentCharacterStop();
-        PlayerMoveController.LookCurrentCharacterToPoint(containerHit.point);
+        if (container == null) return;
 
-        if (Helper.IsNear(CurrentCharacter.GameObjectData.CharacterObject.transform.position, containerHit.collider))
-        {
-            var container = containerHit.transform.GetComponent<Container>();
-            if (container == null) return;
-
-            OpenedContainers[container.Guid] = container;
-            ContainerPopup.Init(container);
-            ContainerPopup.Open();
-        }
-        else
-        {
-//            PlayerMoveController.MoveCurrentCharacterToPoint(containerHit.point, false,
-//                endMovePoint => { ContainerGameObjectClickHandler(containerHit); });
-//            ContainerPopup.Close();
-        }
+        OpenedContainers[container.Guid] = container;
+        ContainerPopup.Init(container);
+        ContainerPopup.Open();
     }
+
+  
 
     private void PickUpObjectClickHandler(RaycastHit gameObjectHit)
     {
-        _inputManager.UpdateCursor(CursorType.PickUp);
+        _inputService.UpdateCursor(CursorType.PickUp);
 
         PlayerMoveController.CurrentCharacterStop();
         PlayerMoveController.LookCurrentCharacterToPoint(gameObjectHit.point);
@@ -270,7 +266,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
 
     private void Update()
     {
-        _inputManager.Update();
+        // _inputService.Update();
         BattleManager.Update();
         // _gameStateMachine.Update();
     }
@@ -361,7 +357,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
                 break;
         }
 
-        _inputManager.UpdateCursor(state);
+        _inputService.UpdateCursor(state);
     }
 
     private void OnCharactersLoadedHandler(IList<Character> characters)

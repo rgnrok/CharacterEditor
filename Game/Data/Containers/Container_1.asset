@@ -21,14 +21,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d8c8ab55cb7296948b1886b1aeb72960, type: 2}
   - {fileID: 11400000, guid: 733bb2cea74c2c340975ffb8ad3e1084, type: 2}
   - {fileID: 11400000, guid: bafcb35ace7b7c94cac8b9dea6f56ccc, type: 2}
-  - {fileID: 11400000, guid: 11ecc77bb44825e42ae420bd76d2cb2c, type: 2}
+  - {fileID: 11400000, guid: a4f062fd241282248af9e86f5edde5ad, type: 2}
   - {fileID: 11400000, guid: f10bec168d3368044b18908cf3fca288, type: 2}
-  - {fileID: 11400000, guid: f10bec168d3368044b18908cf3fca288, type: 2}
+  - {fileID: 11400000, guid: 9fc7b604579ccef42a017e8624f95109, type: 2}
   - {fileID: 11400000, guid: ef93ff415da767d4eaa6e37e481a6fe0, type: 2}
   - {fileID: 11400000, guid: 9fc7b604579ccef42a017e8624f95109, type: 2}
-  - {fileID: 11400000, guid: 9fc7b604579ccef42a017e8624f95109, type: 2}
-  - {fileID: 11400000, guid: 9fc7b604579ccef42a017e8624f95109, type: 2}
-  - {fileID: 11400000, guid: a4f062fd241282248af9e86f5edde5ad, type: 2}
   prefab:
     path: Assets/Game/Resources/Lowpoly Wooden Chest/Prefabs/WoodenChest.prefab
     bundlePath: container/WoodenChest

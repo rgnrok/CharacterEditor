@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using CharacterEditor;
 using UnityEngine;
 
-public class CharacterBattleState : CharacterBaseState, IUpdatableState
+public class CharacterBattleState : IState, IUpdatableState
 {
     private PlayerMoveComponent _moveComponent;
     private CharacterAttackComponent _attackComponent;
@@ -14,19 +14,23 @@ public class CharacterBattleState : CharacterBaseState, IUpdatableState
 //    private IBattleEntity _currentEnemy;
 
     private CharacterBattleFSM _battleFSM;
+    private readonly CharacterFSM _fsm;
+    private readonly Character _character;
 
-    public CharacterBattleState(CharacterFSM fsm) : base(fsm)
+    public CharacterBattleState(CharacterFSM fsm)
     {
+        _fsm = fsm;
+        _character = fsm.Character;
         _moveComponent = _character.EntityGameObject.GetComponent<PlayerMoveComponent>();
 
         _battleFSM = new CharacterBattleFSM(_character);
-        _battleFSM.OnTurnEnd += OnTurnEndHandler;
-        _battleFSM.OnCurrentStateChanged += OnCurrentStateChangedHandler;
+   
     }
 
-    public new void Enter()
+    public void Enter()
     {
-        base.Enter();
+        _battleFSM.OnTurnEnd += OnTurnEndHandler;
+        _battleFSM.OnCurrentStateChanged += OnCurrentStateChangedHandler;
         _battleFSM.Start();
 
         GameManager.Instance.BattleManager.OnBattleEnd += OnBattleEndHandler;
@@ -34,9 +38,9 @@ public class CharacterBattleState : CharacterBaseState, IUpdatableState
         _character.ActionPoints.SetValueCurrentToMax();
     }
 
-    public new void Exit()
+    public void Exit()
     {
-        base.Exit();
+        _battleFSM.OnTurnEnd -= OnTurnEndHandler;
         _battleFSM.OnCurrentStateChanged -= OnCurrentStateChangedHandler;
         _battleFSM.Clean();
 
@@ -49,20 +53,11 @@ public class CharacterBattleState : CharacterBaseState, IUpdatableState
         _battleFSM.Update();
     }
 
-    // public override string GetName()
-    // {
-    //     if (_battleFSM.CurrentState != null)
-    //         return _battleFSM.CurrentState.GetName();
-    //
-    //     return base.GetName();
-    // }
-
 
     private void OnTurnEndHandler()
     {
         _isTurnComplete = true;
         if (_moveComponent != null) _moveComponent.DisableNavmesh();
-
     }
 
     public bool IsTurnComplete()

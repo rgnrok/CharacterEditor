@@ -35,9 +35,10 @@ namespace Game
 
             _services.RegisterSingle<IFSM>(_fsm);
             _services.RegisterSingle<ICoroutineRunner>(_coroutineRunner);
-            _services.RegisterSingle<InputManager>(new InputManager());
             _services.RegisterSingle<IMergeTextureService>(new MergeTextureService());
             _services.RegisterSingle<ILoaderService>(new LoaderService(_services.Single<IStaticDataService>(), _coroutineRunner));
+
+            _services.RegisterSingle<IInputService>(new InputService(_services.Single<ILoaderService>().CursorLoader));
 
             _services.RegisterSingle<IConfigManager>(new ConfigManager());
             _services.RegisterSingle<ISaveLoadStorage>(new FileSaveLoadStorage());

@@ -27,8 +27,7 @@ namespace CharacterEditor
                 }
 
                 AsyncOperationHandle<T> asyncOperationHandle = Addressables.LoadAssetAsync<T>(path);
-                var res = await LoadWithCache(asyncOperationHandle, path);
-                return res;
+                return await LoadWithCache(asyncOperationHandle, path);
             }
 
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using CharacterEditor;
+using CharacterEditor.Services;
 
 public class CharacterBattleFSM : FSM
 {
@@ -26,8 +27,11 @@ public class CharacterBattleFSM : FSM
     {
         Character = character;
 
+        var inputService = AllServices.Container.Single<IInputService>();
+        var characterManageService = AllServices.Container.Single<ICharacterManageService>();
+
         _idleState = AddState(new CharacterBattleIdleState(this));
-        var findTargetState = AddState(new CharacterBattleFindTargetPayloadState(this));
+        var findTargetState = AddState(new CharacterBattleFindTargetPayloadState(this, inputService, characterManageService));
         _turnEndState = AddState(new CharacterBattleTurnEndState(this));
         _movePayloadState = AddState(new CharacterBattleMovePayloadState(this));
         _attackPayloadState = AddState(new CharacterBattleAttackPayloadState(this));
@@ -53,7 +57,7 @@ public class CharacterBattleFSM : FSM
 
     private void OnTurnEndHandler()
     {
-        if (OnTurnEnd != null) OnTurnEnd();
+        OnTurnEnd?.Invoke();
     }
 
     public void Clean()

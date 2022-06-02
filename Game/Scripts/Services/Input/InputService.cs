@@ -1,12 +1,11 @@
 ﻿using System;
-using CharacterEditor.Services;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace CharacterEditor
+namespace CharacterEditor.Services
 {
-    public class InputManager : IService
+    public class InputService : IInputService
     {
         public event Action ToggleInventory;
         public event Action ToggleCharacterInfo;
@@ -19,8 +18,7 @@ namespace CharacterEditor
         public event Action<RaycastHit> NpcGameObjectClick;
         public event Action<RaycastHit> PickUpObjectClick;
 
-        public event Action<RaycastHit> GroundUpClick;
-        public event Action<RaycastHit> GroundDownClick;
+        public event Action<Vector3> GroundClick;
 
         public event Action<RaycastHit> OnChangeMouseRaycastHit;
 
@@ -30,18 +28,22 @@ namespace CharacterEditor
 
         private FollowCamera _camera;
 
-        private int _mouseHitMask;
-        private int _cursorHintMask;
+        private readonly int _clickHitMask;
+        private readonly int _cursorHintMask;
+        private readonly ICursorLoader _cursorLoader;
+        private bool _isGroundClick;
 
-        public InputManager()
+        public InputService(ICursorLoader cursorLoader)
         {
-            _mouseHitMask = 1 << Constants.LAYER_CHARACTER
+            _cursorLoader = cursorLoader;
+
+            _clickHitMask = 1 << Constants.LAYER_CHARACTER
                             | 1 << Constants.LAYER_CONTAINER
                             | 1 << Constants.LAYER_PICKUP
                             | 1 << Constants.LAYER_GROUND
                             | 1 << Constants.LAYER_ENEMY;
 
-            _cursorHintMask = _mouseHitMask | 1 << Constants.LAYER_NPC;
+            _cursorHintMask = _clickHitMask | 1 << Constants.LAYER_NPC;
         }
 
         public void SetupCamera(FollowCamera camera)
@@ -82,6 +84,17 @@ namespace CharacterEditor
             UpdateCursor();
         }
 
+        public async void UpdateCursor(CursorType type)
+        {
+            if (_currentCursorType == type) return;
+
+            _currentCursorType = type;
+
+            var cursorTexture = await _cursorLoader.LoadCursor(_currentCursorType);
+            if (cursorTexture != null) Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
+        }
+
+
         private void KeyDownEvent()
         {
             if (Input.GetKeyDown(KeyCode.I))
@@ -113,9 +126,10 @@ namespace CharacterEditor
         {
             if (!EventSystem.current.IsPointerOverGameObject())
             {
-                var successHit = GetMouseHitByMask(_mouseHitMask);
+                var successHit = GetMouseHitByMask(_clickHitMask);
                 if (successHit)
                 {
+                    _isGroundClick = false;
                     switch (_currentRaycastHit.collider.gameObject.layer)
                     {
                         case Constants.LAYER_CHARACTER:
@@ -131,7 +145,7 @@ namespace CharacterEditor
                             PickUpObjectClick?.Invoke(_currentRaycastHit);
                             break;
                         case Constants.LAYER_GROUND:
-                            GroundDownClick?.Invoke(_currentRaycastHit);
+                            _isGroundClick = true;
                             break;
                     }
                     return true;
@@ -146,7 +160,7 @@ namespace CharacterEditor
             if (EventSystem.current.IsPointerOverGameObject()) return false;
 
             var successHit = GetMouseHitByLayer(Constants.LAYER_GROUND);
-            if (successHit) GroundUpClick?.Invoke(_currentRaycastHit);
+            if (successHit && _isGroundClick) GroundClick?.Invoke(_currentRaycastHit.point);
 
             return successHit;
         }
@@ -183,7 +197,6 @@ namespace CharacterEditor
             return Physics.Raycast(ray, out _currentRaycastHit, distance, mask);
         }
 
-
         private void UpdateCurrentRaycast(RaycastHit[] hits)
         {
             if (hits.Length == 0) return;
@@ -218,19 +231,6 @@ namespace CharacterEditor
 
             OnChangeMouseRaycastHit?.Invoke(_currentRaycastHit);
         }
-
-        public async void UpdateCursor(CursorType type)
-        {
-            if (_currentCursorType == type) return;
-
-            _currentCursorType = type;
-
-            var loaderService = AllServices.Container.Single<ILoaderService>();
-            var cursorTexture = await loaderService.CursorLoader.LoadCursor(_currentCursorType);
-            if (cursorTexture != null) Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
-        }
-
- 
 
         private void CameraPositionChangedHandler()
         {

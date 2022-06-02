@@ -75,7 +75,7 @@ MonoBehaviour:
         path: 
         bundlePath: 
         addressPath: 
-  hidedMeshTypes: 
+  hidedMeshTypes: 01000000
   itemType: 8
   itemSubType: 0
   randomStats: 0

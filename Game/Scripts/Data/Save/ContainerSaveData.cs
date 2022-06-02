@@ -5,26 +5,22 @@ using CharacterEditor;
 using CharacterEditor.CharacterInventory;
 
 [Serializable]
-public class ContainerSaveData : EntitySaveData
+public sealed class ContainerSaveData : EntitySaveData
 {
-    // Ceil index and item
+    // Cell index and item
     public Dictionary<int, CharacterItemData> items = new Dictionary<int, CharacterItemData>();
 
     public ContainerSaveData()
     {
-
     }
 
     public ContainerSaveData(Container container)
     {
         guid = container.Guid;
-        foreach (var item in container.GetItems())
-        {
-            items[item.Key] = new CharacterItemData(item.Value);
-        }
+        foreach (var item in container.GetItems()) items[item.Key] = new CharacterItemData(item.Value);
     }
 
-    public ContainerSaveData(SerializationInfo info, StreamingContext context) : base(info, context)
+    private ContainerSaveData(SerializationInfo info, StreamingContext context) : base(info, context)
     {
         items = (Dictionary<int, CharacterItemData>)info.GetValue("items", typeof(Dictionary<int, CharacterItemData>));
     }
@@ -34,5 +30,4 @@ public class ContainerSaveData : EntitySaveData
         base.GetObjectData(info, context);
         info.AddValue("items", items);
     }
-
 }

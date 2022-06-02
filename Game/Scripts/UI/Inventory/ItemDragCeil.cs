@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 
 public abstract class ItemDragCeil : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    public Transform OldParent { get; private set; }
+    private Transform OldParent { get; set; }
     public ItemCell ParentCell { get; private set; }
 
     private GameObject _dragCellObject;
@@ -34,41 +34,58 @@ public abstract class ItemDragCeil : MonoBehaviour, IBeginDragHandler, IDragHand
         _dragCellObject.GetComponent<CanvasGroup>().blocksRaycasts = false;
         _item = ParentCell.Item;
 
-        if (_item != null)
+        if (_item == null) return;
+
+        CreateDropItemPrefab(_item);
+    }
+
+    private void CreateDropItemPrefab(Item item)
+    {
+        Debug.LogWarning("Drop items prefab on ground tmp not work");
+        return;
+
+        var prefabPath = _pathProvider.GetPath(item.Data.prefab);
+        if (string.IsNullOrEmpty(prefabPath)) return;
+
+
+        _gameObjectLoader.LoadByPath(prefabPath, (path, prefab) =>
         {
-            _gameObjectLoader.LoadByPath(_pathProvider.GetPath(_item.Data.prefab), (path, prefab) =>
-                {
-                    _dragPrefabObject = Instantiate(prefab);
-                    _dragPrefabObject.SetActive(false);
-                });
-        }
+            _dragPrefabObject = Instantiate(prefab);
+            _dragPrefabObject.SetActive(false);
+        });
     }
 
     public void OnDrag(PointerEventData eventData)
     {
         canDropOnGround = false;
-        if (EventSystem.current.IsPointerOverGameObject())
+        // if (EventSystem.current.IsPointerOverGameObject())
         {
             _dragCellObject.transform.position = Input.mousePosition;
             _dragCellObject.SetActive(true);
             if (_dragPrefabObject != null)_dragPrefabObject.SetActive(false);
         }
-        else
-        {
-            if (_dragPrefabObject != null)
-            {
-                var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                var mask = 1 << Constants.LAYER_GROUND;
+        // else
+        // {
+        //     MoveDropItemPrefab();
+        // }
+    }
 
-                RaycastHit hit;
-                if (Physics.Raycast(ray, out hit, float.MaxValue, mask))
-                {
-                    _dragPrefabObject.transform.position = hit.point;
-                    _dragCellObject.SetActive(false);
-                    if (_dragPrefabObject != null) _dragPrefabObject.SetActive(true);
-                    canDropOnGround = true;
-                }
-            }
+    private void MoveDropItemPrefab()
+    {
+        Debug.LogWarning("Drop items prefab on ground tmp not work");
+        return;
+
+        if (_dragPrefabObject == null) return;
+
+        var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        var mask = 1 << Constants.LAYER_GROUND;
+
+        if (Physics.Raycast(ray, out var hit, float.MaxValue, mask))
+        {
+            _dragPrefabObject.transform.position = hit.point;
+            _dragCellObject.SetActive(false);
+            if (_dragPrefabObject != null) _dragPrefabObject.SetActive(true);
+            canDropOnGround = true;
         }
     }
 
@@ -85,7 +102,6 @@ public abstract class ItemDragCeil : MonoBehaviour, IBeginDragHandler, IDragHand
         {
             if (canDropOnGround && _item != null) DropOnGround(ParentCell, _dragPrefabObject.transform.position);
             Destroy(_dragPrefabObject);
-
         }
     }
 

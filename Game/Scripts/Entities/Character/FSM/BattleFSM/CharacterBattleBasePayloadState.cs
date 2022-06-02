@@ -1,13 +1,13 @@
 ﻿using CharacterEditor;
 
-public class CharacterBattleBasePayloadState<T> : IPayloadedState<T>
+public abstract class CharacterBattleBasePayloadState<T> : IPayloadedState<T>
 {
     protected readonly CharacterBattleFSM _fsm;
     protected Character _character;
     protected PlayerMoveComponent _moveComponent;
 
 
-    public CharacterBattleBasePayloadState(CharacterBattleFSM fsm)
+    protected CharacterBattleBasePayloadState(CharacterBattleFSM fsm)
     {
         _fsm = fsm;
         _character = fsm.Character;

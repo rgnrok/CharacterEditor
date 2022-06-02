@@ -1,4 +1,6 @@
-﻿namespace CharacterEditor
+﻿using System;
+
+namespace CharacterEditor
 {
     public class AllServices
     {
@@ -13,7 +15,11 @@
 
         public void Dispose<TService>() where TService : IService
         {
-            Implementation<TService>.ServiceInstance = default(TService);
+            var service = Implementation<TService>.ServiceInstance;
+            if (service is IDisposable disposable)
+                disposable.Dispose();
+
+            service = default(TService);
         }
 
         private static class Implementation<TService> where TService : IService

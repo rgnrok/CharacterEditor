@@ -1,6 +1,7 @@
 ﻿using CharacterEditor;
 using System.Collections;
 using System.Collections.Generic;
+using CharacterEditor.Services;
 using UnityEngine;
 using UnityEngine.AI;
 using Logger = CharacterEditor.Logger;
@@ -32,7 +33,7 @@ public class RenderPathController : MonoBehaviour
 
     private MovePointerInfo _movePonterInfo;
     private Vector3 _movePointerInfoOffset;
-    private InputManager _inputManager;
+    private InputService _inputService;
 
     void Start()
     {
@@ -51,8 +52,9 @@ public class RenderPathController : MonoBehaviour
         _movePointerInfoOffset = new Vector3(100, 10, 0);
 
         GameManager.Instance.OnChangeCharacter += OnChangeCharacterHandler;
-        _inputManager = AllServices.Container.Single<InputManager>();
-        _inputManager.OnChangeMouseRaycastHit += OnChangeMouseRaycastHitHandler;
+        _inputService = AllServices.Container.Single<InputService>();
+        if (_inputService != null)
+            _inputService.OnChangeMouseRaycastHit += OnChangeMouseRaycastHitHandler;
     }
 
     private void OnDestroy()
@@ -60,8 +62,8 @@ public class RenderPathController : MonoBehaviour
         if (GameManager.Instance != null)
             GameManager.Instance.OnChangeCharacter -= OnChangeCharacterHandler;
 
-        if (_inputManager != null)
-            _inputManager.OnChangeMouseRaycastHit -= OnChangeMouseRaycastHitHandler;
+        if (_inputService != null)
+            _inputService.OnChangeMouseRaycastHit -= OnChangeMouseRaycastHitHandler;
     }
 
     private GameObject CreateDebugPoint()

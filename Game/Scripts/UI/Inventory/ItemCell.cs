@@ -19,21 +19,34 @@ public class ItemCell : MonoBehaviour, IPointerClickHandler {
     private ISpriteLoader _spriteLoader;
     private IPathDataProvider _pathProvider;
 
-    void Awake()
+    private bool _isInit;
+    private bool _isDisabled;
+
+    private void Awake()
     {
-        _spriteLoader = AllServices.Container.Single<ILoaderService>().SpriteLoader;
-        _pathProvider = AllServices.Container.Single<ILoaderService>().PathDataProvider;
+        Init();
 
         UpdateImage();
     }
 
+    protected virtual void Init()
+    {
+        _spriteLoader = AllServices.Container.Single<ILoaderService>().SpriteLoader;
+        _pathProvider = AllServices.Container.Single<ILoaderService>().PathDataProvider;
+
+        _isInit = true;
+    }
+
     public virtual void SetItem(Item item, bool disabled = false)
     {
+        _isDisabled = disabled;
+
         var oldItem = Item;
         Item = item;
-        UpdateImage(disabled);
+        UpdateImage();
 
-        if (UpdateItem != null) UpdateItem(Index, oldItem, Item);
+
+        UpdateItem?.Invoke(Index, oldItem, Item);
     }
 
     public bool IsEmpty()
@@ -41,8 +54,9 @@ public class ItemCell : MonoBehaviour, IPointerClickHandler {
         return Item == null;
     }
 
-    protected void UpdateImage(bool disabled = false)
+    protected void UpdateImage()
     {
+        if (!_isInit) return;
         if (itemImage == null) return;
         if (Item == null)
         {
@@ -54,7 +68,7 @@ public class ItemCell : MonoBehaviour, IPointerClickHandler {
             icon =>
             {
                 itemImage.sprite = icon;
-                itemImage.color = disabled ? Color.black : Color.white;
+                itemImage.color = _isDisabled ? Color.black : Color.white;
                 ChangeItemVisible(true);
             });
     }

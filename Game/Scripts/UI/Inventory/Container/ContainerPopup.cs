@@ -19,23 +19,29 @@ public class ContainerPopup : Popup
 
     private Character _currentCharacter;
     private Container _currentContainer;
+
     private ICharacterEquipItemService _characterEquipItemService;
+    private ISpriteLoader _spriteLoader;
+    private IPathDataProvider _pathProvider;
 
     private void Awake()
     {
-        _characterEquipItemService = AllServices.Container.Single<ICharacterEquipItemService>();
     }
 
 
     public void Init(Container container)
     {
+        _characterEquipItemService = AllServices.Container.Single<ICharacterEquipItemService>();
+        _spriteLoader = AllServices.Container.Single<ILoaderService>().SpriteLoader;
+        _pathProvider = AllServices.Container.Single<ILoaderService>().PathDataProvider;
+
         _currentContainer = container;
         var items = container.GetItems();
 
         _ceils.Clear();
         if (_currentCharacter != null)
         {
-//            _currentCharacter.OnAddToInventory -= AddToInventoryHandler;
+            // _currentCharacter.OnAddToInventory -= AddToInventoryHandler;
         }
         _currentCharacter = GameManager.Instance.CurrentCharacter;
 
@@ -89,6 +95,7 @@ public class ContainerPopup : Popup
             if (ceil.IsEmpty()) continue;
             AddToInventory(ceil);
         }
+        Close();
     }
 
     public void AddToInventory(ContainerCell containerCell, InventoryCell inventoryCell = null)

@@ -13,18 +13,18 @@ public class EquipPanelCell : ItemCell
     public EquipItemSlot ItemSlot { get { return _slot; } }
     public EquipItemType[] AvailableTypes { get { return _availableItemTypes; } }
 
-    private void Awake()
+    protected override void Init()
     {
+        base.Init();
         _characterEquipItemService = AllServices.Container.Single<ICharacterEquipItemService>();
     }
 
     protected override void OnClickHandler()
     {
-        if (Item is EquipItem equipItem)
-        {
-            _characterEquipItemService.UnEquipItem(equipItem);
-            GameManager.Instance.Inventory.AddToInventory(equipItem);
-            SetItem(null);
-        }
+        if (!(Item is EquipItem equipItem)) return;
+
+        _characterEquipItemService.UnEquipItem(equipItem);
+        GameManager.Instance.Inventory.AddToInventory(equipItem);
+        SetItem(null);
     }
 }

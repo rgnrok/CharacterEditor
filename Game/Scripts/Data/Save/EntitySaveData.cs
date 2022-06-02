@@ -39,7 +39,7 @@ public abstract class EntitySaveData : ISerializable
 
     protected EntitySaveData() { }
 
-    public EntitySaveData(SerializationInfo info, StreamingContext context)
+    protected EntitySaveData(SerializationInfo info, StreamingContext context)
     {
         guid = info.GetString("guid");
         configGuid = info.GetString("configPath");

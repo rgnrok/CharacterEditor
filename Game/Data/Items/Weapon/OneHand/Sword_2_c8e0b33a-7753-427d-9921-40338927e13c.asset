@@ -19,9 +19,9 @@ MonoBehaviour:
     bundlePath: Icons_OneHand_Dagger_obj
     addressPath: Icons_OneHand_Dagger_obj
   prefab:
-    path: 
+    path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand R/9/StaticModel/W_R_9.prefab
     bundlePath: 
-    addressPath: 
+    addressPath: Prefabs/HumanMale/Hand R/9/StaticModel/W_R_9.prefab
   configsItems:
   - configGuid: 2c5cab39-f8c4-4ee7-b8db-67c40ae2a27d
     characterConfig: {fileID: 11400000, guid: 6b7a210257ce1b3419c035891239b8aa, type: 2}

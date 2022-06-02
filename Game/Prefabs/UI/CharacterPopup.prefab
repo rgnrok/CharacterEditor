@@ -1287,8 +1287,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04296e5c7674bbc4eb6d8dd50acabfb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouseRotateSpeed: 0.3
-  isPreview: 1
+  RotateSpeed: 0.3
 --- !u!1 &1428618890899532
 GameObject:
   m_ObjectHideFlags: 0
@@ -3009,15 +3008,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterTexture: {fileID: 8400000, guid: 92827f06c75845c4e98a1c127d2667ce, type: 2}
-  headCeil: {fileID: 114401710693535286}
-  armorCeil: {fileID: 114566520659944592}
-  pantsCeil: {fileID: 114809954997045910}
-  glovesCeil: {fileID: 114114624579816486}
-  bootsCeil: {fileID: 114424860804916766}
-  cloakCeil: {fileID: 114151661546155426}
-  beltCeil: {fileID: 114199102944585396}
-  rightHandCeil: {fileID: 114248343308508508}
-  leftHandCeil: {fileID: 114972521932146000}
+  _headCell: {fileID: 114401710693535286}
+  _armorCell: {fileID: 114566520659944592}
+  _pantsCell: {fileID: 114809954997045910}
+  _glovesCell: {fileID: 114114624579816486}
+  _bootsCell: {fileID: 114424860804916766}
+  _cloakCell: {fileID: 114151661546155426}
+  _beltCell: {fileID: 114199102944585396}
+  _rightHandCell: {fileID: 114248343308508508}
+  _leftHandCell: {fileID: 114972521932146000}
 --- !u!1 &1808899866837606
 GameObject:
   m_ObjectHideFlags: 0

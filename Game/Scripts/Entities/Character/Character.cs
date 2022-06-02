@@ -7,7 +7,7 @@ using Attribute = StatSystem.Attribute;
 
 namespace CharacterEditor
 {
-    public class Character: Entity<CharacterGameObjectData, CharacterConfig>, IBattleEntity, IAttacked, IHover
+    public class Character: Entity<CharacterGameObjectData, CharacterConfig>, IBattleEntity, IAttacked, IHover, IEquatable<Character>
     {
         public readonly Dictionary<EquipItemSlot, EquipItem> EquipItems = new Dictionary<EquipItemSlot, EquipItem>();
         public readonly Dictionary<MeshType, FaceMesh> FaceMeshItems = new Dictionary<MeshType, FaceMesh>();
@@ -66,6 +66,42 @@ namespace CharacterEditor
             if (canvas != null) canvas.Init(this);
         }
 
+        #region Equials
+
+        public static bool operator ==(Character ch1, Character ch2)
+        {
+            if (ReferenceEquals(ch1, ch2))
+                return true;
+            if (ch1 is null || ch2 is null)
+                return false;
+            return ch1.Equals(ch2);
+        }
+
+        public static bool operator !=(Character ch1, Character ch2)
+        {
+            return !(ch1 == ch2);
+        }
+
+        public override bool Equals(object other)
+        {
+            if (!(other is Character character)) return false;
+            return Equals(character);
+        }
+
+        public bool Equals(Character other)
+        {
+            if (other is null) return false;
+            return Guid == other.Guid;
+        }
+
+        public override int GetHashCode()
+        {
+            return Guid.GetHashCode();
+        }
+
+        #endregion
+
+
         #region IBattleEntity
 
         public void StartBattle()
@@ -99,7 +135,6 @@ namespace CharacterEditor
             return movePoints + attackPoints;
         }
 
-
         #region Equip
         public bool IsEquip(EquipItem item)
         {
@@ -112,6 +147,9 @@ namespace CharacterEditor
         public EquipItemSlot EquipItem(EquipItem item, EquipItemSlot slotType)
         {
             slotType = UnEquipOldItem(item, slotType);
+            if (slotType == EquipItemSlot.Undefined)
+                slotType = GetAvailableSlot(item);
+
             if (slotType == EquipItemSlot.Undefined) return slotType;
 
             EquipItems[slotType] = item;
@@ -127,6 +165,22 @@ namespace CharacterEditor
             StatCollection.UpdateStatModifiers();
 
             return slotType;
+        }
+
+        private EquipItemSlot GetAvailableSlot(EquipItem item)
+        {
+            var slots = Helper.GetAvailableSlotsByItemType(item.ItemType);
+            if (slots.Length == 0) return EquipItemSlot.Undefined;
+            if (slots.Length == 1) return slots[0];
+
+            // Find Free slot
+            foreach (var neededSlot in slots)
+            {
+                if (!EquipItems.ContainsKey(neededSlot))
+                    return neededSlot;
+            }
+
+            return EquipItemSlot.Undefined;
         }
 
         private EquipItemSlot UnEquipOldItem(EquipItem newItem, EquipItemSlot newItemSlot)
@@ -259,5 +313,7 @@ namespace CharacterEditor
         }
 
 #endregion
+
+
     }
 }

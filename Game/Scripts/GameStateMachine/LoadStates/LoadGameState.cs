@@ -20,6 +20,7 @@ namespace Game
         private readonly IRegisterService _registerService;
         private string _saveName;
         private ILoadSaveService _loadSaveService;
+        private bool _isRegistered;
 
         private LevelStaticData LevelStaticData() =>
             _staticData.ForLevel(SceneManager.GetActiveScene().name);
@@ -43,7 +44,7 @@ namespace Game
         {
             _loaderService.CleanUp();
 
-            await RegisterServices();
+            await RegisterGameServices();
 
             _saveName = saveName;
             _loadingCurtain.SetLoading(0);
@@ -52,8 +53,10 @@ namespace Game
             _sceneLoader.Load(PLAY_CHARACTER_SCENE, OnSceneLoaded);
         }
 
-        private async Task RegisterServices()
+        private async Task RegisterGameServices()
         {
+            if (_isRegistered) return;
+
             var armorMaterial = await _loaderService.MaterialLoader.LoadByPath(AssetsConstants.ArmorMergeMaterialPathKey);
             var clothMaterial = await _loaderService.MaterialLoader.LoadByPath(AssetsConstants.ClothMergeMaterialPathKey);
             var defaultMaterial = await _loaderService.MaterialLoader.LoadByPath(AssetsConstants.DefaultMaterialPathKey);
@@ -66,6 +69,10 @@ namespace Game
             _loadSaveService = new LoadSaveService(_saveLoadStorage, _loaderService, gameFactory);
             _registerService.Register<ILoadSaveService>(_loadSaveService);
 
+            _registerService.Register<ICharacterMoveService>(new CharacterMoveService());
+            _registerService.Register<ICharacterManageService>(new CharacterManageService());
+         
+            _isRegistered = true;
         }
 
         public void Exit()

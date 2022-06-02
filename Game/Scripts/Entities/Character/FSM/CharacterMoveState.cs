@@ -1,48 +1,54 @@
 ﻿using System;
 using CharacterEditor;
+using CharacterEditor.FmsPayload;
+using CharacterEditor.Services;
+using UnityEditor;
 using UnityEngine;
 
-public class CharacterMoveState : CharacterBasePayloadState<Vector3>
+public class CharacterMoveState : IPayloadedState<MovePayload>
 {
+    private readonly CharacterFSM _fsm;
+    private readonly IInputService _inputService;
+    private readonly ICharacterMoveService _moveService;
+    private readonly ICharacterManageService _characterManageService;
     private readonly PlayerMoveComponent _moveComponent;
 
-    private Vector3 _targetEntity;
+    private MovePayload _target;
+    private readonly Character _character;
 
-    public CharacterMoveState(CharacterFSM fsm) : base(fsm)
+    public CharacterMoveState(CharacterFSM fsm, IInputService inputService, ICharacterMoveService moveService, ICharacterManageService characterManageService)
     {
+        _fsm = fsm;
+        _inputService = inputService;
+        _moveService = moveService;
+        _characterManageService = characterManageService;
+
+        _character = _fsm.Character;
         _moveComponent = _character.MoveComponent;
     }
 
-    public override void Enter(Vector3 targetEntity)
+    public void Enter(MovePayload target)
     {
-        base.Enter(targetEntity);
-        _targetEntity = targetEntity;
+        _target = target;
 
-        GameManager.Instance.PlayerMoveController.OnGroundClick += OnGroundClickHandler;
+        _inputService.GroundClick += GroundClickHandler;
+        GameManager.Instance.OnEnemyClick += OnEnemyClickHandler; //todo
 
-        Move(_targetEntity);
+        Move(_target.Point);
     }
 
-    public override void Exit()
+    public void Exit()
     {
-        base.Exit();
+        _moveComponent.OnMoveCompleted -= OnMoveCompletedHandler;
+        _moveComponent.Stop(true);
 
-        if (_moveComponent != null)
-        {
-            _moveComponent.OnMoveCompleted -= OnMoveCompletedHandler;
-            _moveComponent.Stop(true);
-        }
-
-        GameManager.Instance.PlayerMoveController.OnGroundClick -= OnGroundClickHandler;
-
+        _inputService.GroundClick -= GroundClickHandler;
+        GameManager.Instance.OnEnemyClick -= OnEnemyClickHandler;
     }
-
 
     private void Move(Vector3 point)
     {
-        if (_moveComponent == null) return;
-
-        GameManager.Instance.PlayerMoveController.ShowCharacterPointer(_character, point);
+        _moveService.FireShowMovePoint(_character.Guid, point);
         _moveComponent.OnMoveCompleted -= OnMoveCompletedHandler;
 
         _moveComponent.OnMoveCompleted += OnMoveCompletedHandler;
@@ -51,23 +57,29 @@ public class CharacterMoveState : CharacterBasePayloadState<Vector3>
 
     private void OnMoveCompletedHandler()
     {
-        if (_moveComponent != null)
-        {
-            _moveComponent.OnMoveCompleted -= OnMoveCompletedHandler;
-        }
-        GameManager.Instance.PlayerMoveController.HideCharacterPointer(_character);
+        _moveComponent.OnMoveCompleted -= OnMoveCompletedHandler;
+
+        _moveService.FireHideCharacterPointer(_character.Guid);
         _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Idle);
+        if (_target != null && _target.Callback != null && Helper.IsNear(_moveComponent.transform.position, _target.Point))
+        {
+            _target.Callback.Invoke();
+            return;
+        }
+
+        // _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Idle);
     }
 
-    protected override void OnEnemyClick(IAttacked attacked)
+    private void OnEnemyClickHandler(string characterGuid, IAttacked attacked)
     {
+        if (_characterManageService.CurrentCharacter?.Guid != characterGuid) return;
         _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Attack, attacked);
     }
 
-    private void OnGroundClickHandler(string characterGuid, Vector3 point)
+    private void GroundClickHandler(Vector3 point)
     {
-        if (_character == null || _character.Guid != characterGuid) return;
-
+        if (_characterManageService.CurrentCharacter != _character) return;
+        _target = null;
         Move(point);
     }
 }

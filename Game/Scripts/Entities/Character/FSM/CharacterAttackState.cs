@@ -1,41 +1,39 @@
-﻿using System;
-using CharacterEditor;
-using UnityEngine;
+﻿using CharacterEditor;
+using CharacterEditor.Services;
 
-public class CharacterAttackState : CharacterBasePayloadState<IAttacked>
+public class CharacterAttackState : IPayloadedState<IAttacked>
 {
-    private IAttacked _targetEntity;
+    private readonly CharacterFSM _fsm;
+    private readonly ICharacterMoveService _characterMoveService;
     private readonly CharacterAttackComponent _attackComponent;
+    private readonly Character _character;
 
-    public CharacterAttackState(CharacterFSM fsm) : base(fsm)
+    private IAttacked _targetEntity;
+
+    public CharacterAttackState(CharacterFSM fsm, ICharacterMoveService characterMoveService)
     {
+        _fsm = fsm;
+        _characterMoveService = characterMoveService;
+        _character = fsm.Character;
         _attackComponent = _character.AttackComponent;
     }
 
-    public override void Enter(IAttacked targetEntity)
+    public void Enter(IAttacked targetEntity)
     {
-        base.Enter(targetEntity);
-
         _targetEntity = targetEntity;
         if (_character.MoveComponent != null)
-            _character.MoveComponent.OnMoveCompleted += MoveComponentHandler;
+            _character.MoveComponent.OnMoveCompleted += OnMoveCompletedHandler;
 
-        AfterSwitching();
+        _characterMoveService.FireShowAttackPoint(_character.Guid, _targetEntity.EntityGameObject.transform.position);
+        Attack();
     }
 
-    public override void Exit()
+    public void Exit()
     {
         if (_character.MoveComponent != null)
-            _character.MoveComponent.OnMoveCompleted -= MoveComponentHandler;
-        base.Exit();
+            _character.MoveComponent.OnMoveCompleted -= OnMoveCompletedHandler;
     }
 
-    private void AfterSwitching()
-    {
-        Attack();
-
-        GameManager.Instance.PlayerMoveController.ShowCharacterPointer(_character, _targetEntity.EntityGameObject.transform.position, true);
-    }
   
 
     private void Attack()
@@ -45,19 +43,17 @@ public class CharacterAttackState : CharacterBasePayloadState<IAttacked>
         if (!_attackComponent.IsAvailableDistance(_targetEntity))
         {
             _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Move, _attackComponent.GetTargetPointForAttack(_targetEntity));
-
             return;
         }
 
         _attackComponent.Attack(_targetEntity);
     }
 
-    private void MoveComponentHandler()
+    private void OnMoveCompletedHandler()
     {
-        GameManager.Instance.PlayerMoveController.HideCharacterPointer(_character);
+        _characterMoveService.FireHideCharacterPointer(_character.Guid);
+
         if (_attackComponent.IsAvailableDistance(_targetEntity))
-        {
-            _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Attack, _targetEntity);
-        }
+            _fsm.SpawnEvent((int) CharacterFSM.CharacterStateType.Attack, _targetEntity);
     }
 }

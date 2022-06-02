@@ -6,18 +6,19 @@ using CharacterEditor.CharacterInventory;
 namespace CharacterEditor
 {
     [Serializable]
-    public class SaveData: ISerializable
+    public sealed class SaveData: ISerializable
     {
         public string saveName;
         public string levelKey;
         public string mainCharacterGuid;
         public string selectedCharacterGuid;
+
         public CharacterSaveData[] characters;
+
         public Dictionary<string, ContainerSaveData> containers;
 
         public SaveData()
         {
-
         }
 
         public SaveData(string name, CharacterSaveData mainCharacter)
@@ -29,7 +30,7 @@ namespace CharacterEditor
             containers = new Dictionary<string, ContainerSaveData>();
         }
 
-        public SaveData(SerializationInfo info, StreamingContext context)
+        private SaveData(SerializationInfo info, StreamingContext context)
         {
             try
             {
@@ -47,7 +48,7 @@ namespace CharacterEditor
         }
 
 
-        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("saveName", saveName);
             info.AddValue("levelKey", levelKey);

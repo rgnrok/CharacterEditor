@@ -1,34 +1,80 @@
 ﻿using CharacterEditor;
+using CharacterEditor.FmsPayload;
+using CharacterEditor.Services;
 using UnityEngine;
 
-public class CharacterIdleState : CharacterBaseState
+public class CharacterIdleState : IState
 {
-    public CharacterIdleState(CharacterFSM fsm) : base(fsm)
+    private readonly CharacterFSM _fsm;
+    private readonly IInputService _inputService;
+    private readonly ICharacterManageService _characterManageService;
+    private readonly Character _character;
+    private GameManager _gameManager;
+
+    public CharacterIdleState(CharacterFSM fsm, IInputService inputService, ICharacterManageService characterManageService)
     {
+        _fsm = fsm;
+        _inputService = inputService;
+        _characterManageService = characterManageService;
+
+        _character = fsm.Character;
     }
 
-    public override void Enter()
+    public void Enter()
     {
-        base.Enter();
-        GameManager.Instance.PlayerMoveController.OnGroundClick += OnGroundClickHandler;
+        _inputService.GroundClick += OnGroundClickHandler;
+        _inputService.ContainerGameObjectClick += ContainerGameObjectClickHandler;
+
+        _gameManager = GameManager.Instance; //todo
+        _gameManager.OnEnemyClick += OnEnemyClickHandler;
+
     }
 
-    public override void Exit()
+    public void Exit()
     {
-        base.Exit();
-        GameManager.Instance.PlayerMoveController.OnGroundClick -= OnGroundClickHandler;
+        _inputService.GroundClick -= OnGroundClickHandler;
+        _inputService.ContainerGameObjectClick += ContainerGameObjectClickHandler;
+
+        if (_gameManager != null)
+            _gameManager.OnEnemyClick -= OnEnemyClickHandler;
+
+
+    }
+
+    private void ContainerGameObjectClickHandler(RaycastHit containerHit)
+    {
+        if (Helper.IsNear(_character.GameObjectData.CharacterObject.transform.position, containerHit.point))
+        {
+            _character.MoveComponent.RotateTo(containerHit.point);
+
+            var container = containerHit.transform.GetComponent<Container>();
+            if (container == null) return;
+
+            _gameManager.OpenContainer(container);
+        }
+        else
+        {
+            _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Move, 
+                new MovePayload(containerHit.point,
+                    () =>
+                    {
+                        ContainerGameObjectClickHandler(containerHit);
+                    }));
+        }
     }
 
 
-    protected override void OnEnemyClick(IAttacked attacked)
+    private void OnEnemyClickHandler(string characterGuid, IAttacked attacked)
     {
+        if (_character != _characterManageService?.CurrentCharacter) return;
+
         _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Attack, attacked);
     }
 
-    private void OnGroundClickHandler(string characterGuid, Vector3 point)
+    private void OnGroundClickHandler(Vector3 point)
     {
-        if (_character == null || _character.Guid != characterGuid) return;
+        if (_character != _characterManageService?.CurrentCharacter) return;
 
-        _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Move, point);
+        _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Move, new MovePayload(point));
     }
 }

@@ -16,6 +16,7 @@ namespace Game
         private readonly IRegisterService _registerService;
 
         private ICreateGameFactory _gameFactory;
+        private bool _isRegistered;
 
         public CreateGameState(FSM fsm, SceneLoader sceneLoader, LoadingCurtain loadingCurtain,
             ILoaderService loaderService, IConfigManager configManager, IRegisterService registerService) 
@@ -40,10 +41,13 @@ namespace Game
 
         private void RegisterServices()
         {
+            if (_isRegistered) return;
+
             var gameFactory = new CreateGameFactory(_loaderService);
             _gameFactory = gameFactory;
             _registerService.Register<ICreateGameFactory>(gameFactory);
             _registerService.Register<IMeshInstanceCreator>(gameFactory);
+            _isRegistered = true;
         }
 
         public void Exit()

@@ -5,7 +5,6 @@ namespace CharacterEditor
 {
     public class ClosePopup : MonoBehaviour, IPointerClickHandler
     {
-
         private Popup popup;
 
         void Awake()
@@ -15,7 +14,7 @@ namespace CharacterEditor
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            popup.gameObject.SetActive(false);
+            popup.Close();
         }
     }
 }

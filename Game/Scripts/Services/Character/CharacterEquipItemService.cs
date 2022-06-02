@@ -413,14 +413,16 @@ namespace CharacterEditor.Services
                     {
                         foreach (var meshRenderer in meshItem.GetComponentsInChildren<MeshRenderer>())
                         {
-                            meshRenderer.material = armorMaterial;
+                            var meshMaterials = meshRenderer.materials;
+                            for (var i = 0; i < meshMaterials.Length; i++) meshMaterials[i] = armorMaterial;
+                            meshRenderer.materials = meshMaterials;
                         }
 
-                        foreach (var particle in meshItem.GetComponentsInChildren<ParticleSystem>())
-                        {
-                            var itemRenderer = particle.GetComponent<Renderer>();
-                            if (itemRenderer != null) itemRenderer.material.shader = _particleShader;
-                        }
+                        // foreach (var particle in meshItem.GetComponentsInChildren<ParticleSystem>())
+                        // {
+                        //     var itemRenderer = particle.GetComponent<Renderer>();
+                        //     if (itemRenderer != null) itemRenderer.material.shader = _particleShader;
+                        // }
 
                         meshItem.SetActive(!hidedMeshTypes.Contains(meshItemPair.Key));
                     }

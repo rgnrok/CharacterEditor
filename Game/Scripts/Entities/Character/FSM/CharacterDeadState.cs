@@ -1,18 +1,22 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using CharacterEditor;
+﻿using CharacterEditor;
 using UnityEngine;
 
-public class CharacterDeadState : CharacterBaseState
+public class CharacterDeadState : IState
 {
-    public CharacterDeadState(CharacterFSM fsm) : base(fsm)
+    private readonly Character _character;
+
+    public CharacterDeadState(CharacterFSM fsm)
     {
+        _character = fsm.Character;
     }
 
-    public new void Enter()
+    public void Enter()
     {
-        base.Enter();
         Die();
+    }
+
+    public void Exit()
+    {
     }
 
     private void Die()

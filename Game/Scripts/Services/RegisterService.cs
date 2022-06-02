@@ -9,9 +9,10 @@
             _services = services;
         }
 
-        public void Register<TService>(TService service) where TService : IService
-        {
+        public void Register<TService>(TService service) where TService : IService => 
             _services.RegisterSingle<TService>(service);
-        }
+
+        public bool IsRegistered<TService>() where TService : IService => 
+            _services.Single<TService>() != null;
     }
 }
