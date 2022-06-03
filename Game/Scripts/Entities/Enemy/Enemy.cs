@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace EnemySystem
 {
-    public class Enemy: Entity<EnemyGameObjectData, EnemyConfig>, IBattleEntity, IAttacked, IHover
+    public class Enemy: Entity<EnemyGameObjectData, EnemyConfig>, IBattleEntity, IAttacked, IHover, ICleanable
     {
         public Sprite Portrait { get; private set; }
         private EnemyFSM _enemyFSM;
@@ -28,6 +28,11 @@ namespace EnemySystem
         public Enemy(string guid, StatCollection stats, EnemyGameObjectData gameObjectData, Texture2D texture, Sprite portrait) : base(guid, gameObjectData, texture, stats)
         {
             Portrait = portrait;
+        }
+
+        public void CleanUp()
+        {
+            FSM.CurrentState.Exit();
         }
 
         protected override void InternalInit()

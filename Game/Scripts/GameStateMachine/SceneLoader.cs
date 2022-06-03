@@ -13,16 +13,26 @@ namespace Game
             _coroutineRunner = coroutineRunner;
         }
 
-        public void Load(string name, Action onLoaded = null) =>
+        public void Load(string name, Action onLoaded = null)
+        {
             _coroutineRunner.StartCoroutine(LoadScene(name, onLoaded));
+        }
 
         private IEnumerator LoadScene(string name, Action onLoaded = null)
         {
-            var waitNextScene = SceneManager.LoadSceneAsync(name);
+            if (SceneManager.GetActiveScene().name != name)
+                yield return UnloadCurrentScene();
+
+            var waitNextScene = SceneManager.LoadSceneAsync(name, LoadSceneMode.Single);
             while (!waitNextScene.isDone)
                 yield return null;
 
             onLoaded?.Invoke();
+        }
+
+        private IEnumerator UnloadCurrentScene()
+        {
+            yield return SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().name);
         }
     }
 }

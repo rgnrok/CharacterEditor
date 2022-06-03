@@ -33,7 +33,7 @@ public class CharacterIdleState : IState
     public void Exit()
     {
         _inputService.GroundClick -= OnGroundClickHandler;
-        _inputService.ContainerGameObjectClick += ContainerGameObjectClickHandler;
+        _inputService.ContainerGameObjectClick -= ContainerGameObjectClickHandler;
 
         if (_gameManager != null)
             _gameManager.OnEnemyClick -= OnEnemyClickHandler;
@@ -43,6 +43,8 @@ public class CharacterIdleState : IState
 
     private void ContainerGameObjectClickHandler(RaycastHit containerHit)
     {
+        if (!IsCurrentCharacter()) return;
+
         if (Helper.IsNear(_character.GameObjectData.CharacterObject.transform.position, containerHit.point))
         {
             _character.MoveComponent.RotateTo(containerHit.point);
@@ -66,15 +68,18 @@ public class CharacterIdleState : IState
 
     private void OnEnemyClickHandler(string characterGuid, IAttacked attacked)
     {
-        if (_character != _characterManageService?.CurrentCharacter) return;
+        if (!IsCurrentCharacter()) return;
 
         _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Attack, attacked);
     }
 
     private void OnGroundClickHandler(Vector3 point)
     {
-        if (_character != _characterManageService?.CurrentCharacter) return;
+        if (!IsCurrentCharacter()) return;
 
         _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Move, new MovePayload(point));
     }
+
+    private bool IsCurrentCharacter() => 
+        _character == _characterManageService?.CurrentCharacter;
 }

@@ -22,7 +22,7 @@ public class FollowCamera : MonoBehaviour
     private Camera _camera;
 
     private float _cameraOffsetDistance;
-    private ILoadSaveService _saveLoadSaveService;
+    private ISaveLoadService _saveLoadService;
 
     public event Action OnPositionChanged;
     public event Action OnZoomChanged;
@@ -32,8 +32,8 @@ public class FollowCamera : MonoBehaviour
     {
         _camera = GetComponent<Camera>();
 
-        _saveLoadSaveService = AllServices.Container.Single<ILoadSaveService>();
-        if (_saveLoadSaveService != null) _saveLoadSaveService.OnLoadData += OnLoadSaveDataHandler;
+        _saveLoadService = AllServices.Container.Single<ISaveLoadService>();
+        if (_saveLoadService != null) _saveLoadService.OnLoadData += OnLoadDataHandler;
     }
 
     private void Start()
@@ -53,8 +53,8 @@ public class FollowCamera : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (_saveLoadSaveService != null)
-            _saveLoadSaveService.OnLoadData -= OnLoadSaveDataHandler;
+        if (_saveLoadService != null)
+            _saveLoadService.OnLoadData -= OnLoadDataHandler;
 
     }
 
@@ -66,7 +66,7 @@ public class FollowCamera : MonoBehaviour
         if (force) ChangePosition(target.position + _offset);
     }
 
-    private void OnLoadSaveDataHandler(SaveData obj)
+    private void OnLoadDataHandler(SaveData obj)
     {
         SetFocus(GameManager.Instance.CurrentCharacter.GameObjectData.CharacterObject.transform, true, true);
     }

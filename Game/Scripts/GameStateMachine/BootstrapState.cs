@@ -36,13 +36,27 @@ namespace Game
             _services.RegisterSingle<IFSM>(_fsm);
             _services.RegisterSingle<ICoroutineRunner>(_coroutineRunner);
             _services.RegisterSingle<IMergeTextureService>(new MergeTextureService());
-            _services.RegisterSingle<ILoaderService>(new LoaderService(_services.Single<IStaticDataService>(), _coroutineRunner));
 
-            _services.RegisterSingle<IInputService>(new InputService(_services.Single<ILoaderService>().CursorLoader));
+            var loaderService = new LoaderService(_services.Single<IStaticDataService>(), _coroutineRunner);
+            _services.RegisterSingle<ILoaderService>(loaderService);
+
+            _services.RegisterSingle<IInputService>(new InputService(loaderService.CursorLoader));
 
             _services.RegisterSingle<IConfigManager>(new ConfigManager());
             _services.RegisterSingle<ISaveLoadStorage>(new FileSaveLoadStorage());
-            _services.RegisterSingle<ISaveService>(new SaveService(_services.Single<ISaveLoadStorage>()));
+
+            _services.RegisterSingle<ICharacterEquipItemService>(
+                new CharacterEquipItemService(_services.Single<IMergeTextureService>(),
+                    loaderService));
+
+            _services.RegisterSingle<IGameFactory>(new GameFactory(loaderService,
+                _services.Single<ICharacterEquipItemService>()));
+
+            _services.RegisterSingle<ISaveLoadService>(new SaveLoadService(_services.Single<ISaveLoadStorage>(),
+                loaderService, _services.Single<IGameFactory>()));
+
+            _services.RegisterSingle<ICharacterMoveService>(new CharacterMoveService());
+            _services.RegisterSingle<ICharacterManageService>(new CharacterManageService());
         }
 
         private void RegisterStaticDataService()

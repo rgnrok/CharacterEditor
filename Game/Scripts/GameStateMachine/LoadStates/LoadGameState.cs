@@ -14,12 +14,10 @@ namespace Game
         private readonly ILoaderService _loaderService;
         private readonly SceneLoader _sceneLoader;
         private readonly LoadingCurtain _loadingCurtain;
-        private readonly ISaveLoadStorage _saveLoadStorage;
         private readonly IStaticDataService _staticData;
-        private readonly IMergeTextureService _mergeTextureService;
-        private readonly IRegisterService _registerService;
+        private readonly ICharacterEquipItemService _equipItemService;
+        private ISaveLoadService _saveLoadService;
         private string _saveName;
-        private ILoadSaveService _loadSaveService;
         private bool _isRegistered;
 
         private LevelStaticData LevelStaticData() =>
@@ -27,24 +25,23 @@ namespace Game
 
 
         public LoadGameState(FSM fsm, SceneLoader sceneLoader, LoadingCurtain loadingCurtain,
-            ILoaderService loaderService, ISaveLoadStorage saveLoadStorage, IStaticDataService staticData, IMergeTextureService mergeTextureService,
-            IRegisterService registerService) 
+            ILoaderService loaderService, ISaveLoadService saveLoadService, IStaticDataService staticData, IMergeTextureService mergeTextureService,
+            ICharacterEquipItemService equipItemService) 
         {
             _fsm = fsm;
             _sceneLoader = sceneLoader;
             _loadingCurtain = loadingCurtain;
             _loaderService = loaderService;
-            _saveLoadStorage = saveLoadStorage;
+            _saveLoadService = saveLoadService;
             _staticData = staticData;
-            _mergeTextureService = mergeTextureService;
-            _registerService = registerService;
+            _equipItemService = equipItemService;
         }
 
         public async void Enter(string saveName)
         {
             _loaderService.CleanUp();
 
-            await RegisterGameServices();
+            await _equipItemService.LoadMaterials();
 
             _saveName = saveName;
             _loadingCurtain.SetLoading(0);
@@ -53,32 +50,9 @@ namespace Game
             _sceneLoader.Load(PLAY_CHARACTER_SCENE, OnSceneLoaded);
         }
 
-        private async Task RegisterGameServices()
-        {
-            if (_isRegistered) return;
-
-            var armorMaterial = await _loaderService.MaterialLoader.LoadByPath(AssetsConstants.ArmorMergeMaterialPathKey);
-            var clothMaterial = await _loaderService.MaterialLoader.LoadByPath(AssetsConstants.ClothMergeMaterialPathKey);
-            var defaultMaterial = await _loaderService.MaterialLoader.LoadByPath(AssetsConstants.DefaultMaterialPathKey);
-            var equipItemService = new CharacterEquipItemService(_mergeTextureService, defaultMaterial, clothMaterial, armorMaterial);
-            _registerService.Register<ICharacterEquipItemService>(equipItemService);
-
-            var gameFactory = new GameFactory(_loaderService, equipItemService);
-            _registerService.Register<IGameFactory>(gameFactory);
-
-            _loadSaveService = new LoadSaveService(_saveLoadStorage, _loaderService, gameFactory);
-            _registerService.Register<ILoadSaveService>(_loadSaveService);
-
-            _registerService.Register<ICharacterMoveService>(new CharacterMoveService());
-            _registerService.Register<ICharacterManageService>(new CharacterManageService());
-         
-            _isRegistered = true;
-        }
-
         public void Exit()
         {
             _loadingCurtain.SetLoading(100);
-
         }
 
         private async void OnSceneLoaded()
@@ -86,7 +60,7 @@ namespace Game
             _loadingCurtain.SetLoading(10);
 
             var levelData = LevelStaticData();
-            var successLoad = await _loadSaveService.Load(_saveName, levelData, LoadProcessAction);
+            var successLoad = await _saveLoadService.Load(_saveName, levelData, LoadProcessAction);
 
             if (!successLoad)
                 _fsm.SpawnEvent((int)GameStateMachine.GameStateType.CreateGame);

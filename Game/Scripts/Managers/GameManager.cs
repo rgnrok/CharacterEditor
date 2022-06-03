@@ -55,7 +55,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
     public ContainerPopup ContainerPopup { get { return containerPopup; } }
     #endregion
 
-    private ILoadSaveService _saveLoadService;
+    private ISaveLoadService _saveLoadService;
     private IInputService _inputService;
     private ICharacterEquipItemService _equipItemService;
     private ICharacterManageService _characterManageService;
@@ -98,7 +98,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
             _inputService.OnChangeMouseRaycastHit += OnChangeMouseRaycastHitHandler;
         }
 
-        _saveLoadService = AllServices.Container.Single<ILoadSaveService>();
+        _saveLoadService = AllServices.Container.Single<ISaveLoadService>();
         if (_saveLoadService != null)
         {
             _saveLoadService.OnCharactersLoaded += OnCharactersLoadedHandler;

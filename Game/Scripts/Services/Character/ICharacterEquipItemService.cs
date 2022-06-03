@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace CharacterEditor.Services
 {
-    public interface ICharacterEquipItemService : IService
+    public interface ICharacterEquipItemService : IService, ICleanable
     {
         void SetCharacter(Character character);
         bool CanEquip(EquipItem item);
@@ -19,5 +19,6 @@ namespace CharacterEditor.Services
         Texture2D CharacterTexture { get; }
         Texture2D ArmorTexture { get; }
         event Action OnTexturesChanged;
+        Task LoadMaterials();
     }
 }

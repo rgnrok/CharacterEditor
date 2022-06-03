@@ -10,7 +10,7 @@ namespace CharacterEditor
         public GameObject saveLoadPopup;
         private SaveLoadPopup _saveLoadPopupInstance;
 
-        private ISaveService _saveService;
+        private ISaveLoadService _saveService;
         private IConfigManager _configManager;
         private IFSM _gameStateMachine;
         private Transform _canvas;
@@ -22,7 +22,7 @@ namespace CharacterEditor
         {
             if (Instance != null) Destroy(gameObject);
             Instance = this;
-            _saveService = AllServices.Container.Single<ISaveService>();
+            _saveService = AllServices.Container.Single<ISaveLoadService>();
             _configManager = AllServices.Container.Single<IConfigManager>();
             _gameStateMachine = AllServices.Container.Single<IFSM>();
 

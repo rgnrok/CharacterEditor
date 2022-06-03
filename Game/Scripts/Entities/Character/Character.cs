@@ -7,7 +7,7 @@ using Attribute = StatSystem.Attribute;
 
 namespace CharacterEditor
 {
-    public class Character: Entity<CharacterGameObjectData, CharacterConfig>, IBattleEntity, IAttacked, IHover, IEquatable<Character>
+    public class Character: Entity<CharacterGameObjectData, CharacterConfig>, IBattleEntity, IAttacked, IHover, IEquatable<Character>, ICleanable
     {
         public readonly Dictionary<EquipItemSlot, EquipItem> EquipItems = new Dictionary<EquipItemSlot, EquipItem>();
         public readonly Dictionary<MeshType, FaceMesh> FaceMeshItems = new Dictionary<MeshType, FaceMesh>();
@@ -43,6 +43,12 @@ namespace CharacterEditor
         {
             InventoryCells = data.inventoryCells;
         }
+
+        public void CleanUp()
+        {
+            FSM.CurrentState.Exit();
+        }
+
 
         protected override void OnDie()
         {

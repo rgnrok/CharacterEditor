@@ -41,9 +41,7 @@ namespace CharacterEditor.Services
         private readonly List<Renderer> _longRobeRenders = new List<Renderer>();
         private readonly List<Renderer> _cloakRenders = new List<Renderer>();
 
-        private Shader _particleShader;
-
-        private Dictionary<string, Dictionary<string, Dictionary<MeshType, List<GameObject>>>> _meshInstances;
+        private readonly Dictionary<string, Dictionary<string, Dictionary<MeshType, List<GameObject>>>> _meshInstances;
 
         // Queue for destroy item gameobjects and unload bundle info
         private readonly List<EquipItem> _unEquipItemsQueue = new List<EquipItem>();
@@ -55,40 +53,55 @@ namespace CharacterEditor.Services
         private Material _defaultMaterial;
         private Material _tmpArmorRenderShaderMaterial;
         private Material _tmpClothRenderShaderMaterial;
-        private RenderTexture _renderClothTexture;
-        private RenderTexture _renderArmorTexture;
+        private readonly RenderTexture _renderClothTexture;
+        private readonly RenderTexture _renderArmorTexture;
 
-        private IMergeTextureService _mergeTextureService;
-
-
-        private Dictionary<string, Dictionary<MaterialType, Material>> _characterMaterials;
+        private readonly IMergeTextureService _mergeTextureService;
+        private readonly ILoaderService _loaderService;
+        private readonly Dictionary<string, Dictionary<MaterialType, Material>> _characterMaterials;
 
         public event Action<EquipItem> OnEquip;
         public event Action<EquipItem> OnUnEquip;
         public event Action OnTexturesChanged;
 
-        public CharacterEquipItemService(IMergeTextureService mergeTextureService, Material defaultMaterial, Material clothRenderShaderMaterial, Material armorRenderShaderMaterial)
+        public CharacterEquipItemService(IMergeTextureService mergeTextureService, ILoaderService loaderService)
         {
             _mergeTextureService = mergeTextureService;
-            _defaultMaterial = defaultMaterial;
-            _tmpArmorRenderShaderMaterial = new Material(armorRenderShaderMaterial);
-            _tmpClothRenderShaderMaterial = new Material(clothRenderShaderMaterial);
-
+            _loaderService = loaderService;
+       
             _armorTextures = new Dictionary<string, Texture2D>();
             _characterTextures = new Dictionary<string, Texture2D>();
             _characterMaterials = new Dictionary<string, Dictionary<MaterialType, Material>>();
 
             _meshInstances = new Dictionary<string, Dictionary<string, Dictionary<MeshType, List<GameObject>>>>();
-            _particleShader = Shader.Find("Particles/Additive (Soft)"); //todo
-
-
             _renderArmorTexture = new RenderTexture(Constants.ARMOR_MESHES_ATLAS_SIZE,
                 Constants.ARMOR_MESHES_ATLAS_SIZE, 0, RenderTextureFormat.ARGB32);
             _renderClothTexture = new RenderTexture(Constants.SKIN_TEXTURE_ATLAS_SIZE,
                 Constants.SKIN_TEXTURE_ATLAS_SIZE, 0, RenderTextureFormat.ARGB32);
+        }
 
-            // _saveLoadService = AllServices.Container.Single<ISaveLoadService>();
-            // _saveLoadService.OnCharactersLoaded += OnCharactersLoadedHandler;
+        public async Task LoadMaterials()
+        {
+            var armorRenderShaderMaterial = await _loaderService.MaterialLoader.LoadByPath(AssetsConstants.ArmorMergeMaterialPathKey);
+            var clothRenderShaderMaterial = await _loaderService.MaterialLoader.LoadByPath(AssetsConstants.ClothMergeMaterialPathKey);
+            _defaultMaterial = await _loaderService.MaterialLoader.LoadByPath(AssetsConstants.DefaultMaterialPathKey);
+
+            _tmpArmorRenderShaderMaterial = new Material(armorRenderShaderMaterial);
+            _tmpClothRenderShaderMaterial = new Material(clothRenderShaderMaterial);
+
+        }
+
+        public void CleanUp()
+        {
+            _currentCharacter = null;
+            foreach (var chInstances in _meshInstances.Values)
+            foreach (var itemInstances in chInstances.Values)
+            foreach (var instances in itemInstances.Values)
+            foreach (var instance in instances)
+                GameObject.Destroy(instance);
+
+            _meshInstances.Clear();
+            _characterMaterials.Clear();
         }
 
         public void SetCharacter(Character character)

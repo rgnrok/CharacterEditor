@@ -16,10 +16,20 @@ namespace CharacterEditor.Services
 
         public event Action<Character> OnCharacterSpawned;
 
+        private HashSet<ICleanable> _cleanableEntities = new HashSet<ICleanable>();
+
         public GameFactory(ILoaderService loaderService, ICharacterEquipItemService equipItemService)
         {
             _loaderService = loaderService;
             _equipItemService = equipItemService;
+        }
+
+        public void CleanUp()
+        {
+            foreach (var cleanable in _cleanableEntities)
+                cleanable.CleanUp();
+
+            _cleanableEntities.Clear();
         }
 
         public async Task<Character> CreateGameCharacter(CharacterSaveData characterData, CharacterConfig config, Texture2D skinTexture, Texture2D faceTexture, Vector3 position)
@@ -86,6 +96,7 @@ namespace CharacterEditor.Services
             await EquipItems(character, equipItems, faceMeshItems);
 
             OnCharacterSpawned?.Invoke(character);
+            _cleanableEntities.Add(character);
 
             return character;
         }
@@ -103,6 +114,7 @@ namespace CharacterEditor.Services
             var goData = new CharacterGameObjectData(config.characterConfig, go, null);
             var stats = new DefaultStatCollection(); //tmp load from config in feature
             var character = new Character(config.guid, stats, goData, skinTexture, faceTexture, portraitIcon);
+            character.Init();
 
             var equipItems = new Dictionary<EquipItemSlot, EquipItem>();
             var faceMeshItems = new Dictionary<MeshType, FaceMesh>();
@@ -116,6 +128,7 @@ namespace CharacterEditor.Services
                 faceMeshItems[faceMesh.meshType] = FaceMeshFactory.Create(faceMesh.meshType, _loaderService.PathDataProvider.GetPath(faceMesh.meshPath), _loaderService.MeshLoader);
 
             await EquipItems(character, equipItems, faceMeshItems);
+            _cleanableEntities.Add(character);
 
             return character;
         }
@@ -157,6 +170,7 @@ namespace CharacterEditor.Services
 
             var moveComponent = enemy.EntityGameObject.GetComponent<PlayerMoveComponent>();
             if (moveComponent != null) moveComponent.Stop(true);
+            _cleanableEntities.Add(enemy);
 
             return enemy;
         }

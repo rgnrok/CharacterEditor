@@ -1,14 +1,13 @@
-﻿using CharacterEditor;
-using CharacterEditor.Services;
+﻿using CharacterEditor.Services;
 
 namespace Game
 {
     public class LoadProgressState : IState
     {
         private readonly IFSM _fsm;
-        private readonly ISaveService _saveService;
+        private readonly ISaveLoadService _saveService;
 
-        public LoadProgressState(IFSM fsm, ISaveService saveService)
+        public LoadProgressState(IFSM fsm, ISaveLoadService saveService)
         {
             _fsm = fsm;
             _saveService = saveService;

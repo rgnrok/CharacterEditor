@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace CharacterEditor.Services
 {
-    public interface IGameFactory : IService
+    public interface IGameFactory : IService, ICleanable
     {
         Task<Character> CreateGameCharacter(CharacterSaveData characterData, CharacterConfig config,
             Texture2D skinTexture, Texture2D faceTexture, Vector3 position);
