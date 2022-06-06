@@ -14,9 +14,7 @@ namespace CharacterEditor
                 _itemTexture?.Texture;
 
             private readonly ItemTexture _itemTexture;
-
             private readonly IMeshLoader _loader;
-
             private GameObject _meshObject;
 
             public ItemMesh(MeshType type, IMeshLoader loader, string meshPath, ItemTexture itemTexture = null)
@@ -41,19 +39,19 @@ namespace CharacterEditor
                 _loader.Unload(MeshPath);
             }
 
-     
-
-            public GameObject InstantiateMesh(Transform anchor, int layer = 0, bool active = false)
+            public GameObject InstantiateMesh(Transform anchor, int layer = 0, bool active = false, Material material = null)
             {
                 var meshObject = Object.Instantiate(_meshObject, anchor.position, anchor.rotation, anchor);
                 if (layer != 0) Helper.SetLayerRecursively(meshObject, layer);
 
-                if (_itemTexture != null)
+                if (material != null)
                 {
-                    var renders = meshObject.GetComponentsInChildren<MeshRenderer>();
-                    foreach (var render in renders)
-                        render.material.mainTexture = _itemTexture.Texture;
-
+                    foreach (var meshRenderer in meshObject.GetComponentsInChildren<MeshRenderer>())
+                    {
+                        var meshMaterials = meshRenderer.materials;
+                        for (var i = 0; i < meshMaterials.Length; i++) meshMaterials[i] = material;
+                        meshRenderer.materials = meshMaterials;
+                    }
                 }
 
                 meshObject.SetActive(active);

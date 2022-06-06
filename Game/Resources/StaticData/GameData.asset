@@ -16,4 +16,5 @@ MonoBehaviour:
   MeshAtlasType: 0
   ArmorMergeMaterial: {fileID: 2100000, guid: 4d3fd518d8acb9348b2e67505a1f1aff, type: 2}
   ClothMergeMaterial: {fileID: 2100000, guid: 1e91c5a8650674e40bbca2d5e01fd08a, type: 2}
-  BaseMaterial: {fileID: 2100000, guid: b5891ae6ac745024cab83ae227382648, type: 2}
+  ModelMaterial: {fileID: 2100000, guid: 0cc528c8dca77754792ab23381962cea, type: 2}
+  PreviewMaterial: {fileID: 2100000, guid: 02d1ff4e2bbc8ce48a628254862564de, type: 2}

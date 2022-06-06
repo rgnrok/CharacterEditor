@@ -30,7 +30,7 @@ public class SkinTexturesGroup : MonoBehaviour
 
     private void UpdateTextures()
     {
-        skinImage.texture = _equipItemService.CharacterTexture;
-        armorImage.texture = _equipItemService.ArmorTexture;
+        skinImage.texture = _equipItemService.GetCurrentCharacterTexture();
+        armorImage.texture = _equipItemService.GetCurrentCharacterArmorTexture();
     }
 }

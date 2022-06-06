@@ -252,8 +252,8 @@ namespace CharacterEditor.Services
                 character.AddFaceMesh(faceMeshPair);
             }
 
-            _equipItemService.SetCharacter(character);
-            await _equipItemService.EquipItems(equipItems);
+            _equipItemService.SetupCharacter(character);
+            await _equipItemService.EquipItems(character, equipItems);
         }
     }
 }

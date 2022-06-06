@@ -52,14 +52,14 @@ namespace CharacterEditor
 
             public async Task<Dictionary<string, T>> LoadData(IList<string> guids)
             {
-                var paths = new List<string>(guids.Count);
+                var guidDataDir = new Dictionary<string, T>(guids.Count);
                 foreach (var guid in guids)
                 {
                     if (!_guids.TryGetValue(guid, out var pathMap)) continue;
-                    paths.Add(pathMap.path);
+                    guidDataDir[guid] = await _commonLoader.LoadByPath(pathMap.path);
                 }
 
-                return await _commonLoader.LoadByPath(paths);
+                return guidDataDir;
             }
 
             public void CleanUp()

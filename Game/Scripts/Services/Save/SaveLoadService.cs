@@ -14,12 +14,9 @@ namespace CharacterEditor
 {
     public class SaveLoadService : ISaveLoadService
     {
-        protected const string CHARACTER_SKIN_TEXTURE_NAME = "Character_texture.png";
-        protected const string CHARACTER_FACE_TEXTURE_NAME = "Character_face_texture.png";
-        protected const string LOADED_SAVE_KEY = "loadedSaveKey";
-
-        protected void KeepLastSaveName(string saveName) => 
-            PlayerPrefs.SetString(LOADED_SAVE_KEY, saveName);
+        private const string CHARACTER_SKIN_TEXTURE_NAME = "Character_texture.png";
+        private const string CHARACTER_FACE_TEXTURE_NAME = "Character_face_texture.png";
+        private const string LOADED_SAVE_KEY = "loadedSaveKey";
 
         private readonly ISaveLoadStorage _storage;
         private readonly ILoaderService _loaderService;
@@ -38,6 +35,9 @@ namespace CharacterEditor
             _loaderService = loaderService;
             _gameFactory = gameFactory;
         }
+
+        private void KeepLastSaveName(string saveName) => 
+            PlayerPrefs.SetString(LOADED_SAVE_KEY, saveName);
 
         public string[] GetSaves() =>
            _storage.GetSaves();

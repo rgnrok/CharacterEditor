@@ -169,7 +169,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
         CurrentCharacter = ch;
         Characters[ch.Guid] = ch;
 
-        _equipItemService.SetCharacter(CurrentCharacter);
+        _equipItemService.SetupCharacter(CurrentCharacter);
         CurrentCharacter.GameObjectData.CharacterObject.SetActive(true);
 
 

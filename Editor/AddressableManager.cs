@@ -123,16 +123,19 @@ namespace Editor
 
             var armorMatPath = AssetDatabase.GetAssetPath(staticData.GameData.ArmorMergeMaterial);
             var clothMatPath = AssetDatabase.GetAssetPath(staticData.GameData.ClothMergeMaterial);
-            var defaultMatPath = AssetDatabase.GetAssetPath(staticData.GameData.BaseMaterial);
+            var modelMatPath = AssetDatabase.GetAssetPath(staticData.GameData.ModelMaterial);
+            var previewMatPath = AssetDatabase.GetAssetPath(staticData.GameData.PreviewMaterial);
             SetupAddressable(armorMatPath, MATERIALS_GROUP_NAME, AssetsConstants.ArmorMergeMaterialPathKey);
             SetupAddressable(clothMatPath, MATERIALS_GROUP_NAME, AssetsConstants.ClothMergeMaterialPathKey);
-            SetupAddressable(defaultMatPath, MATERIALS_GROUP_NAME, AssetsConstants.DefaultMaterialPathKey);
+            SetupAddressable(modelMatPath, MATERIALS_GROUP_NAME, AssetsConstants.ModelMaterialPathKey);
+            SetupAddressable(previewMatPath, MATERIALS_GROUP_NAME, AssetsConstants.PreviewMaterialPathKey);
 
             var map = new List<GuidPathMap>()
             {
                 new GuidPathMap() {guid = AssetsConstants.ArmorMergeMaterialPathKey, path = armorMatPath},
                 new GuidPathMap() {guid = AssetsConstants.ClothMergeMaterialPathKey, path = clothMatPath},
-                new GuidPathMap() {guid = AssetsConstants.DefaultMaterialPathKey, path = defaultMatPath},
+                new GuidPathMap() {guid = AssetsConstants.ModelMaterialPathKey, path = modelMatPath},
+                new GuidPathMap() {guid = AssetsConstants.PreviewMaterialPathKey, path = previewMatPath},
             };
 
             return map;

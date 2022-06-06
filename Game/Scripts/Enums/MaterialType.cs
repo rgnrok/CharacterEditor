@@ -5,6 +5,11 @@
         Skin,
         Face,
         Cloak,
-        Armor
+        Armor,
+
+        PreviewSkin,
+        PreviewFace,
+        PreviewCloak,
+        PreviewArmor,
     }
 }

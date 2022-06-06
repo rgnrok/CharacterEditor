@@ -8,6 +8,7 @@ public class EquipPanelCell : ItemCell
 {
     [SerializeField] private EquipItemSlot _slot;
     [SerializeField] private EquipItemType[] _availableItemTypes;
+    [SerializeField] private GameObject _background;
     private ICharacterEquipItemService _characterEquipItemService;
 
     public EquipItemSlot ItemSlot { get { return _slot; } }
@@ -26,5 +27,11 @@ public class EquipPanelCell : ItemCell
         _characterEquipItemService.UnEquipItem(equipItem);
         GameManager.Instance.Inventory.AddToInventory(equipItem);
         SetItem(null);
+    }
+
+    public override void SetItem(Item item, bool disabled = false)
+    {
+        base.SetItem(item, disabled);
+        _background.SetActive(item == null);
     }
 }

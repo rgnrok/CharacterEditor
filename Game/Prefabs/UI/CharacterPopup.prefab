@@ -880,6 +880,7 @@ MonoBehaviour:
   itemImage: {fileID: 114754396342913098}
   _slot: 2
   _availableItemTypes: 02000000
+  _background: {fileID: 1767581406884072}
 --- !u!114 &114008636272687202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1556,6 +1557,7 @@ MonoBehaviour:
   itemImage: {fileID: 114155039466650490}
   _slot: 1
   _availableItemTypes: 01000000
+  _background: {fileID: 1170623094087548}
 --- !u!114 &114481978163811650
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1661,6 +1663,7 @@ MonoBehaviour:
   itemImage: {fileID: 114897604709199476}
   _slot: 9
   _availableItemTypes: 09000000
+  _background: {fileID: 1057018851067972}
 --- !u!114 &114730973475729000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1867,6 +1870,7 @@ MonoBehaviour:
   itemImage: {fileID: 114313271662791214}
   _slot: 5
   _availableItemTypes: 05000000
+  _background: {fileID: 1753725508173968}
 --- !u!114 &114547244047614136
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2046,6 +2050,7 @@ MonoBehaviour:
   itemImage: {fileID: 114706665622429830}
   _slot: 4
   _availableItemTypes: 04000000
+  _background: {fileID: 1044274381640426}
 --- !u!114 &114248634314613124
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2478,6 +2483,7 @@ MonoBehaviour:
   itemImage: {fileID: 114035045795395836}
   _slot: 3
   _availableItemTypes: 0300000002000000
+  _background: {fileID: 1795910396363218}
 --- !u!114 &114666200031596248
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2906,6 +2912,7 @@ MonoBehaviour:
   itemImage: {fileID: 114997297907657796}
   _slot: 6
   _availableItemTypes: 06000000
+  _background: {fileID: 1936305777439658}
 --- !u!114 &114510867164506506
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3184,6 +3191,7 @@ MonoBehaviour:
   itemImage: {fileID: 114751396617989394}
   _slot: 8
   _availableItemTypes: 08000000
+  _background: {fileID: 1808899866837606}
 --- !u!114 &114832881180867544
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3491,6 +3499,7 @@ MonoBehaviour:
   itemImage: {fileID: 114621910951226780}
   _slot: 7
   _availableItemTypes: 07000000
+  _background: {fileID: 1316443219103666}
 --- !u!114 &114167777182897784
 MonoBehaviour:
   m_ObjectHideFlags: 0

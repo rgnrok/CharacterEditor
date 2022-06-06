@@ -14,7 +14,8 @@ public abstract class ItemDragCeil : MonoBehaviour, IBeginDragHandler, IDragHand
     private Transform _canvas;
 
     private Item _item;
-    private bool canDropOnGround;
+    private bool _canDropOnGround;
+
     private ICommonLoader<GameObject> _gameObjectLoader;
     private IPathDataProvider _pathProvider;
 
@@ -22,9 +23,9 @@ public abstract class ItemDragCeil : MonoBehaviour, IBeginDragHandler, IDragHand
     {
         _canvas = GameManager.Instance.Canvas;
         ParentCell = GetComponentInParent<ItemCell>();
+
         _gameObjectLoader = AllServices.Container.Single<ILoaderService>().GameObjectLoader;
         _pathProvider = AllServices.Container.Single<ILoaderService>().PathDataProvider;
-
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -57,7 +58,7 @@ public abstract class ItemDragCeil : MonoBehaviour, IBeginDragHandler, IDragHand
 
     public void OnDrag(PointerEventData eventData)
     {
-        canDropOnGround = false;
+        _canDropOnGround = false;
         // if (EventSystem.current.IsPointerOverGameObject())
         {
             _dragCellObject.transform.position = Input.mousePosition;
@@ -85,7 +86,7 @@ public abstract class ItemDragCeil : MonoBehaviour, IBeginDragHandler, IDragHand
             _dragPrefabObject.transform.position = hit.point;
             _dragCellObject.SetActive(false);
             if (_dragPrefabObject != null) _dragPrefabObject.SetActive(true);
-            canDropOnGround = true;
+            _canDropOnGround = true;
         }
     }
 
@@ -100,7 +101,7 @@ public abstract class ItemDragCeil : MonoBehaviour, IBeginDragHandler, IDragHand
         if (_dragCellObject != null) Destroy(_dragCellObject);
         if (_dragPrefabObject != null)
         {
-            if (canDropOnGround && _item != null) DropOnGround(ParentCell, _dragPrefabObject.transform.position);
+            if (_canDropOnGround && _item != null) DropOnGround(ParentCell, _dragPrefabObject.transform.position);
             Destroy(_dragPrefabObject);
         }
     }

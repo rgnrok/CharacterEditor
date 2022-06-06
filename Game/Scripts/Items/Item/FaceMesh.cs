@@ -26,13 +26,10 @@ namespace CharacterEditor
                 if (meshBones.TryGetValue(MeshType, out var anchor))
                     MeshInstance = _itemMesh.InstantiateMesh(anchor, 0, true);
 
-                if (previewMeshBones != null)
+                if (previewMeshBones != null && previewMeshBones.TryGetValue(MeshType, out var previewAnchor))
                 {
-                    if (previewMeshBones.TryGetValue(MeshType, out var previewAnchor))
-                    {
-                        PreviewMeshInstance = _itemMesh.InstantiateMesh(previewAnchor, 0, true);
-                        Helper.SetLayerRecursively(PreviewMeshInstance, Constants.LAYER_CHARACTER_PREVIEW);
-                    }
+                    PreviewMeshInstance = _itemMesh.InstantiateMesh(previewAnchor, 0, true);
+                    Helper.SetLayerRecursively(PreviewMeshInstance, Constants.LAYER_CHARACTER_PREVIEW);
                 }
             }
 

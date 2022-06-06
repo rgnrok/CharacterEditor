@@ -12,7 +12,8 @@ namespace CharacterEditor.StaticData
 
         public Material ArmorMergeMaterial;
         public Material ClothMergeMaterial;
-        public Material BaseMaterial;
+        public Material ModelMaterial;
+        public Material PreviewMaterial;
 
     }
 }

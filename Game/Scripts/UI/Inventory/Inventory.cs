@@ -33,21 +33,20 @@ public class Inventory : Popup
     private void Awake()
     {
         _characterEquipItemService = AllServices.Container.Single<ICharacterEquipItemService>();
+        _gameObjectLoader = AllServices.Container.Single<ILoaderService>().GameObjectLoader;
+        _pathProvider = AllServices.Container.Single<ILoaderService>().PathDataProvider;
     }
 
     protected override void OnEnable()
     {
         Init(GameManager.Instance.CurrentCharacter); //todo
-        _gameObjectLoader = AllServices.Container.Single<ILoaderService>().GameObjectLoader;
-        _pathProvider = AllServices.Container.Single<ILoaderService>().PathDataProvider;
-
         base.OnEnable();
     }
 
     public Dictionary<int, CharacterItemData> GetInventoryCells(string characterId)
     {
-        if (_inventoryCharacters.TryGetValue(characterId, out var characteInv))
-            return characteInv.GetInventoryCells();
+        if (_inventoryCharacters.TryGetValue(characterId, out var characterInv))
+            return characterInv.GetInventoryCells();
 
         return null;
     }
