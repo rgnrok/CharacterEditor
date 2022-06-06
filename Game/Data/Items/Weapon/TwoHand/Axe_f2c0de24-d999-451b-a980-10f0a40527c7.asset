@@ -71,7 +71,7 @@ MonoBehaviour:
   randomStats: 0
   randomStatsCount: 0
   stats:
-  - type: 7
-    value: 100
+  - type: 3
+    value: 50
     modType: 1
     modTime: 0

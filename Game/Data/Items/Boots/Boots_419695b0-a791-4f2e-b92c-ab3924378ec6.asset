@@ -114,4 +114,8 @@ MonoBehaviour:
   itemSubType: 0
   randomStats: 0
   randomStatsCount: 0
-  stats: []
+  stats:
+  - type: 4
+    value: 2
+    modType: 1
+    modTime: 0

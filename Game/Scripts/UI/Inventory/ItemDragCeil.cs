@@ -37,14 +37,11 @@ public abstract class ItemDragCeil : MonoBehaviour, IBeginDragHandler, IDragHand
 
         if (_item == null) return;
 
-        CreateDropItemPrefab(_item);
+        // CreateDropItemPrefab(_item);
     }
 
     private void CreateDropItemPrefab(Item item)
     {
-        Debug.LogWarning("Drop items prefab on ground tmp not work");
-        return;
-
         var prefabPath = _pathProvider.GetPath(item.Data.prefab);
         if (string.IsNullOrEmpty(prefabPath)) return;
 
@@ -92,7 +89,6 @@ public abstract class ItemDragCeil : MonoBehaviour, IBeginDragHandler, IDragHand
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        Debug.Log("OnEndDrag");
         OnEndDragHandler();
     }
 

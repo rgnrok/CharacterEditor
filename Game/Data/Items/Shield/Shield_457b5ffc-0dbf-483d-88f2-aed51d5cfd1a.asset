@@ -70,4 +70,8 @@ MonoBehaviour:
   itemSubType: 5
   randomStats: 0
   randomStatsCount: 0
-  stats: []
+  stats:
+  - type: 7
+    value: 20
+    modType: 1
+    modTime: 0

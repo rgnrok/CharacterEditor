@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b6d3cf505e3979e4381dbebc3f630594, type: 3}
-  m_Name: Sword_2_c8e0b33a-7753-427d-9921-40338927e13c
+  m_Name: Dagger_c8e0b33a-7753-427d-9921-40338927e13c
   m_EditorClassIdentifier: 
   guid: c8e0b33a-7753-427d-9921-40338927e13c
   itemName: Shadow Dagger
@@ -70,4 +70,12 @@ MonoBehaviour:
   itemSubType: 5
   randomStats: 0
   randomStatsCount: 0
-  stats: []
+  stats:
+  - type: 3
+    value: 10
+    modType: 1
+    modTime: 0
+  - type: 4
+    value: 10
+    modType: 1
+    modTime: 0

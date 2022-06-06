@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class InventoryDragCeil : ItemDragCeil
+public class InventoryItemDragCell : ItemDragCeil
 {
     protected override void DropOnGround(ItemCell itemCell, Vector3 position)
     {

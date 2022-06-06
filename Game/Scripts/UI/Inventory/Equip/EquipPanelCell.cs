@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using CharacterEditor;
+﻿using CharacterEditor;
 using CharacterEditor.CharacterInventory;
 using CharacterEditor.Services;
 using UnityEngine;
@@ -11,8 +10,8 @@ public class EquipPanelCell : ItemCell
     [SerializeField] private GameObject _background;
     private ICharacterEquipItemService _characterEquipItemService;
 
-    public EquipItemSlot ItemSlot { get { return _slot; } }
-    public EquipItemType[] AvailableTypes { get { return _availableItemTypes; } }
+    public EquipItemSlot ItemSlot => _slot;
+    public EquipItemType[] AvailableTypes => _availableItemTypes;
 
     protected override void Init()
     {

@@ -22,11 +22,16 @@ namespace CharacterEditor
 
             _health = _character.StatCollection.GetStat<Vital>(StatType.Health);
             _health.OnCurrentValueChange += OnHealthChanged;
+            _health.OnValueChange += OnHealthChanged;
         }
 
         public void Clean()
         {
-            if (_health != null) _health.OnCurrentValueChange -= OnHealthChanged;
+            if (_health != null)
+            {
+                _health.OnCurrentValueChange -= OnHealthChanged;
+                _health.OnValueChange -= OnHealthChanged;
+            }
             GameManager.Instance.OnChangeCharacter -= OnChangeCharacterHandler;
 
             Destroy(gameObject);

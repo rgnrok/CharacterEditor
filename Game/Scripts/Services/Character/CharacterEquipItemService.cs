@@ -97,12 +97,6 @@ namespace CharacterEditor.Services
 
             _characters.Clear();
 
-            foreach (var chInstances in _meshInstances.Values)
-            foreach (var itemInstances in chInstances.Values)
-            foreach (var instances in itemInstances.Values)
-            foreach (var instance in instances)
-                Object.Destroy(instance);
-
             _meshInstances.Clear();
             _characterMaterials.Clear();
         }
@@ -516,11 +510,14 @@ namespace CharacterEditor.Services
                 {
                     if (texture.Type != TextureType.Cloak) continue;
                     _characterMaterials[character.Guid][MaterialType.Cloak].mainTexture = texture.Texture;
+                    _characterMaterials[character.Guid][MaterialType.PreviewCloak].mainTexture = texture.Texture;
                     break;
                 }
             }
 
             foreach (var cloakRender in _cloakRenders)
+                cloakRender.gameObject.SetActive(isCloakVisible);
+            foreach (var cloakRender in _previewCloakRenders)
                 cloakRender.gameObject.SetActive(isCloakVisible);
         }
 

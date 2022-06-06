@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using CharacterEditor;
+﻿using CharacterEditor;
 using CharacterEditor.CharacterInventory;
 using CharacterEditor.Services;
 using UnityEngine;
@@ -15,7 +12,6 @@ public class ItemCell : MonoBehaviour, IPointerClickHandler {
     public Item Item { get; private set; }
     public int Index { get; set; }
 
-    public Action<int, Item, Item> UpdateItem;
     private ISpriteLoader _spriteLoader;
     private IPathDataProvider _pathProvider;
 
@@ -25,7 +21,6 @@ public class ItemCell : MonoBehaviour, IPointerClickHandler {
     private void Awake()
     {
         Init();
-
         UpdateImage();
     }
 
@@ -41,12 +36,8 @@ public class ItemCell : MonoBehaviour, IPointerClickHandler {
     {
         _isDisabled = disabled;
 
-        var oldItem = Item;
         Item = item;
         UpdateImage();
-
-
-        UpdateItem?.Invoke(Index, oldItem, Item);
     }
 
     public bool IsEmpty()
@@ -54,7 +45,7 @@ public class ItemCell : MonoBehaviour, IPointerClickHandler {
         return Item == null;
     }
 
-    protected void UpdateImage()
+    private void UpdateImage()
     {
         if (!_isInit) return;
         if (itemImage == null) return;
@@ -73,11 +64,10 @@ public class ItemCell : MonoBehaviour, IPointerClickHandler {
             });
     }
 
-    protected virtual void ChangeItemVisible(bool visible)
+    private void ChangeItemVisible(bool visible)
     {
         itemImage.transform.parent.gameObject.SetActive(visible);
     }
-
 
     public void OnPointerClick(PointerEventData eventData)
     {

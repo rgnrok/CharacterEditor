@@ -40,8 +40,10 @@ public class AttributeRow : MonoBehaviour
         if (stat != null)
         {
             statName.text = stat.StatName;
-            statValue.text = (_vital != null ? _vital.StatCurrentValue : stat.StatValue).ToString();
-        }
+            statValue.text = _vital != null 
+                ? $"{_vital.StatCurrentValue} / {_vital.StatValue}" 
+                : stat.StatValue.ToString();
+        } 
     }
 
     private void OnCurrentValueChangeHandler()

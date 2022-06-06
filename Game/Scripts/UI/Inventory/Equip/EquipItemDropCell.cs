@@ -3,14 +3,15 @@ using CharacterEditor;
 using CharacterEditor.CharacterInventory;
 using CharacterEditor.Services;
 
-public class EquipDropCeil : DropCeil {
+public class EquipItemDropCell : ItemDropCell {
 
     protected EquipItemType[] _itemTypes;
     private EquipItemSlot _slot;
     private ICharacterEquipItemService _characterEquipItemService;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         _characterEquipItemService = AllServices.Container.Single<ICharacterEquipItemService>();
     }
 
@@ -24,18 +25,14 @@ public class EquipDropCeil : DropCeil {
         }
     }
 
-    protected override void OnDropItem(ItemDragCeil drag)
-    {
-        
-    }
-    protected override void OnDropContainerItem(ContainerDragCeil drag)
+    protected override void OnDropContainerItem(ContainerItemDragCell itemDrag)
     {
         
     }
 
-    protected override void OnDropInventoryItem(InventoryDragCeil drag)
+    protected override void OnDropInventoryItem(InventoryItemDragCell itemDrag)
     {
-        var item = drag.ParentCell.Item as EquipItem;
+        var item = itemDrag.ParentCell.Item as EquipItem;
         if (item == null || _itemTypes == null || Array.IndexOf(_itemTypes, item.ItemType) == -1) return;
         if (!_characterEquipItemService.CanEquip(item)) return;
 
@@ -43,16 +40,19 @@ public class EquipDropCeil : DropCeil {
         _characterEquipItemService.EquipItem(item, _slot);
     }
 
-    protected override void OnDropEquippedItem(EquipDragCeil drag)
+    protected override void OnDropEquippedItem(EquipItemDragCell itemDrag)
     {
-        var parentCeil = drag.ParentCell as EquipPanelCell;
-        if (parentCeil == null) return;
+        var oldCell = itemDrag.ParentCell as EquipPanelCell;
+        if (oldCell == null) return;
 
-        var newItem = parentCeil.Item as EquipItem;
-        var currentItem = Cell.Item as EquipItem;
+        var newItem = oldCell.Item as EquipItem;
+        var currentItem = _cell.Item as EquipItem;
         if (newItem == null || Array.IndexOf(_itemTypes, newItem.ItemType) == -1) return;
-        if (Cell.Item != null && Array.IndexOf(parentCeil.AvailableTypes, currentItem.ItemType) == -1) return;
+        if (currentItem == null || Array.IndexOf(oldCell.AvailableTypes, currentItem.ItemType) == -1) return;
 
-        _characterEquipItemService.SwapEquippedItem(_slot, parentCeil.ItemSlot);
+        _characterEquipItemService.SwapEquippedItem(_slot, oldCell.ItemSlot);
+
+        oldCell.SetItem(currentItem);
+        _cell.SetItem(newItem);
     }
 }

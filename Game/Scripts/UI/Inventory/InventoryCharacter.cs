@@ -11,18 +11,16 @@ namespace CharacterEditor
         [SerializeField] private ScrollRect scrollView;
         [SerializeField] private GameObject cell;
 
-        private List<InventoryCell> _cells = new List<InventoryCell>();
-
+        public string CharacterGuid => _character.Guid;
         public readonly Dictionary<string, Item> InventoryItems = new Dictionary<string, Item>();
+
+        private readonly List<InventoryCell> _cells = new List<InventoryCell>();
         private Dictionary<int, string> _inventoryCells = new Dictionary<int, string>();
         private Character _character;
 
-        public string CharacterGuid { get { return _character.Guid;} }
-
         public Dictionary<int, CharacterItemData> GetInventoryCells()
         {
-            Dictionary<int, CharacterItemData> cells = new Dictionary<int, CharacterItemData>();
-
+            var cells = new Dictionary<int, CharacterItemData>(_inventoryCells.Count);
             foreach (var cellPair in _inventoryCells)
             {
                 if (!InventoryItems.TryGetValue(cellPair.Value, out var item)) continue;
@@ -64,8 +62,7 @@ namespace CharacterEditor
             _cells.Clear();
             for (var i = 0; i < scrollView.content.childCount; i++)
             {
-                string cellItemGuid;
-                _inventoryCells.TryGetValue(i, out cellItemGuid);
+                _inventoryCells.TryGetValue(i, out var cellItemGuid);
 
                 var itemCell = scrollView.content.GetChild(i).GetComponent<InventoryCell>();
 
@@ -134,13 +131,13 @@ namespace CharacterEditor
             return false;
         }
 
-        public void SetCellItem(ItemCell cell, Item item)
+        private void SetCellItem(ItemCell itemCell, Item item)
         {
-            cell.SetItem(item);
+            itemCell.SetItem(item);
             if (item == null)
-                _inventoryCells.Remove(cell.Index);
+                _inventoryCells.Remove(itemCell.Index);
             else
-                _inventoryCells[cell.Index] = item.Guid;
+                _inventoryCells[itemCell.Index] = item.Guid;
         }
 
         public void SwapCells(ItemCell cell1, ItemCell cell2)
@@ -158,7 +155,5 @@ namespace CharacterEditor
                 SetCellItem(cell2, null);
             }
         }
-
-
     }
 }
