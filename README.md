@@ -1,6 +1,6 @@
 # CharacterEditor
 
-![ezgif-3-ab293563bf](https://user-images.githubusercontent.com/4612037/170510508-4b0bcbaa-3055-4d45-b832-17f526faf409.gif)
+![ezgif-4-a28b90b2e5](https://user-images.githubusercontent.com/4612037/172376713-05c890e5-c4e6-4bcd-9f6b-f43c46f2f9c1.gif)
 
 Character Editor is an updated version of the [free asset](https://assetstore.unity.com/packages/3d/characters/rpg-character-editor-free-109357)<br>
 Demo on [itch](https://rgnrok.itch.io/character-editor)
@@ -23,11 +23,16 @@ place the armor parts prefabs inside unity.
 ### Features:
 - Ready-made infrastructure for the character creation menu
 - Save and load system
-- Inventory and equipment system (*requires deep refactoring*)
+- Inventory and equipment system with stats (*requires some refactoring*)
+- Multiple controllable characters
 - Tools for configuring game characters, NPCs, enemies and equipment.
 and etc.
 
+![ezgif-4-753a76d4be](https://user-images.githubusercontent.com/4612037/172372990-6b6b7859-6b92-47f4-8280-6e1ebcba22b1.gif)
+![ezgif-4-d82b460c8a](https://user-images.githubusercontent.com/4612037/172373005-0229ed07-5d03-413b-b4b3-76880a82a6fd.gif)
+
 ![image](https://user-images.githubusercontent.com/4612037/170551432-28109d98-3790-4737-92d5-9e07c6cc4338.png)
 <br>
+
 ![image](https://user-images.githubusercontent.com/4612037/170551932-da33a67d-0d2c-41ce-a2a2-98d98132abee.png)
 
