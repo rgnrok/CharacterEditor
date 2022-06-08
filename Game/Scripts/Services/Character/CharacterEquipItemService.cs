@@ -15,15 +15,15 @@ namespace CharacterEditor.Services
         private Character _currentCharacter;
         private readonly Dictionary<string, Character> _characters = new Dictionary<string, Character>();
 
-        private readonly List<Renderer> _modelRenders = new List<Renderer>();
-        private readonly List<Renderer> _shortRobeRenders = new List<Renderer>();
-        private readonly List<Renderer> _longRobeRenders = new List<Renderer>();
-        private readonly List<Renderer> _cloakRenders = new List<Renderer>();
+        private readonly Dictionary<string, List<Renderer>> _modelRenders = new Dictionary<string, List<Renderer>>();
+        private readonly Dictionary<string, List<Renderer>> _shortRobeRenders = new Dictionary<string, List<Renderer>>();
+        private readonly Dictionary<string, List<Renderer>> _longRobeRenders = new Dictionary<string, List<Renderer>>();
+        private readonly Dictionary<string, List<Renderer>> _cloakRenders = new Dictionary<string, List<Renderer>>();
 
-        private readonly List<Renderer> _previewModelRenders = new List<Renderer>();
-        private readonly List<Renderer> _previewShortRobeRenders = new List<Renderer>();
-        private readonly List<Renderer> _previewLongRobeRenders = new List<Renderer>();
-        private readonly List<Renderer> _previewCloakRenders = new List<Renderer>();
+        private readonly Dictionary<string, List<Renderer>> _previewModelRenders = new Dictionary<string, List<Renderer>>();
+        private readonly Dictionary<string, List<Renderer>> _previewShortRobeRenders = new Dictionary<string, List<Renderer>>();
+        private readonly Dictionary<string, List<Renderer>> _previewLongRobeRenders = new Dictionary<string, List<Renderer>>();
+        private readonly Dictionary<string, List<Renderer>> _previewCloakRenders = new Dictionary<string, List<Renderer>>();
 
         private readonly Dictionary<string, Dictionary<string, Dictionary<MeshType, List<GameObject>>>> _meshInstances;
 
@@ -66,12 +66,10 @@ namespace CharacterEditor.Services
                 Constants.SKIN_TEXTURE_ATLAS_SIZE, 0, RenderTextureFormat.ARGB32);
         }
 
-        public async Task LoadMaterials()
+        public void SetupMaterials(Material armorRenderShaderMaterial, Material clothRenderShaderMaterial, Material modelMaterial, Material previewMaterial)
         {
-            var armorRenderShaderMaterial = await _loaderService.MaterialLoader.LoadByPath(AssetsConstants.ArmorMergeMaterialPathKey);
-            var clothRenderShaderMaterial = await _loaderService.MaterialLoader.LoadByPath(AssetsConstants.ClothMergeMaterialPathKey);
-            _modelMaterial = await _loaderService.MaterialLoader.LoadByPath(AssetsConstants.ModelMaterialPathKey);
-            _previewMaterial = await _loaderService.MaterialLoader.LoadByPath(AssetsConstants.PreviewMaterialPathKey);
+            _modelMaterial = modelMaterial;
+            _previewMaterial = previewMaterial;
 
             _tmpArmorRenderShaderMaterial = new Material(armorRenderShaderMaterial);
             _tmpClothRenderShaderMaterial = new Material(clothRenderShaderMaterial);
@@ -170,61 +168,46 @@ namespace CharacterEditor.Services
 
         private async Task SwapEquippedItem(Character character, EquipItemSlot slotType1, EquipItemSlot slotType2)
         {
-            if (!character.EquipItems.TryGetValue(slotType1, out var item1)
-                || !character.EquipItems.TryGetValue(slotType2, out var item2)) return;
+            character.EquipItems.TryGetValue(slotType1, out var item1);
+            character.EquipItems.TryGetValue(slotType2, out var item2);
 
-            var meshInfo1 = GetItemInstancedMeshes(character, item1.Guid);
-            var meshInfo2 = GetItemInstancedMeshes(character,item2.Guid);
-            if (meshInfo1 == null || meshInfo2 == null) return;
+            if (item1 == null && item2 == null) return;
+            if (!character.SwapItems(slotType1, slotType2)) return;
 
-            foreach (var meshes in meshInfo1.Values)
-            {
-                foreach (var go in meshes) _destroyMeshQueue.Add(go);
-                meshes.Clear();
-            }
-
-            foreach (var meshes in meshInfo2.Values)
-            {
-                foreach (var go in meshes) _destroyMeshQueue.Add(go);
-                meshes.Clear();
-            }
-
-            // Left and Right hand has different mesh models
-            await item1.ItemMesh.LoadTexturesAndMeshes(character.ConfigGuid, slotType2.IsAdditionalSlot());
-            await item2.ItemMesh.LoadTexturesAndMeshes(character.ConfigGuid, slotType1.IsAdditionalSlot());
-
-            character.SwapItems(slotType1, slotType2);
-
-            InstantiateMesh(character, item1, slotType2);
-            InstantiateMesh(character, item2, slotType1);
+            await MoveItemToOtherSlot(character, item1, slotType2);
+            await MoveItemToOtherSlot(character, item2, slotType1);
             BuildTextures(character);
+        }
+
+        private async Task MoveItemToOtherSlot(Character character, EquipItem item, EquipItemSlot slotType)
+        {
+            if (item == null) return;
+
+            foreach (var meshes in GetItemInstancedMeshes(character, item.Guid))
+            {
+                foreach (var go in meshes.Value) _destroyMeshQueue.Add(go);
+                meshes.Value.Clear();
+            }
+
+            await item.ItemMesh.LoadTexturesAndMeshes(character.ConfigGuid, slotType.IsAdditionalSlot());
+            InstantiateMesh(character, item, slotType);
         }
 
         private void SetupCharacterRenders(Character character)
         {
-            _modelRenders.Clear();
-            _previewModelRenders.Clear();
-            _modelRenders.AddRange(character.GameObjectData.SkinMeshes);
-            if (character.GameObjectData.PreviewSkinMeshes != null)
-                _previewModelRenders.AddRange(character.GameObjectData.PreviewSkinMeshes);
+            var goData = character.GameObjectData;
 
-            _shortRobeRenders.Clear();
-            _previewShortRobeRenders.Clear();
-            _shortRobeRenders.AddRange(character.GameObjectData.ShortRobeMeshes);
-            if (character.GameObjectData.PreviewShortRobeMeshes != null)
-                _previewShortRobeRenders.AddRange(character.GameObjectData.PreviewShortRobeMeshes);
+            _modelRenders[character.Guid] = new List<Renderer>(goData.SkinMeshes);
+            _previewModelRenders[character.Guid] = new List<Renderer>(goData.PreviewSkinMeshes);
 
-            _longRobeRenders.Clear();
-            _previewLongRobeRenders.Clear();
-            _longRobeRenders.AddRange(character.GameObjectData.LongRobeMeshes);
-            if (character.GameObjectData.PreviewLongRobeMeshes != null)
-                _previewLongRobeRenders.AddRange(character.GameObjectData.PreviewLongRobeMeshes);
+            _shortRobeRenders[character.Guid] = new List<Renderer>(goData.ShortRobeMeshes);
+            _previewShortRobeRenders[character.Guid] = new List<Renderer>(goData.PreviewShortRobeMeshes);
 
-            _cloakRenders.Clear();
-            _previewCloakRenders.Clear();
-            _cloakRenders.AddRange(character.GameObjectData.CloakMeshes);
-            if (character.GameObjectData.PreviewCloakMeshes != null)
-                _previewCloakRenders.AddRange(character.GameObjectData.PreviewCloakMeshes);
+            _longRobeRenders[character.Guid] = new List<Renderer>(goData.LongRobeMeshes);
+            _previewLongRobeRenders[character.Guid] = new List<Renderer>(goData.PreviewLongRobeMeshes);
+
+            _cloakRenders[character.Guid] = new List<Renderer>(goData.CloakMeshes);
+            _previewCloakRenders[character.Guid] = new List<Renderer>(goData.PreviewCloakMeshes);
         }
 
         private void UpdateCharacterMaterials(Character character)
@@ -244,15 +227,15 @@ namespace CharacterEditor.Services
             };
             _characterMaterials[character.Guid] = chMaterials;
 
-            foreach (var ren in _modelRenders) ren.material = chMaterials[MaterialType.Skin];
-            foreach (var ren in _shortRobeRenders) ren.material = chMaterials[MaterialType.Skin];
-            foreach (var ren in _longRobeRenders) ren.material = chMaterials[MaterialType.Skin];
-            foreach (var ren in _cloakRenders) ren.material = chMaterials[MaterialType.Cloak];
+            foreach (var ren in _modelRenders[character.Guid]) ren.material = chMaterials[MaterialType.Skin];
+            foreach (var ren in _shortRobeRenders[character.Guid]) ren.material = chMaterials[MaterialType.Skin];
+            foreach (var ren in _longRobeRenders[character.Guid]) ren.material = chMaterials[MaterialType.Skin];
+            foreach (var ren in _cloakRenders[character.Guid]) ren.material = chMaterials[MaterialType.Cloak];
 
-            foreach (var ren in _previewModelRenders) ren.material = chMaterials[MaterialType.PreviewSkin];
-            foreach (var ren in _previewShortRobeRenders) ren.material = chMaterials[MaterialType.PreviewSkin];
-            foreach (var ren in _previewLongRobeRenders) ren.material = chMaterials[MaterialType.PreviewSkin];
-            foreach (var ren in _previewCloakRenders) ren.material = chMaterials[MaterialType.PreviewCloak];
+            foreach (var ren in _previewModelRenders[character.Guid]) ren.material = chMaterials[MaterialType.PreviewSkin];
+            foreach (var ren in _previewShortRobeRenders[character.Guid]) ren.material = chMaterials[MaterialType.PreviewSkin];
+            foreach (var ren in _previewLongRobeRenders[character.Guid]) ren.material = chMaterials[MaterialType.PreviewSkin];
+            foreach (var ren in _previewCloakRenders[character.Guid]) ren.material = chMaterials[MaterialType.PreviewCloak];
 
             chMaterials[MaterialType.Face].mainTexture = character.FaceMeshTexture;
             chMaterials[MaterialType.PreviewFace].mainTexture = character.FaceMeshTexture;
@@ -493,9 +476,9 @@ namespace CharacterEditor.Services
                 shortRobeVisible = pantsItem.ItemSubType == EquipItemSubType.ShortRobe;
             }
 
-            foreach (var render in _longRobeRenders)
+            foreach (var render in _longRobeRenders[character.Guid])
                 render.gameObject.SetActive(longRobeVisible);
-            foreach (var render in _shortRobeRenders)
+            foreach (var render in _shortRobeRenders[character.Guid])
                 render.gameObject.SetActive(shortRobeVisible);
         }
 
@@ -515,9 +498,9 @@ namespace CharacterEditor.Services
                 }
             }
 
-            foreach (var cloakRender in _cloakRenders)
+            foreach (var cloakRender in _cloakRenders[character.Guid])
                 cloakRender.gameObject.SetActive(isCloakVisible);
-            foreach (var cloakRender in _previewCloakRenders)
+            foreach (var cloakRender in _previewCloakRenders[character.Guid])
                 cloakRender.gameObject.SetActive(isCloakVisible);
         }
 

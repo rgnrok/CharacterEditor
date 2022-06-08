@@ -40,14 +40,26 @@ namespace Game
         public async void Enter(string saveName)
         {
             _loaderService.CleanUp();
-
-            await _equipItemService.LoadMaterials();
-
+            
             _saveName = saveName;
             _loadingCurtain.SetLoading(0);
 
             await _loaderService.Initialize();
+
+            await LoadEquipServiceMaterials();
+
             _sceneLoader.Load(PLAY_CHARACTER_SCENE, OnSceneLoaded);
+        }
+
+        private async Task LoadEquipServiceMaterials()
+        {
+            var materials = _loaderService.DataManager.ParseGameMaterials();
+            var armorRenderShaderMaterial = await _loaderService.MaterialLoader.LoadByPath(materials[AssetsConstants.ArmorMergeMaterialPathKey]);
+            var clothRenderShaderMaterial = await _loaderService.MaterialLoader.LoadByPath(materials[AssetsConstants.ClothMergeMaterialPathKey]);
+            var modelMaterial = await _loaderService.MaterialLoader.LoadByPath(materials[AssetsConstants.ModelMaterialPathKey]);
+            var previewMaterial = await _loaderService.MaterialLoader.LoadByPath(materials[AssetsConstants.PreviewMaterialPathKey]);
+
+            _equipItemService.SetupMaterials(armorRenderShaderMaterial, clothRenderShaderMaterial, modelMaterial, previewMaterial);
         }
 
         public void Exit()

@@ -20,7 +20,7 @@ MonoBehaviour:
     addressPath: Icons_Shield_obj
   prefab:
     path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Hand L/8/Model/W_L_11.prefab
-    bundlePath: HumanMale_Hand_L_8_prefabObj/W_L_11
+    bundlePath: HumanMale_Hand_L_8/W_L_11
     addressPath: Prefabs/HumanMale/Hand L/8/Model/W_L_11.prefab
   configsItems:
   - configGuid: 2c5cab39-f8c4-4ee7-b8db-67c40ae2a27d

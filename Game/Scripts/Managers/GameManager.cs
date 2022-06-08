@@ -275,11 +275,6 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
     {
         _npcPlayerCharacters.Remove(character.Guid);
 
-        var previewPrefab = Instantiate(character.GameObjectData.Config.PreviewPrefab);
-        previewPrefab.transform.position = Vector3.zero;
-        previewPrefab.SetActive(false);
-        character.GameObjectData.InitPreviewPrefab(previewPrefab);
-
         AddCharacter(character);
         character.GameObjectData.CharacterObject.layer = Constants.LAYER_CHARACTER;
     }

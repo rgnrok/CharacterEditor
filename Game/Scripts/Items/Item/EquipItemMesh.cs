@@ -31,20 +31,26 @@ namespace CharacterEditor
 
                     var meshesCount = configData.models.Length;
                     _itemMeshes[configData.configGuid] = new ItemMesh[meshesCount];
-                    _additionalItemMeshes[configData.configGuid] = new ItemMesh[meshesCount];
+                    var additionalItemMeshes = new List<ItemMesh>(meshesCount);
                     for (var i = 0; i < meshesCount; i++)
                     {
                         var meshData = configData.models[i];
                         if (_equipItemData.itemType == EquipItemType.Weapon && meshData.availableMeshes.Length == 2)
                         {
                             _itemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(MeshType.HandRight, meshLoader, pathProvider.GetPath(meshData.prefab), textureLoader, pathProvider.GetPath(meshData.texture));
-                            _additionalItemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(MeshType.HandLeft, meshLoader, pathProvider.GetPath(meshData.additionalPrefab), textureLoader, pathProvider.GetPath(meshData.additionalTexture));
+                            var addMeshPath = pathProvider.GetPath(meshData.additionalPrefab);
+                            var addTexturePath = pathProvider.GetPath(meshData.additionalTexture);
+
+                            if (!string.IsNullOrEmpty(addMeshPath) && !string.IsNullOrEmpty(addTexturePath))
+                                additionalItemMeshes.Add(ArmorMeshFactory.Create(MeshType.HandLeft, meshLoader, addMeshPath, textureLoader, addTexturePath));
+
                             continue;
                         }
 
                         _itemMeshes[configData.configGuid][i] = ArmorMeshFactory.Create(meshData.availableMeshes[0], meshLoader, pathProvider.GetPath(meshData.prefab), textureLoader, pathProvider.GetPath(meshData.texture));
-                        _additionalItemMeshes[configData.configGuid][i] = null;
                     }
+
+                    _additionalItemMeshes[configData.configGuid] = additionalItemMeshes.ToArray();
                 }
             }
 
@@ -54,7 +60,7 @@ namespace CharacterEditor
                 if (_equipItemData.itemType != EquipItemType.Weapon) return itemMeshes;
 
                 if (!isAdditional) return itemMeshes;
-                if (!_additionalItemMeshes.TryGetValue(configGuid, out var additionalItemMeshes)) return new ItemMesh[0];
+                if (!_additionalItemMeshes.TryGetValue(configGuid, out var additionalItemMeshes) || additionalItemMeshes?.Length == 0) return itemMeshes;
                 return additionalItemMeshes;
             }
 

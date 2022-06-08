@@ -48,7 +48,7 @@ public class EquipItemDropCell : ItemDropCell {
         var newItem = oldCell.Item as EquipItem;
         var currentItem = _cell.Item as EquipItem;
         if (newItem == null || Array.IndexOf(_itemTypes, newItem.ItemType) == -1) return;
-        if (currentItem == null || Array.IndexOf(oldCell.AvailableTypes, currentItem.ItemType) == -1) return;
+        if (currentItem != null && Array.IndexOf(oldCell.AvailableTypes, currentItem.ItemType) == -1) return;
 
         _characterEquipItemService.SwapEquippedItem(_slot, oldCell.ItemSlot);
 

@@ -111,7 +111,11 @@ namespace CharacterEditor.Services
             var go = Object.Instantiate(config.characterConfig.Prefab, position, Quaternion.identity);
             go.layer = Constants.LAYER_NPC;
 
-            var goData = new CharacterGameObjectData(config.characterConfig, go, null);
+            var previewInstance = Object.Instantiate(config.characterConfig.PreviewPrefab);
+            previewInstance.transform.position = Vector3.zero;
+            previewInstance.SetActive(false);
+
+            var goData = new CharacterGameObjectData(config.characterConfig, go, previewInstance);
             var stats = new DefaultStatCollection(); //tmp load from config in feature
             var character = new Character(config.guid, stats, goData, skinTexture, faceTexture, portraitIcon);
             character.Init();

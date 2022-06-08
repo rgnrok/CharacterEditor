@@ -23,7 +23,7 @@ namespace Game
             if (SceneManager.GetActiveScene().name != name)
                 yield return UnloadCurrentScene();
 
-            var waitNextScene = SceneManager.LoadSceneAsync(name, LoadSceneMode.Single);
+            var waitNextScene = SceneManager.LoadSceneAsync(name);
             while (!waitNextScene.isDone)
                 yield return null;
 

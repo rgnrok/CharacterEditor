@@ -6,6 +6,7 @@ using CharacterEditor;
 using CharacterEditor.AssetDatabaseLoader;
 using CharacterEditor.CharacterInventory;
 using CharacterEditor.JSONMap;
+using CharacterEditor.Services;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -53,11 +54,15 @@ namespace Editor
             DisplayProgressBar("Parse npc", "", 0.4f);
             bundleMap.playableNpc = ParsePlayableNpc();
 
-            DisplayProgressBar("Parse enemies", "", 0.8f);
+            DisplayProgressBar("Parse enemies", "", 0.7f);
             bundleMap.enemies = ParseEnemies();
 
-            DisplayProgressBar("Parse containers", "", 0.9f);
+            DisplayProgressBar("Parse containers", "", 0.8f);
             bundleMap.containers = ParseContainers();
+
+            DisplayProgressBar("Parse materials", "", 0.9f);
+            bundleMap.materials = ParseMaterials();
+
 
             if (!Directory.Exists(Application.dataPath + "/Resources/"))
                 Directory.CreateDirectory(Application.dataPath + "/Resources/");
@@ -152,7 +157,7 @@ namespace Editor
             if (prefabPath.IndexOf(PrefabPathPrefix, StringComparison.Ordinal) == 0)
                 prefabPath = prefabPath.Substring(PrefabPathPrefix.Length);
 
-            ParsePathToBundle(prefabPath, out var prefabBundleName, out var prefabAssetPath, 2, "prefabObj");
+            ParsePathToBundle(prefabPath, out var prefabBundleName, out var prefabAssetPath, 2);
             AssetImporter.GetAtPath(itemData.prefab.path).SetAssetBundleNameAndVariant(prefabBundleName, "");
 
             itemData.prefab.bundlePath = prefabAssetPath;
@@ -281,6 +286,39 @@ namespace Editor
         {
             var loader = new ContainerLoader();
             return ParseDataEntities(loader);
+        }
+
+        private static List<GuidPathMap> ParseMaterials()
+        {
+            var staticData = new StaticDataService();
+            staticData.LoadData();
+
+            var armorMatPath = AssetDatabase.GetAssetPath(staticData.GameData.ArmorMergeMaterial);
+            var clothMatPath = AssetDatabase.GetAssetPath(staticData.GameData.ClothMergeMaterial);
+            var modelMatPath = AssetDatabase.GetAssetPath(staticData.GameData.ModelMaterial);
+            var previewMatPath = AssetDatabase.GetAssetPath(staticData.GameData.PreviewMaterial);
+
+            ParsePathToBundle(armorMatPath, out var bundleName, out var armorMatGuidPath);
+            AssetImporter.GetAtPath(armorMatPath).SetAssetBundleNameAndVariant(bundleName, "");
+
+            ParsePathToBundle(clothMatPath, out bundleName, out var clothMatGuidPath);
+            AssetImporter.GetAtPath(clothMatPath).SetAssetBundleNameAndVariant(bundleName, "");
+
+            ParsePathToBundle(modelMatPath, out bundleName, out var modelMatGuidPath);
+            AssetImporter.GetAtPath(modelMatPath).SetAssetBundleNameAndVariant(bundleName, "");
+
+            ParsePathToBundle(previewMatPath, out bundleName, out var previewMatGuidPath);
+            AssetImporter.GetAtPath(previewMatPath).SetAssetBundleNameAndVariant(bundleName, "");
+
+            var map = new List<GuidPathMap>()
+            {
+                new GuidPathMap {guid = AssetsConstants.ArmorMergeMaterialPathKey, path = armorMatGuidPath},
+                new GuidPathMap {guid = AssetsConstants.ClothMergeMaterialPathKey, path = clothMatGuidPath},
+                new GuidPathMap {guid = AssetsConstants.ModelMaterialPathKey, path = modelMatGuidPath},
+                new GuidPathMap {guid = AssetsConstants.PreviewMaterialPathKey, path = previewMatGuidPath},
+            };
+
+            return map;
         }
 
         private static string ParseConfigPath(CharacterConfig config)

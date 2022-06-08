@@ -30,7 +30,7 @@ MonoBehaviour:
     - availableMeshes: 20000000
       prefab:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Belt/3/StaticModel/A_Belt_HumanMale_3.prefab
-        bundlePath: 
+        bundlePath: HumanMale_Belt_3/A_Belt_HumanMale_3
         addressPath: Prefabs/HumanMale/Belt/3/StaticModel/A_Belt_HumanMale_3.prefab
       additionalPrefab:
         path: 
@@ -38,7 +38,7 @@ MonoBehaviour:
         addressPath: 
       texture:
         path: Assets/Packages/Character_Editor/Prefabs/HumanMale/Belt/3/Textures/A_HumanMale_Brigand_1_Belt.png
-        bundlePath: 
+        bundlePath: HumanMale_Belt_3/A_HumanMale_Brigand_1_Belt
         addressPath: Prefabs/HumanMale/Belt/3/Textures/A_HumanMale_Brigand_1_Belt.png
       additionalTexture:
         path: 
@@ -51,7 +51,7 @@ MonoBehaviour:
     - availableMeshes: 20000000
       prefab:
         path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Belt/1/StaticModel/A_humanFemale_BeltChaman_1_model.prefab
-        bundlePath: 
+        bundlePath: HumanFemale_Belt_1/A_humanFemale_BeltChaman_1_model
         addressPath: Prefabs/HumanFemale/Belt/1/StaticModel/A_humanFemale_BeltChaman_1_model.prefab
       additionalPrefab:
         path: 
@@ -59,7 +59,7 @@ MonoBehaviour:
         addressPath: 
       texture:
         path: Assets/Packages/Character_Editor/Prefabs/HumanFemale/Belt/1/Textures/A_HumanFemale_BeltChaman_1_texture.png
-        bundlePath: 
+        bundlePath: HumanFemale_Belt_1/A_HumanFemale_BeltChaman_1_texture
         addressPath: Prefabs/HumanFemale/Belt/1/Textures/A_HumanFemale_BeltChaman_1_texture.png
       additionalTexture:
         path: 

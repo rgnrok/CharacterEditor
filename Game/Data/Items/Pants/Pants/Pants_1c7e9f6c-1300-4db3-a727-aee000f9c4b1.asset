@@ -38,7 +38,7 @@ MonoBehaviour:
     - textureType: 256
       texture:
         path: Assets/Packages/Character_Editor/Textures/Character/HumanFemale/Clothes/Pants/HumanFemale_Pant_02b.png
-        bundlePath: HumanFemale_Clothes_Pant/HumanFemale_Pant_02b
+        bundlePath: HumanFemale_Clothes_Pants/HumanFemale_Pant_02b
         addressPath: Textures/Character/HumanFemale/Clothes/Pants/HumanFemale_Pant_02b.png
     models: []
   hidedMeshTypes: 

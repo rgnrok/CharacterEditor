@@ -21,8 +21,7 @@ namespace CharacterEditor
             {
                 return ParseTextures(GetFolderPath(characterConfig.folderName, textureType));
             }
-
-
+            
             public Dictionary<string, string[][]> ParseCharacterMeshes(CharacterConfig characterConfig, MeshType meshType)
             {
                 var folderPath = GetFolderPath(characterConfig.folderName, meshType);
@@ -45,6 +44,12 @@ namespace CharacterEditor
                 }
 
                 return meshAndTexturePaths;
+            }
+
+            public Dictionary<string, string> ParseGameMaterials()
+            {
+                //Database loader not work in game mode
+                return new Dictionary<string, string>(); 
             }
 
             private string[][] ParseTextures(string path)
@@ -147,7 +152,6 @@ namespace CharacterEditor
 
                 return null;
             }
-
         }
     }
 }

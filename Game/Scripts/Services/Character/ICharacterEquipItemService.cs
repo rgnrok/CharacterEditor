@@ -21,6 +21,6 @@ namespace CharacterEditor.Services
         Texture2D GetCurrentCharacterTexture();
         Texture2D GetCurrentCharacterArmorTexture();
         event Action OnTexturesChanged;
-        Task LoadMaterials();
+        void SetupMaterials(Material armorRenderShaderMaterial, Material clothRenderShaderMaterial, Material modelMaterial, Material previewMaterial);
     }
 }

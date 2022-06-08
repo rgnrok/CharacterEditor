@@ -298,13 +298,19 @@ namespace CharacterEditor
             OnRemoveFromInventory?.Invoke(Guid, item);
         }
 
-        public void SwapItems(EquipItemSlot slot1, EquipItemSlot slot2)
+        public bool SwapItems(EquipItemSlot slot1, EquipItemSlot slot2)
         {
-            if (!EquipItems.ContainsKey(slot1) || !EquipItems.ContainsKey(slot2)) return;
+            EquipItems.TryGetValue(slot1, out var item1);
+            EquipItems.TryGetValue(slot2, out var item2);
 
-            var tmp = EquipItems[slot1];
-            EquipItems[slot1] = EquipItems[slot2];
-            EquipItems[slot2] = tmp;
+            if (item1 == null && item2 == null) return false;
+
+            if (item2 != null) EquipItems[slot1] = item2;
+            else EquipItems.Remove(slot1);
+
+            if (item1 != null) EquipItems[slot2] = item1;
+            else EquipItems.Remove(slot2);
+            return true;
         }
 
         public EquipItem GetWeapon()

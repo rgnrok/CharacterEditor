@@ -16,6 +16,8 @@ namespace CharacterEditor
         public Dictionary<string, GuidPathMap> Containers;
         public Dictionary<string, GuidPathMap> Enemies;
 
+        private Dictionary<string, string> _materials;
+
         public RemoteDataManager(string mapConfigPath)
         {
             var targetFile = Resources.Load<TextAsset>(mapConfigPath);
@@ -27,6 +29,8 @@ namespace CharacterEditor
             PlayerCharacters = map.playableNpc.ToDictionary(x => x.guid, x => x);
             Containers = map.containers.ToDictionary(x => x.guid, x => x);
             Enemies = map.enemies.ToDictionary(x => x.guid, x => x);
+
+            _materials = map.materials.ToDictionary(x => x.guid, x => x.path);
 
             RaceMeshes = new Dictionary<string, Dictionary<MeshType, MeshesMap>>(Races.Count);
             RaceTextures = new Dictionary<string, Dictionary<TextureType, TexturesMap>>(Races.Count);
@@ -68,6 +72,11 @@ namespace CharacterEditor
                     return texturePaths;
                 }
             );
+        }
+
+        public Dictionary<string, string> ParseGameMaterials()
+        {
+            return _materials;
         }
     }
 }

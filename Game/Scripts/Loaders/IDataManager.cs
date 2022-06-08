@@ -6,5 +6,6 @@ namespace CharacterEditor
     {
         string[][] ParseCharacterTextures(CharacterConfig characterConfig, TextureType type);
         Dictionary<string, string[][]> ParseCharacterMeshes(CharacterConfig characterConfig, MeshType meshType);
+        Dictionary<string, string> ParseGameMaterials();
     }
 }
