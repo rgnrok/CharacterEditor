@@ -12,12 +12,12 @@ public abstract class CharacterBattleBaseState : IState
         _character = fsm.Character;
     }
 
-    public void Enter()
+    public virtual void Enter()
     {
         _moveComponent = _character.GameObjectData.CharacterObject.GetComponent<PlayerMoveComponent>();
     }
 
-    public void Exit()
+    public virtual void Exit()
     {
         
     }

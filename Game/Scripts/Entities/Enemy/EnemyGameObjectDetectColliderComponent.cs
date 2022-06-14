@@ -9,9 +9,8 @@ namespace EnemySystem
     public class EnemyGameObjectDetectColliderComponent : MonoBehaviour
     {
         [SerializeField] private SphereCollider detectCollider;
-        private PlayerMoveComponent moveComponent;
 
-        private HashSet<int> triggeredEntities = new HashSet<int>();
+        private readonly HashSet<int> _triggeredEntities = new HashSet<int>();
         private float _initColliderRadius;
 
         public event Action<GameObject> OnCharacterVisible;
@@ -26,7 +25,7 @@ namespace EnemySystem
         private void OnTriggerEnter(Collider other)
         {
             var goId = other.gameObject.GetInstanceID();
-            if (triggeredEntities.Contains(goId)) return;
+            if (_triggeredEntities.Contains(goId)) return;
 
             switch (other.gameObject.layer)
             {
@@ -35,18 +34,18 @@ namespace EnemySystem
                     break;
             }
 
-            triggeredEntities.Add(goId);
+            _triggeredEntities.Add(goId);
         }
 
         private void OnTriggerExit(Collider other)
         {
             var goId = other.gameObject.GetInstanceID();
-            triggeredEntities.Remove(goId);
+            _triggeredEntities.Remove(goId);
         }
 
         private void OnCharacterTriggered(GameObject characterGo)
         {
-            if (OnCharacterVisible != null) OnCharacterVisible(characterGo);
+            OnCharacterVisible?.Invoke(characterGo);
         }
 
         public void IncreaseDetectCollider()

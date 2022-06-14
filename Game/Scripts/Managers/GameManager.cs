@@ -1,26 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using CharacterEditor;
-using CharacterEditor.CharacterInventory;
 using CharacterEditor.Services;
 using EnemySystem;
 using Game;
 using UnityEngine;
-using UnityEngine.Profiling;
 
 public class GameManager : MonoBehaviour, ICoroutineRunner
 {
     public static GameManager Instance { get; private set; }
-    public BattleManager BattleManager { get; private set; }
-
-    public PlayerMoveController PlayerMoveController { get; private set; }
-    public RenderPathController RenderPathController { get; private set; }
 
     public HoverManager HoverManager { get; private set; }
     public Transform Canvas { get; private set; }
 
     #region Characters
-    public string MainCharacterGuid { get; set; }
+    public string MainCharacterGuid { get; private set; }
     public Character CurrentCharacter { get; private set; }
 
     public Action<Character> OnChangeCharacter;
@@ -32,55 +26,97 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
     public Dictionary<string, Character> Characters { get; private set; }
     public Dictionary<string, Enemy> Enemies { get; private set; }
 
-    // Игровые персонажи, которые в будущем могут стать персонажами игрока
-    private Dictionary<string, Character> _npcPlayerCharacters = new Dictionary<string, Character>();
-    public Dictionary<string, Character> NpcPlayerCharacters { get { return _npcPlayerCharacters; } }
+    // Playable characters that will become player characters in the future
+    private readonly Dictionary<string, Character> _npcPlayerCharacters = new Dictionary<string, Character>();
+    public Dictionary<string, Character> NpcPlayerCharacters => _npcPlayerCharacters;
 
     private FollowCamera _followCamera;
-
 
     #endregion
 
     #region Popups
 
-    [SerializeField]
-    private ItemData[] inventoryItems;
-
     [SerializeField] private Inventory inventoryPopup;
     [SerializeField] private CharacterPopup characterPopup;
     [SerializeField] private ContainerPopup containerPopup;
 
-    public Dictionary<string, Container> OpenedContainers = new Dictionary<string, Container>();
-    public Inventory Inventory { get { return inventoryPopup; } }
-    public ContainerPopup ContainerPopup { get { return containerPopup; } }
+    public readonly Dictionary<string, Container> OpenedContainers = new Dictionary<string, Container>();
+    public Inventory Inventory => inventoryPopup;
+    public ContainerPopup ContainerPopup => containerPopup;
+
     #endregion
 
     private ISaveLoadService _saveLoadService;
     private IInputService _inputService;
     private ICharacterEquipItemService _equipItemService;
     private ICharacterManageService _characterManageService;
-
-    // private GameStateMachine _gameStateMachine;
+    private IBattleManageService _battleManageService;
 
 
     private void Awake()
     {
         if (Instance != null) Destroy(gameObject);
         Instance = this;
-        BattleManager = new BattleManager();
 
+        HoverManager = GetComponent<HoverManager>();
         _followCamera = Camera.main.GetComponent<FollowCamera>();
-
-        PlayerMoveController = GetComponent<PlayerMoveController>();
-        RenderPathController = GetComponent<RenderPathController>();
 
         Characters = new Dictionary<string, Character>();
         Enemies = new Dictionary<string, Enemy>();
 
-        HoverManager = GetComponent<HoverManager>();
-        // _gameStateMachine = new GameStateMachine(new SceneLoader(this), AllServices.Container);
-
         InitServices();
+    }
+
+    private void Start()
+    {
+        Canvas = GameObject.Find("Canvas").transform;
+    }
+
+    private void OnDestroy()
+    {
+        if (_saveLoadService != null)
+        {
+            _saveLoadService.OnCharactersLoaded -= OnCharactersLoadedHandler;
+            _saveLoadService.OnPlayableNpcLoaded -= OnPlayableNpcLoadedHandler;
+            _saveLoadService.OnEnemiesLoaded -= OnEnemiesLoadedHandler;
+            _saveLoadService.OnLoadData -= OnLoadDataHandler;
+        }
+
+        if (_inputService != null)
+        {
+            _inputService.CharacterGameObjectClick -= CharacterGameObjectClickHandler;
+            _inputService.EnemyGameObjectClick -= EnemyGameObjectClickHandler;
+            _inputService.NpcGameObjectClick -= NpcGameObjectClickHandler;
+            _inputService.ToggleInventory -= ToggleInventoryHandler;
+            _inputService.ToggleCharacterInfo -= ToggleCharacterInfoHandler;
+            _inputService.PickUpObjectClick -= PickUpObjectClickHandler;
+            _inputService.OnChangeMouseRaycastHit -= OnChangeMouseRaycastHitHandler;
+        }
+    }
+
+    public void SetCharacter(Character ch, bool focus = false)
+    {
+        CurrentCharacter = ch;
+        Characters[ch.Guid] = ch;
+
+        _equipItemService.SetupCharacter(CurrentCharacter);
+        CurrentCharacter.GameObjectData.CharacterObject.SetActive(true);
+
+        Inventory.Init(CurrentCharacter);
+
+        if (focus) _followCamera.SetFocus(CurrentCharacter.GameObjectData.CharacterObject.transform, true);
+
+        OnChangeCharacter?.Invoke(CurrentCharacter);
+        _characterManageService.SelectCharacter(ch);
+    }
+
+    public void OpenContainer(Container container)
+    {
+        if (container == null) return;
+
+        OpenedContainers[container.Guid] = container;
+        ContainerPopup.Init(container);
+        ContainerPopup.Open();
     }
 
     private void InitServices()
@@ -109,44 +145,14 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
 
         _equipItemService = AllServices.Container.Single<ICharacterEquipItemService>();
         _characterManageService = AllServices.Container.Single<ICharacterManageService>();
+        _battleManageService = AllServices.Container.Single<IBattleManageService>();
     }
 
-    private void Start()
-    {
-        Canvas = GameObject.Find("Canvas").transform;
-        // PlayerMoveController.CurrentCharacterPositionChanged += CurrentCharacterPositionChangedHandler;
-        // _gameStateMachine.Start();
-    }
-
-    private void OnDestroy()
-    {
-        if (_saveLoadService != null)
-        {
-            _saveLoadService.OnCharactersLoaded -= OnCharactersLoadedHandler;
-            _saveLoadService.OnPlayableNpcLoaded -= OnPlayableNpcLoadedHandler;
-            _saveLoadService.OnEnemiesLoaded -= OnEnemiesLoadedHandler;
-            _saveLoadService.OnLoadData -= OnLoadDataHandler;
-        }
-
-        if (_inputService != null)
-        {
-            _inputService.CharacterGameObjectClick -= CharacterGameObjectClickHandler;
-            _inputService.EnemyGameObjectClick -= EnemyGameObjectClickHandler;
-            _inputService.NpcGameObjectClick -= NpcGameObjectClickHandler;
-            _inputService.ToggleInventory -= ToggleInventoryHandler;
-            _inputService.ToggleCharacterInfo -= ToggleCharacterInfoHandler;
-            _inputService.PickUpObjectClick -= PickUpObjectClickHandler;
-            _inputService.OnChangeMouseRaycastHit -= OnChangeMouseRaycastHitHandler;
-        }
-    }
-
-
-    public void SetCharacter(string guid)
+    private void SetCharacter(string guid)
     {
         if (Characters.ContainsKey(guid)) 
             SetCharacter(Characters[guid]);
     }
-
 
     private void RemoveCharacter(Character ch)
     {
@@ -159,28 +165,6 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
         SetCharacter(ch);
         OnAddCharacter?.Invoke(ch);
     }
-
-
-
-    public void SetCharacter(Character ch, bool focus = false)
-    {
-//        if (CurrentCharacter != null && CurrentCharacter.guid == ch.guid) return;
-
-        CurrentCharacter = ch;
-        Characters[ch.Guid] = ch;
-
-        _equipItemService.SetupCharacter(CurrentCharacter);
-        CurrentCharacter.GameObjectData.CharacterObject.SetActive(true);
-
-
-        Inventory.Init(CurrentCharacter);
-
-        if (focus) _followCamera.SetFocus(CurrentCharacter.GameObjectData.CharacterObject.transform, true);
-
-        OnChangeCharacter?.Invoke(CurrentCharacter);
-        _characterManageService.SelectCharacter(ch);
-    }
-
 
     private void CharacterGameObjectClickHandler(RaycastHit hit)
     {
@@ -199,9 +183,8 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
         var enemy = GetEnemyByGoId(hit.collider.gameObject.GetInstanceID());
         if (enemy == null) return;
 
-        if (OnEnemyClick != null) OnEnemyClick(CurrentCharacter.Guid, enemy);
+        OnEnemyClick?.Invoke(CurrentCharacter.Guid, enemy);
     }
-
 
     private void NpcGameObjectClickHandler(RaycastHit hit)
     {
@@ -225,23 +208,10 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
         characterPopup.Toggle();
     }
 
-    public void OpenContainer(Container container)
-    {
-        if (container == null) return;
-
-        OpenedContainers[container.Guid] = container;
-        ContainerPopup.Init(container);
-        ContainerPopup.Open();
-    }
-
-  
-
+    //todo tmp not use move to character state machine
     private void PickUpObjectClickHandler(RaycastHit gameObjectHit)
     {
         _inputService.UpdateCursor(CursorType.PickUp);
-
-        PlayerMoveController.CurrentCharacterStop();
-        PlayerMoveController.LookCurrentCharacterToPoint(gameObjectHit.point);
 
         if (Helper.IsNear(CurrentCharacter.GameObjectData.CharacterObject.transform.position, gameObjectHit.collider))
         {
@@ -257,20 +227,7 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
 //            ContainerPopup.Close();
         }
     }
-
-    private void CurrentCharacterPositionChangedHandler()
-    {
-        ContainerPopup.Close();
-    }
-
-
-    private void Update()
-    {
-        // _inputService.Update();
-        BattleManager.Update();
-        // _gameStateMachine.Update();
-    }
-
+   
     private void ConvertToCharacter(Character character)
     {
         _npcPlayerCharacters.Remove(character.Guid);
@@ -301,13 +258,13 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
         return null;
     }
 
-    public void EnemyVisibleCharacter(Enemy enemy, GameObject charaGameObject)
+    public void EnemyVisibleCharacter(Enemy enemy, GameObject characterGameObject)
     {
-        var character = GetCharacterByGoId(charaGameObject.GetInstanceID());
+        var character = GetCharacterByGoId(characterGameObject.GetInstanceID());
         if (character == null) return;
 
-        BattleManager.AddCharacter(character);
-        BattleManager.AddEnemy(enemy);
+        _battleManageService.AddCharacter(character);
+        _battleManageService.AddEnemy(enemy);
     }
 
     private void OnChangeMouseRaycastHitHandler(RaycastHit hit)
@@ -327,13 +284,9 @@ public class GameManager : MonoBehaviour, ICoroutineRunner
 
                 var character = GetCharacterByGoId(hitId);
                 if (character != null)
-                {
                     HoverManager.HoverFirends(character);
-                }
                 else
-                {
                     HoverManager.UnHover();
-                }
                 break;
             case Constants.LAYER_ENEMY:
                 var enemy = GetEnemyByGoId(hit.transform.gameObject.GetInstanceID());

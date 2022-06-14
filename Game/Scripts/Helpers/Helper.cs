@@ -209,12 +209,6 @@ public static partial class Helper
         return heading / distance;
     }
 
-    // old shit code, remove
-    public static Coroutine StartCoroutine(IEnumerator enumerator)
-    {
-        return GameManager.Instance.StartCoroutine(enumerator);
-    }
-
     public static int GetActualIndex(int index, int arraySize, int defaultIndex = 0)
     {
         if (index >= arraySize) return defaultIndex;

@@ -1,5 +1,4 @@
-﻿using CharacterEditor;
-using EnemySystem;
+﻿using EnemySystem;
 
 public class EnemyBattleBaseState : IState
 {
@@ -13,12 +12,12 @@ public class EnemyBattleBaseState : IState
         _enemy = fsm.Enemy;
     }
 
-    public void Enter()
+    public virtual void Enter()
     {
         _moveComponent = _enemy.GameObjectData.Entity.GetComponent<PlayerMoveComponent>();
     }
 
-    public void Exit()
+    public virtual void Exit()
     {
         
     }

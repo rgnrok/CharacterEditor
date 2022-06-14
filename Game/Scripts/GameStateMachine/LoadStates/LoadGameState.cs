@@ -25,7 +25,7 @@ namespace Game
 
 
         public LoadGameState(FSM fsm, SceneLoader sceneLoader, LoadingCurtain loadingCurtain,
-            ILoaderService loaderService, ISaveLoadService saveLoadService, IStaticDataService staticData, IMergeTextureService mergeTextureService,
+            ILoaderService loaderService, ISaveLoadService saveLoadService, IStaticDataService staticData,
             ICharacterEquipItemService equipItemService) 
         {
             _fsm = fsm;

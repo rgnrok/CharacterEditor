@@ -196,10 +196,10 @@ namespace CharacterEditor
             var npcs = new List<Character>();
             foreach (var point in levelData.PlayableNpcSpawners)
             {
-                var needLoad = saveData.characters.All(sCharacter => sCharacter.guid != point.Id);
+                var needLoad = saveData.characters.All(sCharacter => sCharacter.guid != point.ConfigId);
                 if (!needLoad) continue;
 
-                var config = await _loaderService.PlayableNpcLoader.LoadData(point.Id);
+                var config = await _loaderService.PlayableNpcLoader.LoadData(point.ConfigId);
                 var skinTexture = await _loaderService.TextureLoader.LoadByPath(_loaderService.PathDataProvider.GetPath(config.texturePath));
                 var faceTexture = await _loaderService.TextureLoader.LoadByPath(_loaderService.PathDataProvider.GetPath(config.faceMeshTexturePath));
                 var portraitIcon = await _loaderService.SpriteLoader.LoadPortrait(config.portraitIconName);
@@ -217,10 +217,8 @@ namespace CharacterEditor
             var enemies = new List<Enemy>(levelData.EnemySpawners.Count);
             foreach (var enemySpawner in levelData.EnemySpawners)
             {
-                var enemyConfig = await _loaderService.EnemyLoader.LoadData(enemySpawner.Id);
-
-                var guid = enemyConfig.guid; //todo {1}_{2}
-                var enemy = await LoadEnemy(guid, enemyConfig, enemySpawner.Position);
+                var enemyConfig = await _loaderService.EnemyLoader.LoadData(enemySpawner.ConfigId);
+                var enemy = await LoadEnemy(enemySpawner.Id, enemyConfig, enemySpawner.Position);
                 enemies.Add(enemy);
             }
             OnEnemiesLoaded?.Invoke(enemies);
@@ -234,7 +232,7 @@ namespace CharacterEditor
 
             foreach (var containerSpawner in levelData.ContainerSpawners)
             {
-                var containerConfig = await _loaderService.ContainerLoader.LoadData(containerSpawner.Id);
+                var containerConfig = await _loaderService.ContainerLoader.LoadData(containerSpawner.ConfigId);
                 saveData.containers.TryGetValue(containerConfig.guid, out var containerSaveData);
 
                 await _gameFactory.CreateContainer(containerConfig, containerSaveData, containerSpawner.Position);

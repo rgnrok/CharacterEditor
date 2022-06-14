@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using EnemySystem;
 
 public class EnemyBattleFSM : FSM
@@ -21,6 +22,9 @@ public class EnemyBattleFSM : FSM
 
 
     public Enemy Enemy { get; private set; }
+
+    public List<IBattleEntity> Characters { get; private set; }
+
 
     public EnemyBattleFSM(Enemy enemy)
     {
@@ -58,5 +62,11 @@ public class EnemyBattleFSM : FSM
 
     public void Clean()
     {
+    }
+
+    public void StartTurn(List<IBattleEntity> characters)
+    {
+        Characters = characters;
+        SpawnEvent((int)EnemyBattleStateType.FindTarget);
     }
 }

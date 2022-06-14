@@ -3,12 +3,13 @@
 
 public abstract class AttackComponent : MonoBehaviour
 {
+    [SerializeField]
     private Animator _animator;
     protected Animator Animator
     {
         get
         {
-            if (_animator == null) _animator = GetComponent<Animator>();
+            if (_animator == null) _animator = GetComponentInChildren<Animator>();
             return _animator;
         }
     }

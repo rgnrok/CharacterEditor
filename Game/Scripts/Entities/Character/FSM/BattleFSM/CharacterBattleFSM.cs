@@ -13,8 +13,8 @@ public class CharacterBattleFSM : FSM
         TurnEnd,
     }
 
-    private CharacterBattleMovePayloadState _movePayloadState;
-    private CharacterBattleAttackPayloadState _attackPayloadState;
+    private CharacterBattleMoveState _moveState;
+    private CharacterBattleAttackState _attackState;
     private CharacterBattleTurnEndState _turnEndState;
     private readonly CharacterBattleIdleState _idleState;
 
@@ -29,19 +29,21 @@ public class CharacterBattleFSM : FSM
 
         var inputService = AllServices.Container.Single<IInputService>();
         var characterManageService = AllServices.Container.Single<ICharacterManageService>();
+        var characterMoveService = AllServices.Container.Single<ICharacterMoveService>();
+        var renderPathService = AllServices.Container.Single<ICharacterRenderPathService>();
 
         _idleState = AddState(new CharacterBattleIdleState(this));
-        var findTargetState = AddState(new CharacterBattleFindTargetPayloadState(this, inputService, characterManageService));
+        var findTargetState = AddState(new CharacterBattleFindTargetState(this, inputService, characterManageService, renderPathService));
         _turnEndState = AddState(new CharacterBattleTurnEndState(this));
-        _movePayloadState = AddState(new CharacterBattleMovePayloadState(this));
-        _attackPayloadState = AddState(new CharacterBattleAttackPayloadState(this));
+        _moveState = AddState(new CharacterBattleMoveState(this, characterMoveService));
+        _attackState = AddState(new CharacterBattleAttackState(this));
 
         AddTransition((int)CharacterBattleStateType.FindTarget, _idleState, findTargetState);
-        AddTransition((int)CharacterBattleStateType.FindTarget, _movePayloadState, findTargetState);
-        AddTransition((int)CharacterBattleStateType.FindTarget, _attackPayloadState, findTargetState);
+        AddTransition((int)CharacterBattleStateType.FindTarget, _moveState, findTargetState);
+        AddTransition((int)CharacterBattleStateType.FindTarget, _attackState, findTargetState);
 
-        AddTransition((int)CharacterBattleStateType.Move, findTargetState, _movePayloadState);
-        AddTransition((int)CharacterBattleStateType.Attack, findTargetState, _attackPayloadState);
+        AddTransition((int)CharacterBattleStateType.Move, findTargetState, _moveState);
+        AddTransition((int)CharacterBattleStateType.Attack, findTargetState, _attackState);
 
         AddTransition((int)CharacterBattleStateType.Idle, _turnEndState, _idleState);
 

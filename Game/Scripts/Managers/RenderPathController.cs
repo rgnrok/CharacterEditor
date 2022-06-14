@@ -8,6 +8,26 @@ using Logger = CharacterEditor.Logger;
 
 public class RenderPathController : MonoBehaviour
 {
+    protected class PathInfo
+    {
+        public Vector3 targetPoint;
+        public List<Vector3> points;
+        public Vector3 endPoint;
+        public bool isComplete;
+        public float totalDistance;
+        public float availableDistance;
+        public IAttacked attacked;
+
+        public PathInfo(Vector3 point)
+        {
+            points = new List<Vector3>();
+            targetPoint = point;
+            isComplete = false;
+            totalDistance = 0;
+            availableDistance = 0;
+        }
+    }
+
     [SerializeField] private GameObject pathPoint;
     [SerializeField] private GameObject cursorPathPoint;
     [SerializeField] private GameObject endPathPoint;
@@ -33,12 +53,13 @@ public class RenderPathController : MonoBehaviour
 
     private MovePointerInfo _movePonterInfo;
     private Vector3 _movePointerInfoOffset;
-    private InputService _inputService;
+    private IInputService _inputService;
+    private ICharacterRenderPathService _renderPathService;
 
     void Start()
     {
-        _pointersPool = new ObjectPool<GameObject>(CreatePathPoint, DestroyObject, HiddeObject);
-        _debugPool = new ObjectPool<GameObject>(CreateDebugPoint, DestroyObject, HiddeObject);
+        _pointersPool = new ObjectPool<GameObject>(CreatePathPoint, DestroyObject, HideObject);
+        _debugPool = new ObjectPool<GameObject>(CreateDebugPoint, DestroyObject, HideObject);
 
         _cursorPathPointInstance = Instantiate(cursorPathPoint);
         _cursorPathPointInstance.SetActive(false);
@@ -52,9 +73,11 @@ public class RenderPathController : MonoBehaviour
         _movePointerInfoOffset = new Vector3(100, 10, 0);
 
         GameManager.Instance.OnChangeCharacter += OnChangeCharacterHandler;
-        _inputService = AllServices.Container.Single<InputService>();
-        if (_inputService != null)
-            _inputService.OnChangeMouseRaycastHit += OnChangeMouseRaycastHitHandler;
+        _inputService = AllServices.Container.Single<IInputService>();
+        _inputService.OnChangeMouseRaycastHit += OnChangeMouseRaycastHitHandler;
+
+        _renderPathService = AllServices.Container.Single<ICharacterRenderPathService>();
+        _renderPathService.OnStartDrawPath += OnStartDrawPathHandler;
     }
 
     private void OnDestroy()
@@ -64,7 +87,16 @@ public class RenderPathController : MonoBehaviour
 
         if (_inputService != null)
             _inputService.OnChangeMouseRaycastHit -= OnChangeMouseRaycastHitHandler;
+
+        if (_renderPathService != null)
+            _renderPathService.OnStartDrawPath -= OnStartDrawPathHandler;
     }
+
+    private void OnStartDrawPathHandler(Character character)
+    {
+        SetCharacter(character);
+    }
+
 
     private GameObject CreateDebugPoint()
     {
@@ -74,7 +106,8 @@ public class RenderPathController : MonoBehaviour
     {
         return Instantiate(pathPoint, pathPointersContainer != null ? pathPointersContainer.transform : null);
     }
-    private void HiddeObject(GameObject point)
+
+    private void HideObject(GameObject point)
     {
         point.SetActive(false);
     }
@@ -97,7 +130,7 @@ public class RenderPathController : MonoBehaviour
         return _movePonterInfo;
     }
 
-    private void UpdateMovePointer(int AP, float distance)
+    private void UpdateMovePointer(int actionPoints, float distance)
     {
         _movePonterInfo = GetMovePoint();
         if (_movePonterInfo == null) return;
@@ -106,7 +139,7 @@ public class RenderPathController : MonoBehaviour
         if (distance == -1)
             _movePonterInfo.UpdateFailInfo();
         else
-            _movePonterInfo.UpdateInfo(AP, distance);
+            _movePonterInfo.UpdateInfo(actionPoints, distance);
     }
 
 
@@ -204,7 +237,7 @@ public class RenderPathController : MonoBehaviour
             if (i == corners.Length - 2) subPointsCount = Mathf.FloorToInt(distanceBetweenCorners / distanceBewteenPoints);
 
             totalDistance += distanceBetweenCorners;
-            Debug.Log("totalDistance " + totalDistance + " subPointsCount " + subPointsCount);
+            // Debug.Log("totalDistance " + totalDistance + " subPointsCount " + subPointsCount);
             for (var sp = 0; sp < subPointsCount && hasPoints; sp++)
             {
                 pointPosition = prevPoint + direction * distanceBewteenPoints;
@@ -273,26 +306,7 @@ public class RenderPathController : MonoBehaviour
         _pointersPool.HiddeOthers();
         _debugPool.HiddeOthers();
     }
-
-    protected class PathInfo
-    {
-        public Vector3 targetPoint;
-        public List<Vector3> points;
-        public Vector3 endPoint;
-        public bool isComplete;
-        public float totalDistance;
-        public float availableDistance;
-        public IAttacked attacked;
-
-        public PathInfo(Vector3 point)
-        {
-            points = new List<Vector3>();
-            targetPoint = point;
-            isComplete = false;
-            totalDistance = 0;
-            availableDistance = 0;
-        }
-    }
+    
 
     protected PathInfo GetPathInfo(RaycastHit hit)
     {

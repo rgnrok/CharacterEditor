@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using CharacterEditor;
-using UnityEngine;
+using CharacterEditor.Services;
 
 public class CharacterBattleState : IState, IUpdatableState
 {
@@ -16,6 +16,7 @@ public class CharacterBattleState : IState, IUpdatableState
     private CharacterBattleFSM _battleFSM;
     private readonly CharacterFSM _fsm;
     private readonly Character _character;
+    private readonly IBattleManageService _battleManageService;
 
     public CharacterBattleState(CharacterFSM fsm)
     {
@@ -24,7 +25,7 @@ public class CharacterBattleState : IState, IUpdatableState
         _moveComponent = _character.EntityGameObject.GetComponent<PlayerMoveComponent>();
 
         _battleFSM = new CharacterBattleFSM(_character);
-   
+        _battleManageService = AllServices.Container.Single<IBattleManageService>();
     }
 
     public void Enter()
@@ -33,7 +34,7 @@ public class CharacterBattleState : IState, IUpdatableState
         _battleFSM.OnCurrentStateChanged += OnCurrentStateChangedHandler;
         _battleFSM.Start();
 
-        GameManager.Instance.BattleManager.OnBattleEnd += OnBattleEndHandler;
+        _battleManageService.OnBattleEnd += OnBattleEndHandler;
         _character.GameObjectData.Animator.SetTrigger(Constants.CHARACTER_START_BATTLE_TRIGGER);
         _character.ActionPoints.SetValueCurrentToMax();
     }
@@ -44,7 +45,7 @@ public class CharacterBattleState : IState, IUpdatableState
         _battleFSM.OnCurrentStateChanged -= OnCurrentStateChangedHandler;
         _battleFSM.Clean();
 
-        GameManager.Instance.BattleManager.OnBattleEnd -= OnBattleEndHandler;
+        _battleManageService.OnBattleEnd -= OnBattleEndHandler;
         if (_character.IsAlive()) _character.GameObjectData.Animator.SetTrigger(Constants.CHARACTER_END_BATTLE_TRIGGER);
     }
 
@@ -75,7 +76,7 @@ public class CharacterBattleState : IState, IUpdatableState
         if (_moveComponent != null) _moveComponent.EnableNavmesh();
 
         _isTurnComplete = false;
-        _battleFSM.SpawnEvent((int) CharacterBattleFSM.CharacterBattleStateType.FindTarget, enemies);
+        _battleFSM.SpawnEvent((int) CharacterBattleFSM.CharacterBattleStateType.FindTarget);
     }
 
     public void ProcessTurn()
@@ -93,5 +94,10 @@ public class CharacterBattleState : IState, IUpdatableState
     private void OnCurrentStateChangedHandler(IExitableState state)
     {
         _fsm.FireOnCurrentStateChanged();
+    }
+
+    public override string ToString()
+    {
+        return $"{GetType().Name}: {_battleFSM.CurrentState}";
     }
 }

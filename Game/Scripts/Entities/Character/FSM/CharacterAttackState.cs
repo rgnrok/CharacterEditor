@@ -1,4 +1,5 @@
 ﻿using CharacterEditor;
+using CharacterEditor.FmsPayload;
 using CharacterEditor.Services;
 
 public class CharacterAttackState : IPayloadedState<IAttacked>
@@ -42,7 +43,8 @@ public class CharacterAttackState : IPayloadedState<IAttacked>
 
         if (!_attackComponent.IsAvailableDistance(_targetEntity))
         {
-            _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Move, _attackComponent.GetTargetPointForAttack(_targetEntity));
+            var movePayload = new MovePayload(_attackComponent.GetTargetPointForAttack(_targetEntity));
+            _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Move, movePayload);
             return;
         }
 

@@ -14,16 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   LevelKey: Play_Character_Scene
   EnemySpawners:
-  - Id: bcc65ec2-17a7-49a0-918c-630d15358573
+  - Id: Play_Character_Scene_bd351706-2b87-431b-b3df-e64fe191fc07
+    ConfigId: bcc65ec2-17a7-49a0-918c-630d15358573
     Position: {x: -11, y: 0, z: 13.73}
-  - Id: bcc65ec2-17a7-49a0-918c-630d15358573
+  - Id: Play_Character_Scene_7efdad90-6fa8-4ca9-9eed-c15bd0942032
+    ConfigId: bcc65ec2-17a7-49a0-918c-630d15358573
     Position: {x: 13.5, y: 0, z: -13.14}
   PlayableNpcSpawners:
-  - Id: 26b8545b-6268-4f3b-9599-f5c794336bd7
+  - Id: Play_Character_Scene_7b5ee898-132c-4ede-b5dd-5028927ec9d0
+    ConfigId: 26b8545b-6268-4f3b-9599-f5c794336bd7
     Position: {x: 5.73, y: 0, z: -1.87}
-  - Id: ce220174-f807-446d-8fa1-49557274d25e
+  - Id: Play_Character_Scene_a71d6ec8-ff21-4276-902e-ec566ce9fdf9
+    ConfigId: ce220174-f807-446d-8fa1-49557274d25e
     Position: {x: -3.6, y: 0, z: 0}
   ContainerSpawners:
-  - Id: Container_1
+  - Id: Play_Character_Scene_782a00a9-bf8b-4305-a7be-f73370df70f4
+    ConfigId: Container_1
     Position: {x: 11.36, y: 0, z: 15.24}
   InitialPlayerPoint: {x: 13.68, y: 0, z: 13.51}

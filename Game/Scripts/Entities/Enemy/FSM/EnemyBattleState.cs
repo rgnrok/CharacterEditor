@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using CharacterEditor;
+using CharacterEditor.Services;
 using EnemySystem;
 
 public class EnemyBattleState : EnemyBaseState, IUpdatableState
@@ -6,20 +8,25 @@ public class EnemyBattleState : EnemyBaseState, IUpdatableState
     private bool _isTurnComplete;
     private EnemyAttackComponent _attackComponent;
     private EnemyBattleFSM _battleFSM;
+    private readonly IBattleManageService _battleManageService;
+
 
     public EnemyBattleState(EnemyFSM fsm) : base(fsm)
     {
         _battleFSM = new EnemyBattleFSM(_enemy);
-        _battleFSM.OnTurnEnd += OnTurnEndHandler;
-        _battleFSM.OnCurrentStateChanged += OnCurrentStateChangedHandler;
+
+        _battleManageService = AllServices.Container.Single<IBattleManageService>();
     }
 
     public override void Enter()
     {
         base.Enter();
+
+        _battleFSM.OnTurnEnd += OnTurnEndHandler;
+        _battleFSM.OnCurrentStateChanged += OnCurrentStateChangedHandler;
         _battleFSM.Start();
 
-        GameManager.Instance.BattleManager.OnBattleEnd += OnBattleEndHandler;
+        _battleManageService.OnBattleEnd += OnBattleEndHandler;
         _enemy.GameObjectData.Animator.SetTrigger(Constants.CHARACTER_START_BATTLE_TRIGGER);
 
         if (_detectCollider != null) _detectCollider.IncreaseDetectCollider();
@@ -29,9 +36,10 @@ public class EnemyBattleState : EnemyBaseState, IUpdatableState
     {
         base.Exit();
         _battleFSM.OnCurrentStateChanged -= OnCurrentStateChangedHandler;
+        _battleFSM.OnTurnEnd -= OnTurnEndHandler;
         _battleFSM.Clean();
 
-        GameManager.Instance.BattleManager.OnBattleEnd -= OnBattleEndHandler;
+        _battleManageService.OnBattleEnd -= OnBattleEndHandler;
         if (_enemy.IsAlive()) _enemy.GameObjectData.Animator.SetTrigger(Constants.CHARACTER_END_BATTLE_TRIGGER);
         if (_detectCollider != null) _detectCollider.DecreaseDetectCollider();
     }
@@ -51,16 +59,16 @@ public class EnemyBattleState : EnemyBaseState, IUpdatableState
         return _isTurnComplete;
     }
 
-    public void StartTurn(List<IBattleEntity> enemies)
+    public void StartTurn(List<IBattleEntity> characters)
     {
-        if (enemies.Count == 0)
+        if (characters.Count == 0)
         {
             _isTurnComplete = true;
             return;
         }
 
         _isTurnComplete = false;
-        _battleFSM.SpawnEvent((int)EnemyBattleFSM.EnemyBattleStateType.FindTarget, enemies);
+        _battleFSM.StartTurn(characters);
     }
 
     public void ProcessTurn()
@@ -76,5 +84,10 @@ public class EnemyBattleState : EnemyBaseState, IUpdatableState
     private void OnCurrentStateChangedHandler(IExitableState state)
     {
         _fsm.FireOnCurrentStateChanged();
+    }
+
+    public override string ToString()
+    {
+        return $"{GetType().Name}: {_battleFSM.CurrentState}";
     }
 }

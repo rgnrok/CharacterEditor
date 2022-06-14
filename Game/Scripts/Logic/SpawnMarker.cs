@@ -12,7 +12,7 @@ namespace CharacterEditor.Logic
 
     public class SpawnMarker : MonoBehaviour
     {
-        public SpawnType type;
         public string entityGuid;
+        public SpawnType type;
     }
 }

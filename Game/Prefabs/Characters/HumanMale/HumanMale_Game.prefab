@@ -75,6 +75,11 @@ PrefabInstance:
       propertyPath: _animator
       value: 
       objectReference: {fileID: 4188075710610338758}
+    - target: {fileID: 4760024516700957421, guid: a75874cef9cfcb14cbf70ae02fd36321,
+        type: 3}
+      propertyPath: _animator
+      value: 
+      objectReference: {fileID: 4188075710610338758}
     - target: {fileID: 5576559444830954063, guid: a75874cef9cfcb14cbf70ae02fd36321,
         type: 3}
       propertyPath: m_RootOrder
@@ -140,6 +145,11 @@ PrefabInstance:
       propertyPath: m_BaseOffset
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6991162947703097629, guid: a75874cef9cfcb14cbf70ae02fd36321,
+        type: 3}
+      propertyPath: _animator
+      value: 
+      objectReference: {fileID: 4188075710610338758}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a75874cef9cfcb14cbf70ae02fd36321, type: 3}
 --- !u!4 &8842193374616990334 stripped

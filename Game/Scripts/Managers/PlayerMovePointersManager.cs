@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CharacterEditor;
 using CharacterEditor.Services;
 using UnityEngine;
 
-public class PlayerMoveController : MonoBehaviour, ICharacterMoveObserver
+public class PlayerMovePointersManager : MonoBehaviour, ICharacterMoveObserver
 {
     [SerializeField] private GameObject movePointer;
     [SerializeField] private GameObject attackMovePointer;
+
+    public RenderPathController RenderPathController { get; private set; }
 
     private Dictionary<string, GameObject> _movePointers = new Dictionary<string, GameObject>();
     private Dictionary<string, GameObject> _attackMovePointers = new Dictionary<string, GameObject>();
@@ -18,6 +19,8 @@ public class PlayerMoveController : MonoBehaviour, ICharacterMoveObserver
 
     private void Start()
     {
+        RenderPathController = GetComponent<RenderPathController>();
+
         _characterMoveService = AllServices.Container.Single<ICharacterMoveService>();
         if (_characterMoveService != null)
             _characterMoveService.AddObserver(this);
@@ -29,20 +32,6 @@ public class PlayerMoveController : MonoBehaviour, ICharacterMoveObserver
             _characterMoveService.RemoveObserver(this);
     }
 
-    public void CurrentCharacterStop()
-    {
-//        todo !! Move to FSM. How? Dont know
-//        if (_currentPlayer != null)
-//            _currentPlayer.Stop();
-    }
-
-    public void LookCurrentCharacterToPoint(Vector3 point)
-    {
-//        todo !! Move to FSM. How? Dont know
-//        if (_currentPlayer != null)
-//            _currentPlayer.RotateTo(point);
-    }
-
     public void ShowMovePoint(string characterGuid, Vector3 point)
     {
         ShowPointer(characterGuid, point, _movePointers, movePointer);
@@ -51,6 +40,12 @@ public class PlayerMoveController : MonoBehaviour, ICharacterMoveObserver
     public void ShowAttackPoint(string characterGuid, Vector3 point)
     {
         ShowPointer(characterGuid, point, _attackMovePointers, attackMovePointer);
+    }
+
+    public void HideCharacterPointer(string characterGuid)
+    {
+        if (_movePointers.TryGetValue(characterGuid, out var pointer)) pointer.SetActive(false);
+        if (_attackMovePointers.TryGetValue(characterGuid, out pointer)) pointer.SetActive(false);
     }
 
     private void ShowPointer(string characterGuid, Vector3 point, Dictionary<string, GameObject> pointerCollection, GameObject pointerPrefab)
@@ -66,12 +61,5 @@ public class PlayerMoveController : MonoBehaviour, ICharacterMoveObserver
 
         pointer.transform.position = point + pointerPrefab.transform.position;
         pointer.SetActive(true);
-    }
-
-
-    public void HideCharacterPointer(string characterGuid)
-    {
-        if (_movePointers.TryGetValue(characterGuid, out var pointer)) pointer.SetActive(false);
-        if (_attackMovePointers.TryGetValue(characterGuid, out pointer)) pointer.SetActive(false);
     }
 }

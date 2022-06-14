@@ -37,7 +37,7 @@ namespace Editor
         {
             return FindObjectsOfType<SpawnMarker>()
                     .Where(x => x.type == type)
-                    .Select(x => new EntitySpawnerData(x.entityGuid, x.transform.position))
+                    .Select(x => new EntitySpawnerData(x.GetComponent<UniqueId>().Id, x.entityGuid, x.transform.position))
                     .ToList();
 
         }

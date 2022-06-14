@@ -1,11 +1,14 @@
-﻿using UnityEngine;
+﻿using CharacterEditor.Services;
+using UnityEngine;
 
-public class CharacterBattleMovePayloadState : CharacterBattleBasePayloadState<Vector3>
+public class CharacterBattleMoveState : CharacterBattleBasePayloadState<Vector3>
 {
+    private readonly ICharacterMoveService _moveService;
     private Vector3 _targetEntity;
 
-    public CharacterBattleMovePayloadState(CharacterBattleFSM fsm) : base(fsm)
+    public CharacterBattleMoveState(CharacterBattleFSM fsm, ICharacterMoveService moveService) : base(fsm)
     {
+        _moveService = moveService;
     }
 
     public override void Enter(Vector3 targetEntity)
@@ -13,7 +16,7 @@ public class CharacterBattleMovePayloadState : CharacterBattleBasePayloadState<V
         base.Enter(targetEntity);
         _targetEntity = targetEntity;
 
-        AfterSwitching();
+        if (CanMove()) Move(_targetEntity);
     }
 
     public override void Exit()
@@ -25,11 +28,6 @@ public class CharacterBattleMovePayloadState : CharacterBattleBasePayloadState<V
         }
 
         base.Exit();
-    }
-
-    private void AfterSwitching()
-    {
-        if (CanMove()) Move(_targetEntity);
     }
 
     private bool CanMove()
@@ -52,9 +50,9 @@ public class CharacterBattleMovePayloadState : CharacterBattleBasePayloadState<V
         if (_moveComponent != null)
         {
             _moveComponent.OnMoveCompleted -= OnMoveCompletedHandler;
-       
         }
-        GameManager.Instance.PlayerMoveController.HideCharacterPointer(_character.Guid);//todo ??
+
+        _moveService.FireHideCharacterPointer(_character.Guid);
         _fsm.SpawnEvent((int)CharacterBattleFSM.CharacterBattleStateType.FindTarget);
     }
 }

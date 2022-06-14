@@ -73,7 +73,7 @@ public class PlayerMoveComponent : MonoBehaviour
         if (_agentSwitchCoroutine != null) StopCoroutine(_agentSwitchCoroutine);
         if (forceDisable) _agentSwitchCoroutine = StartCoroutine(DisableNavmeshCoroutine());
 
-        if (OnMoveCompleted != null) OnMoveCompleted();
+        OnMoveCompleted?.Invoke();
     }
 
     public void MoveToPoint(Vector3 point, bool disableNavmeshOnStop)

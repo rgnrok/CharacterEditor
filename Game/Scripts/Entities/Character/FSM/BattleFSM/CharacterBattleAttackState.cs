@@ -1,11 +1,11 @@
 ﻿using CharacterEditor;
 
-public class CharacterBattleAttackPayloadState : CharacterBattleBasePayloadState<IAttacked>
+public class CharacterBattleAttackState : CharacterBattleBasePayloadState<IAttacked>
 {
     private CharacterAttackComponent _attackComponent;
     private IAttacked _targetEntity;
 
-    public CharacterBattleAttackPayloadState(CharacterBattleFSM fsm) : base(fsm)
+    public CharacterBattleAttackState(CharacterBattleFSM fsm) : base(fsm)
     {
     }
 

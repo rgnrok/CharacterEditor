@@ -14,7 +14,7 @@ public class EntityGameObjectData<TConfig> where TConfig: EntityConfig
     {
         Config = config;
         Entity = entityObject;
-        Animator = Entity.GetComponent<Animator>();
+        Animator = Entity.GetComponentInChildren<Animator>();
 
         SkinMeshes = ParseSkinMeshes(Entity.transform, Config.skinnedMeshes);
     }

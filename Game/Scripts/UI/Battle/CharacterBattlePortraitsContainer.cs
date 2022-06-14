@@ -1,27 +1,40 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CharacterEditor;
+using CharacterEditor.Services;
 using UnityEngine;
 
 public class CharacterBattlePortraitsContainer : MonoBehaviour
 {
     [SerializeField]
     private GameObject _characterPortraitUIPrefab;
-    private Dictionary<string, CharacterBattlePortraitUI> portraits = new Dictionary<string, CharacterBattlePortraitUI>();
+
+    private readonly Dictionary<string, CharacterBattlePortraitUI> _portraits = new Dictionary<string, CharacterBattlePortraitUI>();
+    private IBattleManageService _battleManager;
 
     private void Start()
     {
-        var battleManager = GameManager.Instance.BattleManager;
+        _battleManager = AllServices.Container.Single<IBattleManageService>();
+        if (_battleManager == null) return;
 
-        battleManager.OnBattleStart += OnBattleStartHandler;
-        battleManager.OnBattleEnd += OnBattleEndHandler;
-        battleManager.OnEntityAdded += OnEntityAddedHandler;
-        battleManager.OnEntityRemoved += OnEntityRemovedHandler;
-        battleManager.OnTurnCompleted += OnTurnCompletedHandler;
-        battleManager.OnTurnStarted += OnTurnStartedHandler;
+        _battleManager.OnBattleStart += OnBattleStartHandler;
+        _battleManager.OnBattleEnd += OnBattleEndHandler;
+        _battleManager.OnEntityAdded += OnEntityAddedHandler;
+        _battleManager.OnEntityRemoved += OnEntityRemovedHandler;
+        _battleManager.OnTurnCompleted += OnTurnCompletedHandler;
+        _battleManager.OnTurnStarted += OnTurnStartedHandler;
     }
 
+    private void OnDestroy()
+    {
+        if (_battleManager == null) return;
 
+        _battleManager.OnBattleStart -= OnBattleStartHandler;
+        _battleManager.OnBattleEnd -= OnBattleEndHandler;
+        _battleManager.OnEntityAdded -= OnEntityAddedHandler;
+        _battleManager.OnEntityRemoved -= OnEntityRemovedHandler;
+        _battleManager.OnTurnCompleted -= OnTurnCompletedHandler;
+        _battleManager.OnTurnStarted -= OnTurnStartedHandler;
+    }
 
     private void OnBattleStartHandler()
     {
@@ -31,39 +44,43 @@ public class CharacterBattlePortraitsContainer : MonoBehaviour
     private void OnBattleEndHandler()
     {
         gameObject.SetActive(false);
-        foreach (var portrait in portraits.Values)
-        {
+        foreach (var portrait in _portraits.Values)
             Destroy(portrait.gameObject);
-        }
-        portraits.Clear();
+
+        _portraits.Clear();
     }
 
     private void OnEntityAddedHandler(IBattleEntity entity)
     {
-        var portrait = Instantiate(_characterPortraitUIPrefab, transform).GetComponent<CharacterBattlePortraitUI>();
-        if (portrait == null) return;
+        var goInstance = Instantiate(_characterPortraitUIPrefab, transform);
+        var portrait = goInstance.GetComponent<CharacterBattlePortraitUI>();
+        if (portrait == null)
+        {
+            Destroy(goInstance);
+            return;
+        }
 
         portrait.Init(entity);
-        portraits[entity.Guid] = portrait;
+        _portraits[entity.Guid] = portrait;
     }
 
     private void OnEntityRemovedHandler(IBattleEntity entity)
     {
-        if (!portraits.ContainsKey(entity.Guid)) return;
-        portraits[entity.Guid].Clean();
-        portraits.Remove(entity.Guid);
+        if (!_portraits.ContainsKey(entity.Guid)) return;
+        _portraits[entity.Guid].Clean();
+        _portraits.Remove(entity.Guid);
     }
 
     private void OnTurnCompletedHandler(IBattleEntity entity)
     {
-        if (!portraits.ContainsKey(entity.Guid)) return;
-        portraits[entity.Guid].transform.SetSiblingIndex(transform.childCount);
-        portraits[entity.Guid].SetSelected(false);
+        if (!_portraits.ContainsKey(entity.Guid)) return;
+        _portraits[entity.Guid].transform.SetSiblingIndex(transform.childCount);
+        _portraits[entity.Guid].SetSelected(false);
     }
 
     private void OnTurnStartedHandler(IBattleEntity entity)
     {
-        if (!portraits.ContainsKey(entity.Guid)) return;
-        portraits[entity.Guid].SetSelected(true);
+        if (!_portraits.ContainsKey(entity.Guid)) return;
+        _portraits[entity.Guid].SetSelected(true);
     }
 }

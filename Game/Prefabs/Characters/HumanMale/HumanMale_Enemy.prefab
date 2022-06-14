@@ -63,6 +63,12 @@ PrefabInstance:
         type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4b14cfb1f6b7e4641b5260f3aea90fee, type: 3}
+--- !u!95 &2517026809809432595 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 878224779624187977, guid: 4b14cfb1f6b7e4641b5260f3aea90fee,
+    type: 3}
+  m_PrefabInstance: {fileID: 3377227224978651226}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6969750628994040685
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -130,6 +136,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: HumanMale_Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 6991162947703097629, guid: 5f858fb1c9d4f63469bff5ffd2a0bf0b,
+        type: 3}
+      propertyPath: _animator
+      value: 
+      objectReference: {fileID: 2517026809809432595}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5f858fb1c9d4f63469bff5ffd2a0bf0b, type: 3}
 --- !u!4 &3304072032068657442 stripped

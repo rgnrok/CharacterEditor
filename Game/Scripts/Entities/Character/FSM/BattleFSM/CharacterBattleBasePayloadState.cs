@@ -3,7 +3,7 @@
 public abstract class CharacterBattleBasePayloadState<T> : IPayloadedState<T>
 {
     protected readonly CharacterBattleFSM _fsm;
-    protected Character _character;
+    protected readonly Character _character;
     protected PlayerMoveComponent _moveComponent;
 
 

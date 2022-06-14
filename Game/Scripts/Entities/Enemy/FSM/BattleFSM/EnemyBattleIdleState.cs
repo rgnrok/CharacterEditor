@@ -4,7 +4,7 @@
     {
     }
 
-    public new void Enter()
+    public override void Enter()
     {
         base.Enter();
 

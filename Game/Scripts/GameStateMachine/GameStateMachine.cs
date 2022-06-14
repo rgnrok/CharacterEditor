@@ -13,8 +13,6 @@ public class GameStateMachine : FSM
 
         LoadGame,
         GameLoop,
-
-        Battle
     }
 
     private readonly BootstrapState _bootstrapState;
@@ -40,17 +38,17 @@ public class GameStateMachine : FSM
             services.Single<ILoaderService>(),
             services.Single<ISaveLoadService>(),
             services.Single<IStaticDataService>(),
-            services.Single<IMergeTextureService>(),
             services.Single<ICharacterEquipItemService>()
             ));
 
         var createCharacterLoopState = AddState(new CreateCharacterLoopState(this));
-        var gameLoopState = AddState(new GameLoopState(this,
+        var gameLoopState = AddState(new GameLoopState(
+            this,
             services.Single<IInputService>(),
             services.Single<IGameFactory>(),
-            services.Single<ICharacterEquipItemService>()
+            services.Single<ICharacterEquipItemService>(),
+            services.Single<IBattleManageService>()
             ));
-        var battleState = AddState(new BattleState(this));
 
         AddTransition((int) GameStateType.LoadProgress, _bootstrapState, loadProgressState);
 
@@ -65,7 +63,6 @@ public class GameStateMachine : FSM
 
         AddTransition((int) GameStateType.CreateCharacterLoop, createGameState, createCharacterLoopState);
         AddTransition((int) GameStateType.GameLoop, loadGameState, gameLoopState);
-        AddTransition((int) GameStateType.Battle, gameLoopState, battleState);
     }
 
     public override void Start()

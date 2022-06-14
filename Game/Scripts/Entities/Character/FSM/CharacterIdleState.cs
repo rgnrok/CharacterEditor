@@ -61,7 +61,8 @@ public class CharacterIdleState : IState
                     () =>
                     {
                         ContainerGameObjectClickHandler(containerHit);
-                    }));
+                    })
+                );
         }
     }
 

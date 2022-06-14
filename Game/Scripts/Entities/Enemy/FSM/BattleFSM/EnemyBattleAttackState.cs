@@ -1,6 +1,6 @@
 ﻿using EnemySystem;
 
-public class EnemyBattleAttackState : EnemyBattleBaseState<IBattleEntity>
+public class EnemyBattleAttackState : EnemyBattleBasePayloadState<IBattleEntity>
 {
     private EnemyAttackComponent _attackComponent;
     private IBattleEntity _targetEntity;
@@ -10,7 +10,7 @@ public class EnemyBattleAttackState : EnemyBattleBaseState<IBattleEntity>
     }
 
 
-    public new void Enter(IBattleEntity targetEntity)
+    public override void Enter(IBattleEntity targetEntity)
     {
         base.Enter(targetEntity);
         _attackComponent = _enemy.AttackComponent;
@@ -20,7 +20,7 @@ public class EnemyBattleAttackState : EnemyBattleBaseState<IBattleEntity>
         TryAttack(_targetEntity);
     }
 
-    public new void Exit()
+    public override void Exit()
     {
         base.Exit();
         if (_attackComponent != null) _attackComponent.OnAttackComplete -= OnAttackCompleteHandler;

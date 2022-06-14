@@ -1,5 +1,4 @@
-﻿using CharacterEditor;
-using StatSystem;
+﻿using StatSystem;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;

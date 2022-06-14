@@ -93,7 +93,7 @@ namespace Editor
                     var lods = loadGroup.GetLODs();
                     if (lods.Length < 3) continue;
 
-                    lods[0].screenRelativeTransitionHeight = 0.55f;
+                    lods[0].screenRelativeTransitionHeight = 0.35f;
                     lods[1].screenRelativeTransitionHeight = 0.15f;
 
                     loadGroup.SetLODs(lods);

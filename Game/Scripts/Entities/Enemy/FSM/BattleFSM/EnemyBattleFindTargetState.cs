@@ -1,11 +1,10 @@
 ﻿using EnemySystem;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using CharacterEditor.FmsPayload;
 
-public class EnemyBattleFindTargetState : EnemyBattleBaseState<List<IBattleEntity>>
+public class EnemyBattleFindTargetState : EnemyBattleBaseState
 {
-    private List<IBattleEntity> _entities;
+    private List<IBattleEntity> _characters;
     private EnemyAttackComponent _attackComponent;
 
     private bool _readyAttacket; //todo
@@ -13,22 +12,16 @@ public class EnemyBattleFindTargetState : EnemyBattleBaseState<List<IBattleEntit
     public EnemyBattleFindTargetState(EnemyBattleFSM fsm) : base(fsm)
     {
     }
-
-
-    public new void Enter(List<IBattleEntity> targetEntity)
+    
+    public override void Enter()
     {
-        base.Enter(targetEntity);
-        _entities = targetEntity;
+        base.Enter();
+        _characters = _fsm.Characters;
         _attackComponent = _enemy.AttackComponent;
 
-        AfterSwitching();
-    }
-
-    private void AfterSwitching()
-    {
         FindTarget();
     }
-
+    
     private void FindTarget()
     {
         if (_readyAttacket)
@@ -37,7 +30,7 @@ public class EnemyBattleFindTargetState : EnemyBattleBaseState<List<IBattleEntit
             _readyAttacket = false;
             return;
         }
-        var battleEntity = _entities[0];
+        var battleEntity = _characters[0];
         if (_attackComponent.IsAvailableDistance(battleEntity))
         {
             _fsm.SpawnEvent((int)EnemyBattleFSM.EnemyBattleStateType.Attack, battleEntity);
@@ -45,6 +38,7 @@ public class EnemyBattleFindTargetState : EnemyBattleBaseState<List<IBattleEntit
             return;
         }
 
-        _fsm.SpawnEvent((int)EnemyBattleFSM.EnemyBattleStateType.Move, _attackComponent.GetTargetPointForAttack(battleEntity));
+        var movePoint = _attackComponent.GetTargetPointForAttack(battleEntity);
+        _fsm.SpawnEvent((int)EnemyBattleFSM.EnemyBattleStateType.Move, movePoint);
     }
 }

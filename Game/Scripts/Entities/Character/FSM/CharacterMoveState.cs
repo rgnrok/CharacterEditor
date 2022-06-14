@@ -61,13 +61,12 @@ public class CharacterMoveState : IPayloadedState<MovePayload>
 
         _moveService.FireHideCharacterPointer(_character.Guid);
         _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Idle);
+
         if (_target != null && _target.Callback != null && Helper.IsNear(_moveComponent.transform.position, _target.Point))
         {
             _target.Callback.Invoke();
             return;
         }
-
-        // _fsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Idle);
     }
 
     private void OnEnemyClickHandler(string characterGuid, IAttacked attacked)

@@ -59,49 +59,46 @@ namespace Game
             _loadingCurtain.SetLoading(10);
 
             var configs = await _loaderService.ConfigLoader.LoadConfigs();
+            _loadingCurtain.SetLoading(20);
+
             await ParseConfigs(configs);
-            _loadingCurtain.SetLoading(50);
-
-
-            await SetupServices();
+            _loadingCurtain.SetLoading(90);
+            await AwaitManagers();
+            _loadingCurtain.SetLoading(100);
             _fsm.SpawnEvent((int)GameStateMachine.GameStateType.CreateCharacterLoop);
         }
 
         private async Task ParseConfigs(CharacterConfig[] configs)
         {
-            var data = new List<CharacterGameObjectData>(configs.Length);
+            var configsCount = configs.Length;
+            var data = new List<CharacterGameObjectData>(configsCount);
 
-            foreach (var config in configs)
+            for (var i = 0; i < configsCount; i++)
             {
-                var configData = await _gameFactory.SpawnCreateCharacter(config);
+                var configData = await _gameFactory.SpawnCreateCharacter(configs[i]);
                 if (configData == null) continue;
 
                 data.Add(configData);
+                _loadingCurtain.SetLoading(20 + 50 / (configsCount - i)); 
             }
 
             await _configManager.Init(data.ToArray());
         }
 
 
-        private async Task SetupServices()
+        private async Task AwaitManagers()
         {
-            _loadingCurtain.SetLoading(10);
-
             if (TextureManager.Instance != null)
             {
                 while (!TextureManager.Instance.IsReady)
                     await Task.Yield();
-                _loadingCurtain.SetLoading(30);
             }
 
             if (MeshManager.Instance != null)
             {
                 while (!MeshManager.Instance.IsReady)
                     await Task.Yield();
-                _loadingCurtain.SetLoading(70);
             }
-
-            _loadingCurtain.SetLoading(100);
         }
     }
 }

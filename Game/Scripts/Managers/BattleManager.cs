@@ -1,22 +1,25 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using CharacterEditor.Services;
 using EnemySystem;
+using Game;
 using UnityEngine;
 
 namespace CharacterEditor
 {
-    public class BattleManager
+    public class BattleManager : IBattleManageService
     {
-        private List<IBattleEntity> _battleEntities = new List<IBattleEntity>();
-        private List<IBattleEntity> _enemies = new List<IBattleEntity>();
-        private List<IBattleEntity> _characters = new List<IBattleEntity>();
+        private readonly List<IBattleEntity> _battleEntities = new List<IBattleEntity>();
+        private readonly List<IBattleEntity> _enemies = new List<IBattleEntity>();
+        private readonly List<IBattleEntity> _characters = new List<IBattleEntity>();
 
-        private List<IBattleEntity> _currentRoundEntities = new List<IBattleEntity>();
+        private readonly List<IBattleEntity> _currentRoundEntities = new List<IBattleEntity>();
         private IBattleEntity _currentEntity;
 
         private int _round;
         private bool _isBattleStart;
+        private readonly ICoroutineRunner _coroutineRunner;
 
         public event Action<IBattleEntity> OnTurnCompleted;
         public event Action<IBattleEntity> OnTurnStarted;
@@ -25,6 +28,11 @@ namespace CharacterEditor
         public event Action OnNewRoundStart;
         public event Action<IBattleEntity> OnEntityAdded;
         public event Action<IBattleEntity> OnEntityRemoved;
+
+        public BattleManager(ICoroutineRunner coroutineRunner)
+        {
+            _coroutineRunner = coroutineRunner;
+        }
 
         public void Update()
         {
@@ -41,10 +49,10 @@ namespace CharacterEditor
             _currentRoundEntities.Add(entity);
             _battleEntities.Add(entity);
 
-            SortEntities(); //??
+            SortEntities();
 
             if (!_isBattleStart && _characters.Count > 0 && _enemies.Count > 0) StartBattle();
-            if (OnEntityAdded != null) OnEntityAdded(entity);
+            OnEntityAdded?.Invoke(entity);
         }
 
         private void EntityOnDiedHandler(IBattleEntity entity)
@@ -64,9 +72,7 @@ namespace CharacterEditor
             if (entity is Character) _characters.Remove(entity);
             else _enemies.Remove(entity);
 
-            SortEntities(); //??
-
-            if (OnEntityRemoved != null) OnEntityRemoved(entity);
+            OnEntityRemoved?.Invoke(entity);
             if (_isBattleStart && (_characters.Count == 0 || _enemies.Count == 0)) EndBattle();
 
         }
@@ -97,8 +103,8 @@ namespace CharacterEditor
             _round = 1;
             _isBattleStart = true;
 
-            if (OnBattleStart != null) OnBattleStart();
-            Helper.StartCoroutine(StartNewRound());
+            OnBattleStart?.Invoke();
+            _coroutineRunner.StartCoroutine(StartNewRound());
         }
 
         private void EndBattle()
@@ -108,7 +114,7 @@ namespace CharacterEditor
             _enemies.Clear();
             _battleEntities.Clear();
 
-            if (OnBattleEnd != null) OnBattleEnd();
+            OnBattleEnd?.Invoke();
         }
 
         private void ProcessRound()
@@ -123,21 +129,16 @@ namespace CharacterEditor
             }
 
              _currentEntity.ProcessTurn();
-
-//            if (_fakeEn != null) return;
-//            _fakeEn = GameManager.Instance.StartCoroutine(FakeCor());
         }
-
-   
-
+        
         private void EntityEndTurn()
         {
-            if (OnTurnCompleted != null) OnTurnCompleted(_currentEntity);
+            OnTurnCompleted?.Invoke(_currentEntity);
 
             _currentRoundEntities.Remove(_currentEntity);
             if (_currentRoundEntities.Count == 0)
             {
-                Helper.StartCoroutine(StartNewRound());
+                _coroutineRunner.StartCoroutine(StartNewRound());
                 return;
             }
 
@@ -155,7 +156,7 @@ namespace CharacterEditor
             SortEntities();
 
             StartTurn();
-            if (OnNewRoundStart != null) OnNewRoundStart();
+            OnNewRoundStart?.Invoke();
         }
 
         private void StartTurn()
@@ -169,9 +170,11 @@ namespace CharacterEditor
                 GameManager.Instance.SetCharacter(character, true);
             }
             else
+            {
                 _currentEntity.StartTurn(_characters);
+            }
 
-            if (OnTurnStarted != null) OnTurnStarted(_currentEntity);
+            OnTurnStarted?.Invoke(_currentEntity);
         }
     }
 }

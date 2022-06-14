@@ -1,18 +1,18 @@
 ﻿using UnityEngine;
 
-public class EnemyBattleMoveState : EnemyBattleBaseState<Vector3>
+public class EnemyBattleMoveState : EnemyBattleBasePayloadState<Vector3>
 {
     public EnemyBattleMoveState(EnemyBattleFSM fsm) : base(fsm)
     {
     }
 
-    public new void Enter(Vector3 targetEntity)
+    public override void Enter(Vector3 targetEntity)
     {
         base.Enter(targetEntity);
         if (CanMove()) Move(targetEntity);
     }
 
-    public new void Exit()
+    public override void Exit()
     {
         base.Exit();
         if (_moveComponent == null) return;

@@ -46,8 +46,7 @@ namespace Game
             _services.RegisterSingle<ISaveLoadStorage>(new FileSaveLoadStorage());
 
             _services.RegisterSingle<ICharacterEquipItemService>(
-                new CharacterEquipItemService(_services.Single<IMergeTextureService>(),
-                    loaderService));
+                new CharacterEquipItemService(_services.Single<IMergeTextureService>(), loaderService));
 
             _services.RegisterSingle<IGameFactory>(new GameFactory(loaderService,
                 _services.Single<ICharacterEquipItemService>()));
@@ -56,7 +55,10 @@ namespace Game
                 loaderService, _services.Single<IGameFactory>()));
 
             _services.RegisterSingle<ICharacterMoveService>(new CharacterMoveService());
+            _services.RegisterSingle<ICharacterRenderPathService>(new CharacterRenderPathService());
             _services.RegisterSingle<ICharacterManageService>(new CharacterManageService());
+
+            _services.RegisterSingle<IBattleManageService>(new BattleManager(_coroutineRunner));
         }
 
         private void RegisterStaticDataService()

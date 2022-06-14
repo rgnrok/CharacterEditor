@@ -9,7 +9,7 @@ public class EnemyBattleTurnEndState : EnemyBattleBaseState
     {
     }
 
-    public new void Enter()
+    public override void Enter()
     {
         base.Enter();
 
