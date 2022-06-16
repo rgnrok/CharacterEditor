@@ -16,8 +16,8 @@ namespace CharacterEditor
 
         private void OnDestroy()
         {
-            _configManager = AllServices.Container.Single<IConfigManager>();
-            _configManager.OnChangeCharacter += ChangeTarget;
+            if (_configManager != null)
+                _configManager.OnChangeCharacter -= ChangeTarget;
         }
 
         private void LateUpdate()

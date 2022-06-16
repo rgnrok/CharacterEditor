@@ -33,11 +33,7 @@ namespace CharacterEditor.Services
         {
             if (characterMesh.LoadedMeshObject == null) return null;
 
-            var meshInstantiate = Object.Instantiate(characterMesh.LoadedMeshObject, anchor.position, anchor.rotation, anchor);
-            foreach (var render in meshInstantiate.GetComponentsInChildren<MeshRenderer>())
-                if (render.material != null) render.material.mainTexture = characterMesh.Texture.Current;
-
-            return meshInstantiate;
+            return Object.Instantiate(characterMesh.LoadedMeshObject, anchor.position, anchor.rotation, anchor);
         }
     }
 }

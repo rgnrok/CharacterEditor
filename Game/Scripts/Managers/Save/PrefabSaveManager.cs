@@ -283,7 +283,7 @@ namespace CharacterEditor
         private IEnumerable<MeshRenderer> GetRenderers(IEnumerable<CharacterMeshWrapper> meshWrappers)
         {
             return meshWrappers.Where(meshWrapper => meshWrapper != null)
-                .SelectMany(meshWrapper => meshWrapper.MeshInstance.GetComponentsInChildren<MeshRenderer>());
+                .SelectMany(meshWrapper => meshWrapper.MeshRenders);
         }
 
         private void UpdateMeshMaterials(Renderer render, Material newMaterial)

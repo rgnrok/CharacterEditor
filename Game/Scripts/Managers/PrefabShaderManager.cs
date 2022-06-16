@@ -78,6 +78,7 @@ namespace CharacterEditor
             if (materialInfo == null)
                 return;
 
+            _currentShaderType = shader;
             UpdateSkinsMaterial(materialInfo);
             UpdateMeshesMaterial(materialInfo);
         }
@@ -144,7 +145,7 @@ namespace CharacterEditor
             {
                 if (meshWrapper.IsEmptyMesh) continue;
 
-                foreach (var render in meshWrapper.MeshInstance.GetComponentsInChildren<MeshRenderer>())
+                foreach (var render in meshWrapper.MeshRenders)
                 {
                     var tmpMaterials = render.materials;
                     var replacedMaterials = new Material[tmpMaterials.Length];

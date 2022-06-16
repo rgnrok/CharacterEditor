@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CharacterEditor.Helpers;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -15,9 +16,9 @@ namespace CharacterEditor
         [EnumFlag] public TextureType textureMask;
         [EnumFlag] public MeshType meshMask;
 
-        private TextureType[] textures;
-        private MeshType[] meshes;
-        private Renderer[] skinMeshes;
+        private TextureType[] _textures;
+        private MeshType[] _meshes;
+        private Renderer[] _skinMeshes;
         private IConfigManager _configManager;
 
         private void Awake()
@@ -27,8 +28,8 @@ namespace CharacterEditor
 
         public void Start()
         {
-            PrepareTextureTypes();
-            PrepareMeshTypes();
+            _textures = textureMask.FlagToArray<TextureType>();
+            _meshes = meshMask.FlagToArray<MeshType>();
 
             if (_configManager != null)
                 _configManager.OnChangeCharacter += PrepareSkinMeshTypes;
@@ -43,9 +44,9 @@ namespace CharacterEditor
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (textures.Length > 0)
+            if (_textures.Length > 0)
             {
-                TextureManager.Instance.OnClear(textures);
+                TextureManager.Instance.OnClear(_textures);
                 TextureManager.Instance.OnTexturesChanged += ResetMeshes;
             }
             else
@@ -54,41 +55,15 @@ namespace CharacterEditor
             }
         }
 
-   
         private void ResetMeshes()
         {
             TextureManager.Instance.OnTexturesChanged -= ResetMeshes;
 
-            MeshManager.Instance.OnClearMesh(meshes);
-            foreach (var mesh in skinMeshes)
+            MeshManager.Instance.OnClearMesh(_meshes);
+            foreach (var mesh in _skinMeshes)
             {
                 mesh.gameObject.SetActive(false);
             }
-        }
-
-        private void PrepareTextureTypes()
-        {
-            var list = new List<TextureType>();
-            foreach (var enumValue in Enum.GetValues(typeof(TextureType)))
-            {
-                int checkBit = (int) textureMask & (int) enumValue;
-                if (checkBit != 0)
-                    list.Add((TextureType) enumValue);
-            }
-            textures = list.ToArray();
-        }
-
-
-        private void PrepareMeshTypes()
-        {
-            var list = new List<MeshType>();
-            foreach (var enumValue in Enum.GetValues(typeof(MeshType)))
-            {
-                int checkBit = (int) meshMask & (int) enumValue;
-                if (checkBit != 0)
-                    list.Add((MeshType) enumValue);
-            }
-            meshes = list.ToArray();
         }
 
         private void PrepareSkinMeshTypes()
@@ -115,7 +90,7 @@ namespace CharacterEditor
                     }
                 }
             }
-            skinMeshes = list.ToArray();
+            _skinMeshes = list.ToArray();
         }
     }
 }

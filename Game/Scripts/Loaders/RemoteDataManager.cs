@@ -7,16 +7,16 @@ namespace CharacterEditor
 {
     public class RemoteDataManager : IDataManager
     {
-        public Dictionary<string, RaceMap> Races { get; private set; }
-        public Dictionary<string, Dictionary<MeshType, MeshesMap>> RaceMeshes { get; private set; }
-        public Dictionary<string, Dictionary<TextureType, TexturesMap>> RaceTextures { get; private set; }
+        public Dictionary<string, RaceMap> Races { get; }
+        public Dictionary<string, Dictionary<MeshType, MeshesMap>> RaceMeshes { get; }
+        public Dictionary<string, Dictionary<TextureType, TexturesMap>> RaceTextures { get; }
 
-        public Dictionary<string, GuidPathMap> Items;
-        public Dictionary<string, GuidPathMap> PlayerCharacters;
-        public Dictionary<string, GuidPathMap> Containers;
-        public Dictionary<string, GuidPathMap> Enemies;
+        public readonly Dictionary<string, GuidPathMap> Items;
+        public readonly Dictionary<string, GuidPathMap> PlayerCharacters;
+        public readonly Dictionary<string, GuidPathMap> Containers;
+        public readonly Dictionary<string, GuidPathMap> Enemies;
 
-        private Dictionary<string, string> _materials;
+        private readonly Dictionary<string, string> _materials;
 
         public RemoteDataManager(string mapConfigPath)
         {

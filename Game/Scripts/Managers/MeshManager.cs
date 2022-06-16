@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CharacterEditor.Helpers;
 using CharacterEditor.Services;
@@ -65,6 +66,7 @@ namespace CharacterEditor
         private Dictionary<MeshType, CharacterMeshWrapper> _currentCharacterMeshes;
 
         private bool _isLock;
+        private CancellationTokenSource _mergeTextureCancellationToken;
 
         public event Action OnMeshesChanged;
         public event Action OnMeshesUpdated;
@@ -97,12 +99,21 @@ namespace CharacterEditor
 
             _configManager = AllServices.Container.Single<IConfigManager>();
             _configManager.OnChangeConfig += OnChangeConfigHandler;
+
+            _mergeTextureCancellationToken = new CancellationTokenSource();
+
         }
 
         private void OnDestroy()
         {
             if (_configManager != null)
                 _configManager.OnChangeConfig -= OnChangeConfigHandler;
+
+            if (_mergeTextureCancellationToken != null)
+            {
+                _mergeTextureCancellationToken.Cancel();
+                _mergeTextureCancellationToken.Dispose();
+            }
         }
 
         public void LockUpdate(bool isLock)
@@ -242,7 +253,7 @@ namespace CharacterEditor
         private async Task OnChangeConfigHandler(CharacterGameObjectData data)
         {
             InitCurrentCharacterMeshes(data, data.Config.folderName);
-            await UpdateMeshes();
+            await UpdateMeshes(_mergeTextureCancellationToken.Token);
         }
 
         private void InitCurrentCharacterMeshes(CharacterGameObjectData data, string characterKey)
@@ -270,18 +281,28 @@ namespace CharacterEditor
             _characterMeshes[characterKey] = _currentCharacterMeshes;
         }
         
-        private async Task UpdateMeshes()
+        private async Task UpdateMeshes(CancellationToken token)
         {
             IsReady = false;
             foreach (var meshWrapper in _currentCharacterMeshes.Values)
-                while (!meshWrapper.Mesh.IsReady) await Task.Yield();
+            {
+                while (!meshWrapper.Mesh.IsReady)
+                {
+                    if (token.IsCancellationRequested)
+                    {
+                        IsReady = true;
+                        return;
+                    }
+                    await Task.Yield();
+                }
+            }
 
             BuildTextures();
 
-            OnMeshesChanged?.Invoke();
             ApplyMeshTextures();
 
             IsReady = true;
+            OnMeshesChanged?.Invoke();
         }
 
         private void BuildTextures()
@@ -370,7 +391,7 @@ namespace CharacterEditor
 
                 if (IsDynamicTextureAtlas) continue;
 
-                foreach (var meshRenderer in meshWrapper.MeshInstance.GetComponentsInChildren<MeshRenderer>())
+                foreach (var meshRenderer in meshWrapper.MeshRenders)
                 foreach (var material in meshRenderer.materials)
                     material.mainTexture = meshWrapper.Mesh.IsFaceMesh ? FaceTexture : ArmorTexture;
             }
@@ -379,7 +400,15 @@ namespace CharacterEditor
         
         private async void OnChangeMesh()
         {
-            await UpdateMeshes();
+            ResetCancellationTokenSource();
+            await UpdateMeshes(_mergeTextureCancellationToken.Token);
+        }
+
+        private void ResetCancellationTokenSource()
+        {
+            _mergeTextureCancellationToken.Cancel();
+            _mergeTextureCancellationToken.Dispose();
+            _mergeTextureCancellationToken = new CancellationTokenSource();
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CharacterEditor.Helpers;
 using CharacterEditor.Services;
@@ -42,6 +43,7 @@ namespace CharacterEditor
 
         private bool _isLock;
         private TextureType[] _ignoreTypes;
+        private CancellationTokenSource _mergeTextureCancellationToken;
 
         public event Action OnTexturesChanged;
         public event Action OnTexturesUpdated;
@@ -68,12 +70,20 @@ namespace CharacterEditor
 
             _configManager = AllServices.Container.Single<IConfigManager>();
             _configManager.OnChangeConfig += OnChangeConfigHandler;
+
+            _mergeTextureCancellationToken = new CancellationTokenSource();
         }
 
         private void OnDestroy()
         {
             if (_configManager != null)
                 _configManager.OnChangeConfig -= OnChangeConfigHandler;
+
+            if (_mergeTextureCancellationToken != null)
+            {
+                _mergeTextureCancellationToken.Cancel();
+                _mergeTextureCancellationToken.Dispose();
+            }
         }
 
         private async Task OnChangeConfigHandler(CharacterGameObjectData data)
@@ -103,7 +113,7 @@ namespace CharacterEditor
             }
             _currentCharacterTextures = _characterTextures[characterKey];
  
-            await UpdateTextures();
+            await UpdateTextures(_mergeTextureCancellationToken.Token);
             await SetupPortrait(characterKey);
         }
 
@@ -298,12 +308,22 @@ namespace CharacterEditor
         }
         #endregion
 
-        private async Task UpdateTextures()
+        private async Task UpdateTextures(CancellationToken token)
         {
             IsReady = false;
 
             foreach (var texture in _currentCharacterTextures.Values)
-                while (!texture.IsReady) await Task.Yield();
+            {
+                while (!texture.IsReady)
+                {
+                    if (token.IsCancellationRequested)
+                    {
+                        IsReady = true;
+                        return;
+                    }
+                    await Task.Yield();
+                }
+            }
 
             MergeTextures();
             UpdateCloakTexture();
@@ -371,7 +391,9 @@ namespace CharacterEditor
 
             _ignoreTypes = ignoreTypes;
             PrepareSkinMeshTextures(changedTypes, ignoreTypes);
-            await UpdateTextures();
+
+            ResetCancellationTokenSource();
+            await UpdateTextures(_mergeTextureCancellationToken.Token);
         }
 
         private void PrepareSkinMeshTextures(TextureType[] types, TextureType[] ignoreTypes)
@@ -392,12 +414,6 @@ namespace CharacterEditor
                     _currentCharacterTextures[ignore].Reset();
                 }
             }
-
-            if (skinned.Count == 0) return;
-
-            var skinnedTexture = _currentCharacterTextures[skinned[0]];
-            if (skinnedTexture.SelectedTextureIndex == 0)
-                skinnedTexture.MoveNext();
         }
 
         private void ResetTexture(TextureType[] types)
@@ -421,6 +437,12 @@ namespace CharacterEditor
 
         public int GetSelectedTextureColor(TextureType type) => 
             _currentCharacterTextures[type].SelectedColorIndex;
-      
+
+        private void ResetCancellationTokenSource()
+        {
+            _mergeTextureCancellationToken.Cancel();
+            _mergeTextureCancellationToken.Dispose();
+            _mergeTextureCancellationToken = new CancellationTokenSource();
+        }
     }
 }
