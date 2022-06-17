@@ -20,6 +20,8 @@ namespace CharacterEditor
         private MeshType[] _meshes;
         private Renderer[] _skinMeshes;
         private IConfigManager _configManager;
+        private TextureManager _textureManager;
+        private MeshManager _meshManager;
 
         private void Awake()
         {
@@ -28,6 +30,9 @@ namespace CharacterEditor
 
         public void Start()
         {
+            _textureManager = TextureManager.Instance;
+            _meshManager = MeshManager.Instance;
+
             _textures = textureMask.FlagToArray<TextureType>();
             _meshes = meshMask.FlagToArray<MeshType>();
 
@@ -46,8 +51,8 @@ namespace CharacterEditor
         {
             if (_textures.Length > 0)
             {
-                TextureManager.Instance.OnClear(_textures);
-                TextureManager.Instance.OnTexturesChanged += ResetMeshes;
+                _textureManager.OnTexturesChanged += ResetMeshes;
+                _textureManager.OnClear(_textures);
             }
             else
             {
@@ -57,9 +62,9 @@ namespace CharacterEditor
 
         private void ResetMeshes()
         {
-            TextureManager.Instance.OnTexturesChanged -= ResetMeshes;
+            _textureManager.OnTexturesChanged -= ResetMeshes;
 
-            MeshManager.Instance.OnClearMesh(_meshes);
+            _meshManager.OnClearMesh(_meshes);
             foreach (var mesh in _skinMeshes)
             {
                 mesh.gameObject.SetActive(false);

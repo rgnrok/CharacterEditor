@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using CharacterEditor;
 using UnityEngine;
 using UnityEngine.AI;
@@ -7,31 +6,39 @@ using Random = UnityEngine.Random;
 
 public class MeleAttackComponent : AttackComponent
 {
-    protected override float AttackDistance { get { return 2f; } }
+    protected override float AttackDistance => 2f;
 
-    public override void Attack(IAttacked enity, Action completeHandler)
+    private IAttacked _entity;
+    private Action _completeHandler;
+
+    public override void Attack(IAttacked entity, Action completeHandler)
     {
-        MoveComponent.RotateTo(enity.EntityGameObject.transform.position);
-        Animator.SetTrigger(Constants.CHARACTER_MELEE_ATTACK_1_TRIGGER); //todo
+        _animatorEventReceiver.OnAttack -= OnAttackHandler;
 
-        StartCoroutine(AttackCoroutine(enity, completeHandler));
+        _entity = entity;
+        _completeHandler = completeHandler;
+
+        _moveComponent.RotateTo(entity.EntityGameObject.transform.position);
+        _animatorEventReceiver.OnAttack += OnAttackHandler;
+
+        _animator.SetTrigger(Constants.CHARACTER_MELEE_ATTACK_1_TRIGGER);
     }
 
-
-    private IEnumerator AttackCoroutine(IAttacked enity, Action completeHandler)
+    private void OnAttackHandler()
     {
-        yield return new WaitForSecondsRealtime(2f);
-        var dmg = (enity is Character) ? 50 : Random.Range(10, 20);//todo
-        enity.Health.StatCurrentValue -= dmg;
-        completeHandler?.Invoke();
+        _animatorEventReceiver.OnAttack -= OnAttackHandler;
+
+        var dmg = (_entity is Character) ? 50 : Random.Range(10, 20);//todo
+        _entity.Health.StatCurrentValue -= dmg;
+        _completeHandler?.Invoke();
     }
 
     public override Vector3 GetTargetPointForAttack(Vector3 target)
     {
-        if (MoveComponent == null) return base.GetTargetPointForAttack(target);
+        if (_moveComponent == null) return base.GetTargetPointForAttack(target);
 
         var path = new NavMeshPath();
-        NavMesh.CalculatePath(MoveComponent.transform.position, target, NavMesh.AllAreas, path);
+        NavMesh.CalculatePath(_moveComponent.transform.position, target, NavMesh.AllAreas, path);
         if (path.status != NavMeshPathStatus.PathComplete || path.corners.Length < 2)
             return base.GetTargetPointForAttack(target);
 

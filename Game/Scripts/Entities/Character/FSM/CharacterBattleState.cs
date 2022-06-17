@@ -76,7 +76,7 @@ public class CharacterBattleState : IState, IUpdatableState
         if (_moveComponent != null) _moveComponent.EnableNavmesh();
 
         _isTurnComplete = false;
-        _battleFSM.SpawnEvent((int) CharacterBattleFSM.CharacterBattleStateType.FindTarget);
+        _battleFSM.StartTurn(enemies);
     }
 
     public void ProcessTurn()

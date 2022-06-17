@@ -143,7 +143,7 @@ public class RenderPathController : MonoBehaviour
     }
 
 
-    public void SetCharacter(Character ch)
+    private void SetCharacter(Character ch)
     {
         if (_character != null && ch!=null && ch.Guid == _character.Guid )
             return;

@@ -1,12 +1,21 @@
-﻿public class EnemyDeadState : EnemyBaseState
+﻿using EnemySystem;
+
+public class EnemyDeadState : IState
 {
-    public EnemyDeadState(EnemyFSM fsm) : base(fsm)
+    private readonly Enemy _enemy;
+
+    public EnemyDeadState(EnemyFSM fsm)
     {
+        _enemy = fsm.Enemy;
     }
 
-    public override void Enter()
+    public void Enter()
     {
         Die();
+    }
+
+    public void Exit()
+    {
     }
 
     private void Die()
@@ -15,5 +24,4 @@
 
         _enemy.GameObjectData.Animator.SetTrigger(Constants.CHARACTER_DIE_TRIGGER);
     }
-
 }

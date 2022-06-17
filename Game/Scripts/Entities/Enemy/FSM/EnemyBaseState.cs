@@ -6,12 +6,14 @@ public class EnemyBaseState : IState
     protected readonly EnemyFSM _fsm;
     protected EnemyGameObjectDetectColliderComponent _detectCollider;
     protected Enemy _enemy;
+    private readonly PlayerMoveComponent _moveComponent;
 
     protected EnemyBaseState(EnemyFSM fsm)
     {
         _fsm = fsm;
         _enemy = fsm.Enemy;
         _detectCollider = _enemy.EntityGameObject.GetComponentInChildren<EnemyGameObjectDetectColliderComponent>();
+        _moveComponent = _enemy.GameObjectData.Entity.GetComponent<PlayerMoveComponent>();
     }
 
     public virtual void Enter()
@@ -26,6 +28,9 @@ public class EnemyBaseState : IState
 
     private void OnCharacterVisibleHandler(GameObject character)
     {
-        if (_enemy.IsAlive()) GameManager.Instance.EnemyVisibleCharacter(_enemy, character);
+        if (!_enemy.IsAlive()) return;
+
+        _moveComponent.RotateTo(character.transform.position);
+        GameManager.Instance.EnemyVisibleCharacter(_enemy, character);
     }
 }

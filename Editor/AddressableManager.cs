@@ -367,8 +367,9 @@ namespace Editor
                 {
                     var texture = new MapTexture();
                     texture.colorPaths = new string[texturePaths.Length];
+
                     var colorIndex = 0;
-                    foreach (string colorPath in texturePaths)
+                    foreach (var colorPath in texturePaths)
                     {
                         var assetPath = SetupAddressable(colorPath, textureTypeGroup);
                         texture.colorPaths[colorIndex++] = assetPath;
@@ -404,7 +405,7 @@ namespace Editor
                 var meshPaths = dataManager.ParseCharacterMeshes(characterConfig, meshType);
                 if (meshPaths == null || meshPaths.Count == 0) continue;
 
-                var addressableGroup = $"{MESH_GROUP_NAME}_{characterConfig.folderName}_{meshType}";
+                var addressableGroup = $"{MESH_GROUP_NAME}_{characterConfig.folderName}_{Helper.GetGroupName(meshType)}";
                 foreach (var meshPathPair in meshPaths)
                 {
                     var meshPath = meshPathPair.Key;

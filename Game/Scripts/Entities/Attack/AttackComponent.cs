@@ -3,28 +3,22 @@
 
 public abstract class AttackComponent : MonoBehaviour
 {
-    [SerializeField]
-    private Animator _animator;
-    protected Animator Animator
-    {
-        get
-        {
-            if (_animator == null) _animator = GetComponentInChildren<Animator>();
-            return _animator;
-        }
-    }
-
-    private PlayerMoveComponent _moveComponent;
-    protected PlayerMoveComponent MoveComponent
-    {
-        get
-        {
-            if (_moveComponent == null) _moveComponent = GetComponent<PlayerMoveComponent>();
-            return _moveComponent;
-        }
-    }
+    [SerializeField] protected Animator _animator;
+    [SerializeField] protected AnimatorEventReceiver _animatorEventReceiver;
+    [SerializeField] protected PlayerMoveComponent _moveComponent;
+  
 
     protected abstract float AttackDistance { get; }
+
+    public abstract void Attack(IAttacked entity, Action completeHandler);
+
+    protected virtual void Awake()
+    {
+        if (_animator == null) _animator = GetComponentInChildren<Animator>();
+        if (_animatorEventReceiver == null) _animatorEventReceiver = GetComponentInChildren<AnimatorEventReceiver>();
+
+        if (_moveComponent == null) _moveComponent = GetComponent<PlayerMoveComponent>();
+    }
 
     public bool IsAvailableDistance(float distance)
     {
@@ -42,7 +36,4 @@ public abstract class AttackComponent : MonoBehaviour
         var direction = Helper.GetDirection(transform.position, target);
         return target - direction * (AttackDistance - 0.1f);
     }
-
-    public abstract void Attack(IAttacked enity, Action completeHandler);
-
 }

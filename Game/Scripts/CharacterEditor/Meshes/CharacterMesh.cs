@@ -77,8 +77,7 @@ namespace CharacterEditor
 
                 IsReady = true;
             }
-
-
+            
             private void LoadMesh()
             {
                 IsReady = false;
@@ -145,6 +144,11 @@ namespace CharacterEditor
             public void Shuffle(int color = -1)
             {
                 SelectedMeshIndex = UnityEngine.Random.Range(-1, MeshesCount);
+                if (SelectedMeshIndex == -1)
+                {
+                    Texture.UnloadTexture();
+                    return;
+                }
 
                 if (color == -1) Texture.Shuffle();
                 else Texture.ShuffleWithColor(color);

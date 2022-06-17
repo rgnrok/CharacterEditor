@@ -262,6 +262,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 0}
+  _animatorEventReceiver: {fileID: 0}
+  _moveComponent: {fileID: 1777613629446240786}
 --- !u!114 &4760024516700957421
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -275,6 +277,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 0}
+  _animatorEventReceiver: {fileID: 0}
+  _moveComponent: {fileID: 1777613629446240786}
 --- !u!136 &6884911774871245384
 CapsuleCollider:
   m_ObjectHideFlags: 0

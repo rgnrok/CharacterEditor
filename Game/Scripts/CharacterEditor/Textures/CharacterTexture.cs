@@ -10,6 +10,8 @@ namespace CharacterEditor
         
         public Texture2D Current { get; private set; }
 
+        private int _defaultTextureIndex;
+
         private int _selectedTextureIndex;
         public int SelectedTextureIndex
         {
@@ -34,13 +36,15 @@ namespace CharacterEditor
         {
             _textureLoader = loader;
             _textures = texturePaths;
+            _selectedTextureIndex = 0;
             IsReady = true;
         }
 
-        public CharacterTexture(ITextureLoader loader, string[][] texturePaths, TextureType type, bool loadOnStart = true) : this(loader, texturePaths)
+        public CharacterTexture(ITextureLoader loader, string[][] texturePaths, TextureType type, bool loadOnStart = true, bool hasEmptyTexture = false) : this(loader, texturePaths)
         {
             Type = type;
-            if (loadOnStart) LoadTexture();
+            _selectedTextureIndex = _defaultTextureIndex = hasEmptyTexture ? -1 : 0;
+            if (!hasEmptyTexture && loadOnStart) LoadTexture();
         }
 
         public void UnloadTexture(string path = null)
@@ -64,13 +68,13 @@ namespace CharacterEditor
         public void SetTexture(int num) => 
             SelectedTextureIndex = num;
 
-        public void Reset() => 
-            SelectedTextureIndex = 0;
+        public void Reset(bool withColor) => 
+            SetTextureAndColor(_defaultTextureIndex, withColor ? 0 : SelectedColorIndex);
 
         public void Shuffle(bool withColor = false)
         {
-            var texture = Random.Range(0, _textures.Length);
-            if (withColor)
+            var texture = Random.Range(_defaultTextureIndex, _textures.Length);
+            if (withColor && texture != -1)
             {
                 var color = Random.Range(0, _textures[texture].Length);
                 SetTextureAndColor(texture, color);
@@ -81,7 +85,7 @@ namespace CharacterEditor
 
         public void ShuffleWithColor(int color)
         {
-            var texture = Random.Range(0, _textures.Length);
+            var texture = Random.Range(_defaultTextureIndex, _textures.Length);
             SetTextureAndColor(texture, color);
         }
 
@@ -105,24 +109,29 @@ namespace CharacterEditor
         // Set texture and color with once loading
         public void SetTextureAndColor(int textNum, int colorNum)
         {
-            textNum = GetTextureNumber(textNum);
-            colorNum = GetColorNumber(colorNum);
+            textNum = Helper.GetActualIndex(textNum, _textures.Length, _defaultTextureIndex);
+            colorNum = textNum == -1 ? 0 : Helper.GetActualIndex(colorNum, _textures[textNum].Length);
 
             if (Current != null && _selectedTextureIndex == textNum && _selectedColorIndex == colorNum) return;
 
             _prevTexturePath = Current != null ? _textures[SelectedTextureIndex][SelectedColorIndex] : null;
             _selectedTextureIndex = textNum;
             _selectedColorIndex = colorNum;
+
             LoadTexture();
         }
-        private int GetTextureNumber(int value) =>
-            Helper.GetActualIndex(value, _textures.Length);
-
-        private int GetColorNumber(int value) =>
-            Helper.GetActualIndex(value, _textures[SelectedTextureIndex].Length);
 
         private void LoadTexture()
         {
+            if (SelectedTextureIndex == -1)
+            {
+                if (!string.IsNullOrEmpty(_prevTexturePath))
+                    UnloadTexture(_prevTexturePath);
+
+                Current = null;
+                return;
+            }
+
             IsReady = false;
 
             _lastLoadPath = _textures[SelectedTextureIndex][SelectedColorIndex];

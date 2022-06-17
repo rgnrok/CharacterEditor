@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CharacterEditor;
 using CharacterEditor.Services;
 
@@ -17,6 +18,8 @@ public class CharacterBattleFSM : FSM
     private CharacterBattleAttackState _attackState;
     private CharacterBattleTurnEndState _turnEndState;
     private readonly CharacterBattleIdleState _idleState;
+    public List<IBattleEntity> Enemies { get; private set; }
+
 
     public event Action OnTurnEnd;
 
@@ -64,5 +67,11 @@ public class CharacterBattleFSM : FSM
 
     public void Clean()
     {
+    }
+
+    public void StartTurn(List<IBattleEntity> enemies)
+    {
+        Enemies = enemies;
+        SpawnEvent((int)CharacterBattleStateType.FindTarget);
     }
 }

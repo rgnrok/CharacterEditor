@@ -33,6 +33,7 @@ namespace Game
         {
             _loadingCurtain.SetLoading(0);
             await _loaderService.Initialize();
+            _loaderService.CleanUp();
 
             RegisterServices();
 

@@ -268,8 +268,7 @@ namespace CharacterEditor
                 if (!_currentCharacterTextures.ContainsKey(type))
                     continue;
 
-                _currentCharacterTextures[type].ResetColor();
-                _currentCharacterTextures[type].Reset();
+                _currentCharacterTextures[type].Reset(true);
             }
 
             OnChangeTexture(types);
@@ -339,6 +338,8 @@ namespace CharacterEditor
             var mergeTextures = new Dictionary<string, Texture2D>();
             foreach (var texture in _currentCharacterTextures.Values)
             {
+                if (texture.Current == null) continue;
+
                 var textureName = Helper.GetShaderTextureName(texture.Type);
                 if (textureName == null) continue;
 
@@ -411,7 +412,7 @@ namespace CharacterEditor
                 foreach (var ignore in ignoreTypes)
                 {
                     skinned.Remove(ignore);
-                    _currentCharacterTextures[ignore].Reset();
+                    _currentCharacterTextures[ignore].Reset(false);
                 }
             }
         }
@@ -425,7 +426,7 @@ namespace CharacterEditor
                 if (!_currentCharacterTextures.ContainsKey(type))
                     continue;
 
-                _currentCharacterTextures[type].Reset();
+                _currentCharacterTextures[type].Reset(false);
             }
         }
 

@@ -24,28 +24,28 @@ public class CharacterBattleFindTargetState : CharacterBattleBaseState
     {
         base.Enter();
 
-        _gameManager = GameManager.Instance;
+        if (CheckTurnEnd()) return;
 
+        _gameManager = GameManager.Instance;
         _attackComponent = _character.AttackComponent;
 
         _inputService.GroundClick += OnGroundClickHandler;
         _inputService.SpacePress += OnSpacePressHandler;
 
         _gameManager.OnEnemyClick += OnEnemyClickHandler;
-        _renderPathService.FireStartDrawPath(_character);
 
-        CheckTurnEnd();
+        if (!TryAttackSelectedTarget())
+            _renderPathService.FireStartDrawPath(_character);
     }
 
     public override void Exit()
     {
         base.Exit();
 
+        _renderPathService?.FireStartDrawPath(null);
+
         if (_gameManager != null)
-        {
-            _renderPathService.FireStartDrawPath(null);
             _gameManager.OnEnemyClick -= OnEnemyClickHandler;
-        }
 
         if (_inputService != null)
         {
@@ -54,18 +54,23 @@ public class CharacterBattleFindTargetState : CharacterBattleBaseState
         }
     }
 
-    private void CheckTurnEnd()
+    private bool CheckTurnEnd()
     {
-        if (_character.ActionPoints.StatCurrentValue == 0)
+        if (_character.ActionPoints.StatCurrentValue == 0 || _fsm.Enemies.Count == 0)
         {
             TurnEnd();
-            return;
+            return true;
         }
 
-        if (_selectedTarget != null)
-        {
-            Attack(_selectedTarget);
-        }
+        return false;
+    }
+
+    private bool TryAttackSelectedTarget()
+    {
+        if (_selectedTarget == null) return false;
+
+        Attack(_selectedTarget);
+        return true;
     }
 
     private void TurnEnd()

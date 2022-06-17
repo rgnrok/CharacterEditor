@@ -143,6 +143,27 @@ public static partial class Helper
         }
     }
 
+    public static string GetGroupName(MeshType type)
+    {
+        switch (type)
+        {
+            case MeshType.ArmLeft:
+            case MeshType.ArmRight:
+                return "Arm";
+            case MeshType.LegLeft:
+            case MeshType.LegRight:
+                return "Leg";
+            case MeshType.HandLeft:
+            case MeshType.HandRight:
+                return "Hand";
+            case MeshType.ShoulderLeft:
+            case MeshType.ShoulderRight:
+                return "Shoulder";
+            default:
+                return type.ToString();
+        }
+    }
+
     public static string GetCursorTextureNameByType(CursorType type)
     {
         switch (type)
