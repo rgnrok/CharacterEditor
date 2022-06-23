@@ -9,7 +9,7 @@
         base.Enter();
 
         if (_moveComponent != null)
-            _moveComponent.Stop();
+            _moveComponent.Stop(true);
 
     }
 }

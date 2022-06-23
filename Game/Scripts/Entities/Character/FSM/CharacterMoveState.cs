@@ -39,6 +39,8 @@ public class CharacterMoveState : IPayloadedState<MovePayload>
 
     public void Exit()
     {
+        _moveService.FireHideCharacterPointer(_character.Guid);
+
         _moveComponent.OnMoveCompleted -= OnMoveCompletedHandler;
         _moveComponent.Stop(true);
 

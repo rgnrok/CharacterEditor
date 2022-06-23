@@ -33,7 +33,9 @@ public abstract class AttackComponent : MonoBehaviour
 
     public virtual Vector3 GetTargetPointForAttack(Vector3 target)
     {
-        var direction = Helper.GetDirection(transform.position, target);
-        return target - direction * (AttackDistance - 0.1f);
+        //todo tmp
+        // var direction = Helper.GetDirection(transform.position, target);
+        // return target - direction * (AttackDistance - 0.1f);
+        return target;
     }
 }

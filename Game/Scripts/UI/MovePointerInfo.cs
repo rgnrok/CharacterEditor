@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class MovePointerInfo : MonoBehaviour
 {
-    public TextMeshProUGUI stateText;
+    [SerializeField] private TextMeshProUGUI stateText;
+    [SerializeField] private Vector3 _movePointerInfoOffset = new Vector3(100, 10, 0);
 
     private Camera _camera;
 
@@ -14,19 +15,28 @@ public class MovePointerInfo : MonoBehaviour
         stateText.text = string.Empty;
     }
 
+    private void Update()
+    {
+        var rotation = _camera.transform.rotation;
+        transform.LookAt(transform.position + rotation * Vector3.forward,
+            rotation * Vector3.up);
+    }
+
     public void UpdateInfo(int AP, float distance)
     {
-        stateText.text = string.Format("{0}AP\n{1}m", AP, Math.Round(distance, 1));
+        UpdatePosition();
+        var meters = Math.Round(distance, 1);
+        stateText.text = $"{AP}AP\n{meters}m";
     }
 
     public void UpdateFailInfo()
     {
-        stateText.text = string.Format("Действие не возможно");
+        UpdatePosition();
+        stateText.text = "Действие не возможно";
     }
 
-    private void Update()
+    private void UpdatePosition()
     {
-        transform.LookAt(transform.position + _camera.transform.rotation * Vector3.forward,
-            _camera.transform.rotation * Vector3.up);
+        transform.position = Input.mousePosition + _movePointerInfoOffset;
     }
 }

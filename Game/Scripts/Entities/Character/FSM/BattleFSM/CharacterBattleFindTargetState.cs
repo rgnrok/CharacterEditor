@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using CharacterEditor;
+﻿using CharacterEditor;
 using CharacterEditor.Services;
 using UnityEngine;
 
@@ -10,14 +9,15 @@ public class CharacterBattleFindTargetState : CharacterBattleBaseState
     private readonly IInputService _inputService;
     private readonly ICharacterManageService _characterManageService;
     private readonly ICharacterRenderPathService _renderPathService;
+    private readonly ICharacterPathCalculation _pathCalculationService;
     private GameManager _gameManager;
 
-
-    public CharacterBattleFindTargetState(CharacterBattleFSM fsm, IInputService inputService, ICharacterManageService characterManageService, ICharacterRenderPathService renderPathService) : base(fsm)
+    public CharacterBattleFindTargetState(CharacterBattleFSM fsm, IInputService inputService, ICharacterManageService characterManageService, ICharacterRenderPathService renderPathService, ICharacterPathCalculation pathCalculationService) : base(fsm)
     {
         _inputService = inputService;
         _characterManageService = characterManageService;
         _renderPathService = renderPathService;
+        _pathCalculationService = pathCalculationService;
     }
 
     public override void Enter()
@@ -104,7 +104,9 @@ public class CharacterBattleFindTargetState : CharacterBattleBaseState
     {
         if (_character != _characterManageService.CurrentCharacter) return;
 
-        var distance = Vector3.Distance(_character.EntityGameObject.transform.position, point);
+        _pathCalculationService.SetCharacter(_character);
+        var distance = _pathCalculationService.PathDistance(point);
+        
         var actionPoints = _character.CalculateAP(distance);
         if (actionPoints > _character.ActionPoints.StatCurrentValue) return;
 

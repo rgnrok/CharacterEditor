@@ -34,9 +34,10 @@ public class CharacterBattleFSM : FSM
         var characterManageService = AllServices.Container.Single<ICharacterManageService>();
         var characterMoveService = AllServices.Container.Single<ICharacterMoveService>();
         var renderPathService = AllServices.Container.Single<ICharacterRenderPathService>();
+        var pathCalculation = AllServices.Container.Single<ICharacterPathCalculation>();
 
         _idleState = AddState(new CharacterBattleIdleState(this));
-        var findTargetState = AddState(new CharacterBattleFindTargetState(this, inputService, characterManageService, renderPathService));
+        var findTargetState = AddState(new CharacterBattleFindTargetState(this, inputService, characterManageService, renderPathService, pathCalculation));
         _turnEndState = AddState(new CharacterBattleTurnEndState(this));
         _moveState = AddState(new CharacterBattleMoveState(this, characterMoveService));
         _attackState = AddState(new CharacterBattleAttackState(this));

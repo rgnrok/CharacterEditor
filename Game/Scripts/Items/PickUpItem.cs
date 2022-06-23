@@ -37,9 +37,10 @@ public class PickUpItem : MonoBehaviour
 
     public void Awake()
     {
-        _textureLoader = AllServices.Container.Single<ITextureLoader>();
-        _meshLoader = AllServices.Container.Single<IMeshLoader>();
-        _pathProvider = AllServices.Container.Single<ILoaderService>().PathDataProvider;
+        var loaderService = AllServices.Container.Single<ILoaderService>();
+        _textureLoader = loaderService.TextureLoader;
+        _meshLoader = loaderService.MeshLoader;
+        _pathProvider = loaderService.PathDataProvider;
     }
   
 }

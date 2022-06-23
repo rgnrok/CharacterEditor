@@ -225,9 +225,7 @@ public static partial class Helper
 
     public static Vector3 GetDirection(Vector3 from, Vector3 to)
     {
-        var heading = to - from;
-        var distance = heading.magnitude;
-        return heading / distance;
+        return (to - from).normalized;
     }
 
     public static int GetActualIndex(int index, int arraySize, int defaultIndex = 0)

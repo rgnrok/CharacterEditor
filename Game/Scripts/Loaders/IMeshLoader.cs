@@ -2,8 +2,7 @@
 
 namespace CharacterEditor
 {
-    public interface IMeshLoader : ICommonLoader<GameObject>, IService
+    public interface IMeshLoader : ICommonLoader<GameObject>
     {
-
     }
 }
