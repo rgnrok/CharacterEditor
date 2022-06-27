@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using CharacterEditor;
 using CharacterEditor.Services;
@@ -58,10 +59,10 @@ public class CharacterFSM : FSM
         return _battleState.IsTurnComplete();
     }
 
-    public void StartTurn(List<IBattleEntity> entities)
+    public IEnumerator StartTurn(List<IBattleEntity> entities)
     {
-        if (CurrentState != _battleState) return;
-            _battleState.StartTurn(entities);
+        if (CurrentState != _battleState) yield break;
+        yield return _battleState.StartTurn(entities);
     }
 
     public void ProcessTurn()

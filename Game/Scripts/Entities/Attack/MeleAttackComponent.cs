@@ -1,12 +1,11 @@
 ﻿using System;
 using CharacterEditor;
 using UnityEngine;
-using UnityEngine.AI;
 using Random = UnityEngine.Random;
 
 public class MeleAttackComponent : AttackComponent
 {
-    protected override float AttackDistance => 2f;
+    public override float AttackDistance => 1.3f;
 
     private IAttacked _entity;
     private Action _completeHandler;
@@ -28,22 +27,16 @@ public class MeleAttackComponent : AttackComponent
     {
         _animatorEventReceiver.OnAttack -= OnAttackHandler;
 
-        var dmg = (_entity is Character) ? 50 : Random.Range(10, 20);//todo
+        var dmg = (_entity is Character) ? 1 : Random.Range(1, 2);//todo
         _entity.Health.StatCurrentValue -= dmg;
         _completeHandler?.Invoke();
     }
 
-    public override Vector3 GetTargetPointForAttack(Vector3 target)
+    public override Vector3 GetTargetPointForAttack(GameObject target)
     {
-        if (_moveComponent == null) return base.GetTargetPointForAttack(target);
+        if (_moveComponent == null || _pathCalculationStrategy == null) return base.GetTargetPointForAttack(target);
 
-        var path = new NavMeshPath();
-        NavMesh.CalculatePath(_moveComponent.transform.position, target, NavMesh.AllAreas, path);
-        if (path.status != NavMeshPathStatus.PathComplete || path.corners.Length < 2)
-            return base.GetTargetPointForAttack(target);
-
-        var direction = Helper.GetDirection(path.corners[path.corners.Length-2], target);
-        //todo check if corner distance less that attack distance ?
-        return target - direction * (AttackDistance - 0.1f);
+        var targetPoint = _pathCalculationStrategy.GetAttackPoint(this, target);
+        return targetPoint ;
     }
 }

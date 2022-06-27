@@ -20,5 +20,6 @@ namespace CharacterEditor.Services
 
         void Update();
         void UpdateCursor(CursorType type);
+        void UpdateMouseHit();
     }
 }

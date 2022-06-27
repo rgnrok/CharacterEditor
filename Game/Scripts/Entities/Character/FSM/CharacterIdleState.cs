@@ -9,6 +9,7 @@ public class CharacterIdleState : IState
     private readonly IInputService _inputService;
     private readonly ICharacterManageService _characterManageService;
     private readonly Character _character;
+    private readonly PlayerMoveComponent _moveComponent;
     private GameManager _gameManager;
 
     public CharacterIdleState(CharacterFSM fsm, IInputService inputService, ICharacterManageService characterManageService)
@@ -18,10 +19,13 @@ public class CharacterIdleState : IState
         _characterManageService = characterManageService;
 
         _character = fsm.Character;
+        _moveComponent = _character.MoveComponent;
     }
 
     public void Enter()
     {
+        _moveComponent.Stop(true);
+
         _inputService.GroundClick += OnGroundClickHandler;
         _inputService.ContainerGameObjectClick += ContainerGameObjectClickHandler;
 

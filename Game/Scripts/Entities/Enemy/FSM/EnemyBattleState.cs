@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using CharacterEditor;
 using CharacterEditor.Services;
 using EnemySystem;
@@ -59,13 +60,15 @@ public class EnemyBattleState : EnemyBaseState, IUpdatableState
         return _isTurnComplete;
     }
 
-    public void StartTurn(List<IBattleEntity> characters)
+    public IEnumerator StartTurn(List<IBattleEntity> characters)
     {
         if (characters.Count == 0)
         {
             _isTurnComplete = true;
-            return;
+            yield break;
         }
+        if (_moveComponent != null) yield return _moveComponent.EnableNavmesh();
+
 
         _isTurnComplete = false;
         _battleFSM.StartTurn(characters);

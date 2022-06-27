@@ -20,6 +20,7 @@ namespace CharacterEditor
         private int _round;
         private bool _isBattleStart;
         private readonly ICoroutineRunner _coroutineRunner;
+        private bool _isToggleProcess;
 
         public event Action<IBattleEntity> OnTurnCompleted;
         public event Action<IBattleEntity> OnTurnStarted;
@@ -121,9 +122,11 @@ namespace CharacterEditor
         {
             if (!_isBattleStart) return;
             if (_currentEntity == null) return;
+            if (_isToggleProcess) return;
 
             if (_currentEntity.IsTurnComplete())
             {
+                Debug.LogWarning("EntityEndTurn " + _currentEntity.EntityGameObject.name);
                 EntityEndTurn();
                 return;
             }
@@ -138,15 +141,19 @@ namespace CharacterEditor
             _currentRoundEntities.Remove(_currentEntity);
             if (_currentRoundEntities.Count == 0)
             {
+
                 _coroutineRunner.StartCoroutine(StartNewRound());
                 return;
             }
 
-            StartTurn();
+            _coroutineRunner.StartCoroutine(StartTurn());
         }
 
         private IEnumerator StartNewRound()
         {
+            _isToggleProcess = true;
+            Debug.LogWarning("StartNewRound " + _currentEntity?.EntityGameObject?.name);
+
             _currentEntity = null;
             yield return new WaitForSecondsRealtime(1f);
             _round++;
@@ -155,26 +162,31 @@ namespace CharacterEditor
 
             SortEntities();
 
-            StartTurn();
+            yield return StartTurn();
             OnNewRoundStart?.Invoke();
+            _isToggleProcess = false;
         }
 
-        private void StartTurn()
+        private IEnumerator StartTurn()
         {
+            _isToggleProcess = true;
             _currentEntity = _currentRoundEntities[0];
+
+            yield return new WaitForSecondsRealtime(.5f);
 
             var character = _currentEntity as Character;
             if (character != null)
             {
-                _currentEntity.StartTurn(_enemies);
+                yield return _currentEntity.StartTurn(_enemies);
                 GameManager.Instance.SetCharacter(character, true);
             }
             else
             {
-                _currentEntity.StartTurn(_characters);
+                yield return _currentEntity.StartTurn(_characters);
             }
 
             OnTurnStarted?.Invoke(_currentEntity);
+            _isToggleProcess = false;
         }
     }
 }

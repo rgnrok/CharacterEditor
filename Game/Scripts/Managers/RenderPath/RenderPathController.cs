@@ -31,7 +31,7 @@ public class RenderPathController : MonoBehaviour
     private IInputService _inputService;
     private ICharacterRenderPathService _renderPathService;
     private GameManager _gameManager;
-    private ICharacterPathCalculation _pathCalculation;
+    private ICharacterPathCalculationStrategy _pathCalculationStrategy;
 
     private void Start()
     {
@@ -41,8 +41,6 @@ public class RenderPathController : MonoBehaviour
         InstantiatePointer(out _cursorPathPointInstance, cursorPathPoint);
         InstantiatePointer(out _cursorAttackPathPointInstance, cursorAttackPathPoint);
         InstantiatePointer(out _endPathPointInstance, endPathPoint);
-
-        _pathCalculation = AllServices.Container.Single<ICharacterPathCalculation>();
 
         _gameManager = GameManager.Instance;
         _gameManager.OnChangeCharacter += OnChangeCharacterHandler;
@@ -89,8 +87,9 @@ public class RenderPathController : MonoBehaviour
             return;
         }
 
-        _pathCalculation.SetCharacter(character);
+        _pathCalculationStrategy = _currentCharacter.EntityGameObject.GetComponent<ICharacterPathCalculationStrategy>();
         _isEnabled = _gameManager.CurrentCharacter.Guid == _currentCharacter.Guid;
+        _inputService.UpdateMouseHit();
     }
 
     private void Clean()
@@ -133,9 +132,9 @@ public class RenderPathController : MonoBehaviour
         var pathInfo = GetPathInfo(hit);
 
         if (pathInfo.attacked != null)
-            RenderAttackPath(pathInfo);
+            RenderAttackPath(ref pathInfo);
         else
-            RenderMovePath(pathInfo);
+            RenderMovePath(ref pathInfo);
 
 
         _pointersPool.HideOthers();
@@ -145,7 +144,7 @@ public class RenderPathController : MonoBehaviour
     private void PreparePointInfo(ref RenderPathInfo pointInfo)
     {
         if (distanceBewteenPoints < float.Epsilon) return;
-        if (!_pathCalculation.CalculatePath(pointInfo.endPoint, out var corners))
+        if (!_pathCalculationStrategy.CalculatePath(pointInfo.endPoint, out var corners))
             return;
 
         var characterAP = _currentCharacter.ActionPoints.StatCurrentValue;
@@ -208,7 +207,7 @@ public class RenderPathController : MonoBehaviour
     }
 
 
-    private void RenderMovePath(RenderPathInfo pathInfo)
+    private void RenderMovePath(ref RenderPathInfo pathInfo)
     {
         _cursorAttackPathPointInstance.SetActive(false);
         _cursorPathPointInstance.transform.position = pathInfo.targetPoint + pointYOffset;
@@ -231,7 +230,7 @@ public class RenderPathController : MonoBehaviour
         UpdateEndPathPoint(pathInfo);
     }
 
-    private void RenderAttackPath(RenderPathInfo pathInfo)
+    private void RenderAttackPath(ref RenderPathInfo pathInfo)
     {
         if (pathInfo.attacked == null) return;
         
@@ -246,10 +245,13 @@ public class RenderPathController : MonoBehaviour
             return;
         }
 
+        pathInfo.endPoint = _currentCharacter.AttackComponent.GetTargetPointForAttack(pathInfo.attacked);
+        // UpdateAttackedEndPoint(ref pathInfo);
+
         PreparePointInfo(ref pathInfo);
 
         if (!pathInfo.isComplete) return;
-        if (_currentCharacter.AttackComponent.IsAvailableDistance(pathInfo.totalDistance)) return;
+        // if (_currentCharacter.AttackComponent.IsAvailableDistance(pathInfo.totalDistance)) return;
 
         foreach (var point in pathInfo.points)
         {
@@ -263,6 +265,7 @@ public class RenderPathController : MonoBehaviour
 
         UpdateEndPathPoint(pathInfo);
     }
+
 
     private void UpdateEndPathPoint(RenderPathInfo pathInfo)
     {

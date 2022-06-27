@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using CharacterEditor;
 using StatSystem;
@@ -59,9 +60,9 @@ namespace EnemySystem
             _enemyFSM.SpawnEvent((int)EnemyFSM.EnemyStateType.Battle);
         }
 
-        public void StartTurn(List<IBattleEntity> enemies)
+        public IEnumerator StartTurn(List<IBattleEntity> enemies)
         {
-            _enemyFSM.StartTurn(enemies);
+            yield return _enemyFSM.StartTurn(enemies);
         }
 
         public void ProcessTurn()

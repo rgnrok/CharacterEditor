@@ -213,6 +213,7 @@ GameObject:
   - component: {fileID: 1777613629446240786}
   - component: {fileID: 6991162947703097629}
   - component: {fileID: 6884911774871245384}
+  - component: {fileID: 1094639984868437716}
   m_Layer: 11
   m_Name: Character_Enemy
   m_TagString: Untagged
@@ -320,6 +321,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 0}
+  _animatorEventReceiver: {fileID: 0}
+  _moveComponent: {fileID: 0}
 --- !u!136 &6884911774871245384
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -334,6 +337,19 @@ CapsuleCollider:
   m_Height: 2.5
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &1094639984868437716
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5582162331138226691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8257c94236ca4364ea83f840016f1c65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _navMeshAgent: {fileID: 6144850563032663819}
 --- !u!1 &8025689495923452150
 GameObject:
   m_ObjectHideFlags: 0

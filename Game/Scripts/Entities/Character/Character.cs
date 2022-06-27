@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using CharacterEditor.CharacterInventory;
 using StatSystem;
@@ -120,9 +121,9 @@ namespace CharacterEditor
             return _characterFSM.IsTurnComplete();
         }
 
-        public void StartTurn(List<IBattleEntity> entities)
+        public IEnumerator StartTurn(List<IBattleEntity> entities)
         {
-            _characterFSM.StartTurn(entities);
+           yield return _characterFSM.StartTurn(entities);
         }
 
         public void ProcessTurn()

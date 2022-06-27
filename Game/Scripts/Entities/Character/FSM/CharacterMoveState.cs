@@ -42,7 +42,7 @@ public class CharacterMoveState : IPayloadedState<MovePayload>
         _moveService.FireHideCharacterPointer(_character.Guid);
 
         _moveComponent.OnMoveCompleted -= OnMoveCompletedHandler;
-        _moveComponent.Stop(true);
+        _moveComponent.Stop();
 
         _inputService.GroundClick -= GroundClickHandler;
         GameManager.Instance.OnEnemyClick -= OnEnemyClickHandler;

@@ -215,7 +215,7 @@ public static partial class Helper
 
     public static bool IsNear(Vector3 from, Vector3 to, float distance = 1f)
     {
-        return DistanceToObject(from, to) < distance;
+        return DistanceToObject(from, to) < distance + 0.1f;
     }
 
     public static bool IsNear(Vector3 from, Collider to, float distance = 1f)

@@ -4,20 +4,21 @@ using UnityEngine;
 
 public class CharacterBattleFindTargetState : CharacterBattleBaseState
 {
-    private CharacterAttackComponent _attackComponent;
-    private IAttacked _selectedTarget;
     private readonly IInputService _inputService;
     private readonly ICharacterManageService _characterManageService;
     private readonly ICharacterRenderPathService _renderPathService;
-    private readonly ICharacterPathCalculation _pathCalculationService;
+
+    private CharacterAttackComponent _attackComponent;
+    private IAttacked _selectedTarget;
+    private ICharacterPathCalculationStrategy _pathCalculationStrategy;
+
     private GameManager _gameManager;
 
-    public CharacterBattleFindTargetState(CharacterBattleFSM fsm, IInputService inputService, ICharacterManageService characterManageService, ICharacterRenderPathService renderPathService, ICharacterPathCalculation pathCalculationService) : base(fsm)
+    public CharacterBattleFindTargetState(CharacterBattleFSM fsm, IInputService inputService, ICharacterManageService characterManageService, ICharacterRenderPathService renderPathService) : base(fsm)
     {
         _inputService = inputService;
         _characterManageService = characterManageService;
         _renderPathService = renderPathService;
-        _pathCalculationService = pathCalculationService;
     }
 
     public override void Enter()
@@ -25,6 +26,9 @@ public class CharacterBattleFindTargetState : CharacterBattleBaseState
         base.Enter();
 
         if (CheckTurnEnd()) return;
+
+        if (_pathCalculationStrategy == null)
+            _pathCalculationStrategy = _character.EntityGameObject.GetComponent<ICharacterPathCalculationStrategy>();
 
         _gameManager = GameManager.Instance;
         _attackComponent = _character.AttackComponent;
@@ -90,7 +94,8 @@ public class CharacterBattleFindTargetState : CharacterBattleBaseState
             return;
         }
 
-        _fsm.SpawnEvent((int)CharacterBattleFSM.CharacterBattleStateType.Move, _attackComponent.GetTargetPointForAttack(target));
+        var targetPoint = _attackComponent.GetTargetPointForAttack(target);
+        _fsm.SpawnEvent((int)CharacterBattleFSM.CharacterBattleStateType.Move, targetPoint);
     }
 
     private void OnEnemyClickHandler(string characterGuid, IAttacked attacked)
@@ -104,8 +109,7 @@ public class CharacterBattleFindTargetState : CharacterBattleBaseState
     {
         if (_character != _characterManageService.CurrentCharacter) return;
 
-        _pathCalculationService.SetCharacter(_character);
-        var distance = _pathCalculationService.PathDistance(point);
+        var distance = _pathCalculationStrategy.PathDistance(point);
         
         var actionPoints = _character.CalculateAP(distance);
         if (actionPoints > _character.ActionPoints.StatCurrentValue) return;

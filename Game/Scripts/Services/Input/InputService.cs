@@ -81,7 +81,7 @@ namespace CharacterEditor.Services
                 }
             }
 
-            UpdateCursor();
+            UpdateMouseHit();
         }
 
         public async void UpdateCursor(CursorType type)
@@ -217,7 +217,7 @@ namespace CharacterEditor.Services
             }
         }
 
-        private void UpdateCursor(bool force = false)
+        private void UpdateMouseHit(bool force = false)
         {
             if (!force && _prevMousePosition == Input.mousePosition) return;
             _prevMousePosition = Input.mousePosition;
@@ -232,9 +232,10 @@ namespace CharacterEditor.Services
             OnChangeMouseRaycastHit?.Invoke(_currentRaycastHit);
         }
 
-        private void CameraPositionChangedHandler()
-        {
-            UpdateCursor(true);
-        }
+        private void CameraPositionChangedHandler() =>
+            UpdateMouseHit(true);
+
+        public void UpdateMouseHit() => 
+            UpdateMouseHit(true);
     }
 }

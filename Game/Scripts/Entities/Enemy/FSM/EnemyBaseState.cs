@@ -6,7 +6,7 @@ public class EnemyBaseState : IState
     protected readonly EnemyFSM _fsm;
     protected EnemyGameObjectDetectColliderComponent _detectCollider;
     protected Enemy _enemy;
-    private readonly PlayerMoveComponent _moveComponent;
+    protected readonly PlayerMoveComponent _moveComponent;
 
     protected EnemyBaseState(EnemyFSM fsm)
     {

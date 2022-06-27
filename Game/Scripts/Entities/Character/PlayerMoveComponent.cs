@@ -43,7 +43,7 @@ public class PlayerMoveComponent : MonoBehaviour
     private void Update()
     {
         UpdateAnimation();
-        if (_isMoved && _navMeshAgent.remainingDistance < 0.1f && !_navMeshAgent.pathPending)
+        if (_isMoved && _navMeshAgent.remainingDistance < 0.09f && !_navMeshAgent.pathPending)
         {
             Stop();
         }
@@ -71,7 +71,7 @@ public class PlayerMoveComponent : MonoBehaviour
         _disableNavMeshOnStop = false;
 
         if (_agentSwitchCoroutine != null) StopCoroutine(_agentSwitchCoroutine);
-        if (forceDisable) _agentSwitchCoroutine = StartCoroutine(DisableNavmeshCoroutine());
+        if (forceDisable && gameObject.activeSelf) _agentSwitchCoroutine = StartCoroutine(DisableNavmeshCoroutine());
 
         OnMoveCompleted?.Invoke();
     }
@@ -83,10 +83,11 @@ public class PlayerMoveComponent : MonoBehaviour
         _agentSwitchCoroutine = StartCoroutine(Move(point));
     }
 
-    public void EnableNavmesh()
+    public IEnumerator EnableNavmesh()
     {
         if (_agentSwitchCoroutine != null) StopCoroutine(_agentSwitchCoroutine);
         _agentSwitchCoroutine = StartCoroutine(EnableNavmeshCoroutine());
+        yield return _agentSwitchCoroutine;
     }
 
     public void DisableNavmesh()
@@ -119,6 +120,8 @@ public class PlayerMoveComponent : MonoBehaviour
 
             _navMeshAgent.enabled = true;
             yield return new WaitForEndOfFrame();
+            Debug.Log("EnableNavmeshCoroutine " + name);
+
         }
         _agentSwitchCoroutine = null;
     }
@@ -134,9 +137,9 @@ public class PlayerMoveComponent : MonoBehaviour
             yield return new WaitForEndOfFrame();
 
             _navMeshObstacle.enabled = true;
-            yield return new WaitForEndOfFrame();
             _navMeshObstacle.carving = true;
-            yield return new WaitForEndOfFrame();
+            Debug.Log("DisableNavmeshCoroutine " + name);
+
         }
         _agentSwitchCoroutine = null;
     }

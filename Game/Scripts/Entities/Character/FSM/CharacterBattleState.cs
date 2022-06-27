@@ -66,14 +66,16 @@ public class CharacterBattleState : IState, IUpdatableState
         return _isTurnComplete;
     }
 
-    public void StartTurn(List<IBattleEntity> enemies)
+    public IEnumerator StartTurn(List<IBattleEntity> enemies)
     {
         if (enemies.Count == 0)
         {
             _isTurnComplete = true;
-            return;
+            yield break;
         }
-        if (_moveComponent != null) _moveComponent.EnableNavmesh();
+
+        if (_moveComponent != null)
+            yield return _moveComponent.EnableNavmesh();
 
         _isTurnComplete = false;
         _battleFSM.StartTurn(enemies);

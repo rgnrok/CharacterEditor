@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using StatSystem;
 using UnityEngine;
@@ -18,7 +19,7 @@ public interface IBattleEntity : IIdentifiable
     event Action<IBattleEntity> OnDied;
 
     void StartBattle();
-    void StartTurn(List<IBattleEntity> enemies);
+    IEnumerator StartTurn(List<IBattleEntity> enemies);
     void ProcessTurn();
 
     bool IsTurnComplete();

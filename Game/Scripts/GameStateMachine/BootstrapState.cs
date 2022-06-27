@@ -59,7 +59,6 @@ namespace Game
             _services.RegisterSingle<ICharacterManageService>(new CharacterManageService());
 
             _services.RegisterSingle<IBattleManageService>(new BattleManager(_coroutineRunner));
-            _services.RegisterSingle<ICharacterPathCalculation>(new CharacterNavMeshPathCalculation());
         }
 
         private void RegisterStaticDataService()

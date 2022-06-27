@@ -15,7 +15,7 @@ public abstract class EntityAttackComponent
 
     public event Action OnAttackComplete ;
 
-    protected abstract AttackComponent GetCurrentAttackComponent();
+    public abstract AttackComponent GetCurrentAttackComponent();
 
     public EntityAttackComponent(GameObject go)
     {
@@ -48,18 +48,18 @@ public abstract class EntityAttackComponent
 
     public Vector3 GetTargetPointForAttack(IAttacked enity)
     {
-        return GetTargetPointForAttack(enity.EntityGameObject.transform.position);
+        return GetTargetPointForAttack(enity.EntityGameObject);
     }
 
     public Vector3 GetTargetPointForAttack(IBattleEntity enity)
     {
-        return GetTargetPointForAttack(enity.EntityGameObject.transform.position);
+        return GetTargetPointForAttack(enity.EntityGameObject);
     }
 
-    public Vector3 GetTargetPointForAttack(Vector3 targetPoint)
+    private Vector3 GetTargetPointForAttack(GameObject target)
     {
         var attackComponent = GetCurrentAttackComponent();
-        return attackComponent.GetTargetPointForAttack(targetPoint);
+        return attackComponent.GetTargetPointForAttack(target);
     }
 
     public virtual void Attack(IBattleEntity enity)

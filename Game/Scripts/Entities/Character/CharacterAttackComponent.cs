@@ -10,7 +10,7 @@
             _character = character;
         }
 
-        protected override AttackComponent GetCurrentAttackComponent()
+        public override AttackComponent GetCurrentAttackComponent()
         {
             var weapon = _character.GetWeapon();
             return _meleAttackComponent;

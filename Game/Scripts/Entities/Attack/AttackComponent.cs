@@ -6,9 +6,10 @@ public abstract class AttackComponent : MonoBehaviour
     [SerializeField] protected Animator _animator;
     [SerializeField] protected AnimatorEventReceiver _animatorEventReceiver;
     [SerializeField] protected PlayerMoveComponent _moveComponent;
+    [SerializeField] protected ICharacterPathCalculationStrategy _pathCalculationStrategy;
   
 
-    protected abstract float AttackDistance { get; }
+    public abstract float AttackDistance { get; }
 
     public abstract void Attack(IAttacked entity, Action completeHandler);
 
@@ -18,6 +19,7 @@ public abstract class AttackComponent : MonoBehaviour
         if (_animatorEventReceiver == null) _animatorEventReceiver = GetComponentInChildren<AnimatorEventReceiver>();
 
         if (_moveComponent == null) _moveComponent = GetComponent<PlayerMoveComponent>();
+        if (_pathCalculationStrategy == null) _pathCalculationStrategy = GetComponent<ICharacterPathCalculationStrategy>();
     }
 
     public bool IsAvailableDistance(float distance)
@@ -31,11 +33,12 @@ public abstract class AttackComponent : MonoBehaviour
         return Helper.IsNear(transform.position, point, AttackDistance); 
     }
 
-    public virtual Vector3 GetTargetPointForAttack(Vector3 target)
+    public virtual Vector3 GetTargetPointForAttack(GameObject target)
     {
+        Debug.LogWarning("BASE GetTargetPointForAttack");
         //todo tmp
         // var direction = Helper.GetDirection(transform.position, target);
         // return target - direction * (AttackDistance - 0.1f);
-        return target;
+        return target.transform.position;
     }
 }

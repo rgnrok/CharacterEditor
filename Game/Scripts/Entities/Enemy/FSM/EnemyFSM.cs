@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using EnemySystem;
 
 public class EnemyFSM : FSM
@@ -36,10 +37,10 @@ public class EnemyFSM : FSM
         return _battleState.IsTurnComplete();
     }
     
-    public void StartTurn(List<IBattleEntity> enemies)
+    public IEnumerator StartTurn(List<IBattleEntity> enemies)
     {
-        if (CurrentState != _battleState) return;
-        _battleState.StartTurn(enemies);
+        if (CurrentState != _battleState) yield break;
+        yield return _battleState.StartTurn(enemies);
     }
     
     public void ProcessTurn()
