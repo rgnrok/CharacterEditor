@@ -1,0 +1,3 @@
+[submodule "CharacterEditor_Packages"]
+	path = CharacterEditor_Packages
+	url = https://github.com/rgnrok/CharacterEditor_Packages.git
