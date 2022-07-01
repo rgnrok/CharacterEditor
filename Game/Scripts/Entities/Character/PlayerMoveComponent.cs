@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using CharacterEditor;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -8,7 +9,7 @@ using UnityEngine.AI;
  */
 public class PlayerMoveComponent : MonoBehaviour
 {
-    public Animator _animator;
+    public ICharacterAnimator _animator;
     public NavMeshAgent _navMeshAgent;
     public NavMeshObstacle _navMeshObstacle;
 
@@ -24,9 +25,9 @@ public class PlayerMoveComponent : MonoBehaviour
 
     private void Awake()
     {
-        if (!_animator) _animator = GetComponentInChildren<Animator>();
-        if (!_navMeshAgent) _navMeshAgent = GetComponent<NavMeshAgent>();
-        if (!_navMeshObstacle) _navMeshObstacle = GetComponent<NavMeshObstacle>();
+        if (_animator == null) _animator = GetComponentInChildren<ICharacterAnimator>();
+        if (_navMeshAgent == null) _navMeshAgent = GetComponent<NavMeshAgent>();
+        if (_navMeshObstacle == null) _navMeshObstacle = GetComponent<NavMeshObstacle>();
     }
 
     private void OnEnable()
@@ -166,6 +167,6 @@ public class PlayerMoveComponent : MonoBehaviour
             agentSpeed = Vector3.Project(_navMeshAgent.desiredVelocity, transform.forward).magnitude;
         }
 
-        _animator.SetFloat("speed", agentSpeed);
+        _animator.SetSpeed(agentSpeed);
     }
 }

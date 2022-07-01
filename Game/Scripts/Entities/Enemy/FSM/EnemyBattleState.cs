@@ -28,7 +28,7 @@ public class EnemyBattleState : EnemyBaseState, IUpdatableState
         _battleFSM.Start();
 
         _battleManageService.OnBattleEnd += OnBattleEndHandler;
-        _enemy.GameObjectData.Animator.SetTrigger(Constants.CHARACTER_START_BATTLE_TRIGGER);
+        _enemy.GameObjectData.Animator.StartBattle();
 
         if (_detectCollider != null) _detectCollider.IncreaseDetectCollider();
     }
@@ -41,7 +41,7 @@ public class EnemyBattleState : EnemyBaseState, IUpdatableState
         _battleFSM.Clean();
 
         _battleManageService.OnBattleEnd -= OnBattleEndHandler;
-        if (_enemy.IsAlive()) _enemy.GameObjectData.Animator.SetTrigger(Constants.CHARACTER_END_BATTLE_TRIGGER);
+        if (_enemy.IsAlive()) _enemy.GameObjectData.Animator.EndBattle();
         if (_detectCollider != null) _detectCollider.DecreaseDetectCollider();
     }
 

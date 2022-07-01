@@ -15,9 +15,9 @@ public abstract class EntityAttackComponent
 
     public event Action OnAttackComplete ;
 
-    public abstract AttackComponent GetCurrentAttackComponent();
+    protected abstract AttackComponent GetCurrentAttackComponent();
 
-    public EntityAttackComponent(GameObject go)
+    protected EntityAttackComponent(GameObject go)
     {
         _meleAttackComponent = go.GetComponent<MeleAttackComponent>();
         _rangeAttackComponent = go.GetComponent<RangeAttackComponent>();

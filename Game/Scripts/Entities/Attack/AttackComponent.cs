@@ -1,9 +1,10 @@
 ﻿ using System;
+ using CharacterEditor;
  using UnityEngine;
 
 public abstract class AttackComponent : MonoBehaviour
 {
-    [SerializeField] protected Animator _animator;
+    [SerializeField] protected ICharacterAnimator _characterAnimator;
     [SerializeField] protected AnimatorEventReceiver _animatorEventReceiver;
     [SerializeField] protected PlayerMoveComponent _moveComponent;
     [SerializeField] protected ICharacterPathCalculationStrategy _pathCalculationStrategy;
@@ -15,7 +16,7 @@ public abstract class AttackComponent : MonoBehaviour
 
     protected virtual void Awake()
     {
-        if (_animator == null) _animator = GetComponentInChildren<Animator>();
+        if (_characterAnimator == null) _characterAnimator = GetComponentInChildren<ICharacterAnimator>();
         if (_animatorEventReceiver == null) _animatorEventReceiver = GetComponentInChildren<AnimatorEventReceiver>();
 
         if (_moveComponent == null) _moveComponent = GetComponent<PlayerMoveComponent>();

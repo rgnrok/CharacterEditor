@@ -21,7 +21,7 @@ public class CharacterDeadState : IState
 
     private void Die()
     {
-        _character.GameObjectData.Animator.SetTrigger(Constants.CHARACTER_DIE_TRIGGER);
+        _character.GameObjectData.Animator.Die();
         
         var deadCollider = _character.EntityGameObject.transform.Find("DeadCollider");
         var liveCollider = _character.EntityGameObject.GetComponent<CapsuleCollider>();

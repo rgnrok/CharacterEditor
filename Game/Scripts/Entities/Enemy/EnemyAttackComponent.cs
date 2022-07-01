@@ -11,7 +11,7 @@
           
         }
 
-        public override AttackComponent GetCurrentAttackComponent()
+        protected override AttackComponent GetCurrentAttackComponent()
         {
             return _meleAttackComponent;
         }

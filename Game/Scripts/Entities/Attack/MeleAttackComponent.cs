@@ -20,7 +20,7 @@ public class MeleAttackComponent : AttackComponent
         _moveComponent.RotateTo(entity.EntityGameObject.transform.position);
         _animatorEventReceiver.OnAttack += OnAttackHandler;
 
-        _animator.SetTrigger(Constants.CHARACTER_MELEE_ATTACK_1_TRIGGER);
+        _characterAnimator.Attack();
     }
 
     private void OnAttackHandler()

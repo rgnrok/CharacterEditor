@@ -17,14 +17,14 @@ namespace CharacterEditor
         public Texture2D FaceMeshTexture { get; }
         public Sprite Portrait { get; }
 
-        private CharacterFSM _characterFSM;
-        public IFSM FSM => _characterFSM;
+        private CharacterFSM _characterFsm;
+        public IFSM FSM => _characterFsm;
 
         public CharacterAttackComponent AttackComponent { get; private set; }
         public PlayerMoveComponent MoveComponent { get; private set; }
 
-        public Vital ActionPoints { get { return StatCollection.GetStat<Vital>(StatType.ActionPoint); } }
-        public float Speed { get { return StatCollection.GetStat<Attribute>(StatType.Speed).StatValue / 100f; } }
+        public Vital ActionPoints => StatCollection.GetStat<Vital>(StatType.ActionPoint);
+        public float Speed => StatCollection.GetStat<Attribute>(StatType.Speed).StatValue / 100f;
 
         public event Action<EquipItem, EquipItemSlot> OnEquipItem;
         public event Action<EquipItem> OnUnEquipItem;
@@ -56,7 +56,7 @@ namespace CharacterEditor
             base.OnDie();
             OnDied?.Invoke(this);
 
-            _characterFSM.SpawnEvent((int)CharacterFSM.CharacterStateType.Dead);
+            _characterFsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Dead);
         }
 
         protected override void InternalInit()
@@ -66,8 +66,8 @@ namespace CharacterEditor
             AttackComponent = new CharacterAttackComponent(this);
             MoveComponent = EntityGameObject.GetComponent<PlayerMoveComponent>();
 
-            _characterFSM = new CharacterFSM(this);
-            _characterFSM.Start();
+            _characterFsm = new CharacterFSM(this);
+            _characterFsm.Start();
 
             var canvas = EntityGameObject.GetComponentInChildren<EntityCanvas>();
             if (canvas != null) canvas.Init(this);
@@ -113,22 +113,22 @@ namespace CharacterEditor
 
         public void StartBattle()
         {
-            _characterFSM.SpawnEvent((int)CharacterFSM.CharacterStateType.Battle);
+            _characterFsm.SpawnEvent((int)CharacterFSM.CharacterStateType.Battle);
         }
 
         public bool IsTurnComplete()
         {
-            return _characterFSM.IsTurnComplete();
+            return _characterFsm.IsTurnComplete();
         }
 
         public IEnumerator StartTurn(List<IBattleEntity> entities)
         {
-           yield return _characterFSM.StartTurn(entities);
+           yield return _characterFsm.StartTurn(entities);
         }
 
         public void ProcessTurn()
         {
-            _characterFSM.ProcessTurn();
+            _characterFsm.ProcessTurn();
         }
 
         #endregion
@@ -170,8 +170,74 @@ namespace CharacterEditor
                     StatCollection.AddStatModifier(statPair.Key, modifier, false);
             }
             StatCollection.UpdateStatModifiers();
+            UpdateAnimatorStates(slotType);
 
             return slotType;
+        }
+
+        public bool UnEquipItem(EquipItem equipItem)
+        {
+            var slotType = EquipItemSlot.Undefined;
+            foreach (var itemPair in EquipItems)
+            {
+                if (itemPair.Value.Guid != equipItem.Guid) continue;
+
+                slotType = itemPair.Key;
+                break;
+            }
+
+            if (slotType == EquipItemSlot.Undefined) return false;
+
+            UpdateAnimatorStates(slotType);
+            return UnEquipItem(slotType, false);
+        }
+
+        public bool SwapItems(EquipItemSlot slot1, EquipItemSlot slot2)
+        {
+            EquipItems.TryGetValue(slot1, out var item1);
+            EquipItems.TryGetValue(slot2, out var item2);
+
+            if (item1 == null && item2 == null) return false;
+
+            if (item2 != null) EquipItems[slot1] = item2;
+            else EquipItems.Remove(slot1);
+
+            if (item1 != null) EquipItems[slot2] = item1;
+            else EquipItems.Remove(slot2);
+            return true;
+        }
+
+        public void AddFaceMesh(FaceMesh item)
+        {
+            //Equip new item
+            FaceMeshItems[item.MeshType] = item;
+            item.Equip(GameObjectData.meshBones, GameObjectData.previewMeshBones);
+        }
+
+        public EquipItem GetWeapon()
+        {
+            if (EquipItems.TryGetValue(EquipItemSlot.HandRight, out var item) &&
+                item.ItemType == EquipItemType.Weapon) return item;
+
+            if (EquipItems.TryGetValue(EquipItemSlot.HandLeft, out item) &&
+                item.ItemType == EquipItemType.Weapon) return item;
+
+            return null;
+        }
+
+        private void UpdateAnimatorStates(EquipItemSlot slotType)
+        {
+            if (slotType != EquipItemSlot.HandRight && slotType != EquipItemSlot.HandLeft) return;
+
+            GameObjectData.Animator.UseRightHand(EquipItems.ContainsKey(EquipItemSlot.HandRight));
+            
+            var useShield = EquipItems.TryGetValue(EquipItemSlot.HandLeft, out var leftHand) && leftHand.ItemType == EquipItemType.Shield;
+            GameObjectData.Animator.UseShield(useShield);
+
+            var use2HandWeapon = EquipItems.TryGetValue(EquipItemSlot.HandLeft, out var rightHand) && rightHand.IsTwoHandItem;
+            GameObjectData.Animator.Use2HandWeapon(use2HandWeapon);
+
+            GameObjectData.Animator.Use2Weapons(!useShield && !use2HandWeapon && rightHand != null && leftHand != null);
         }
 
         private EquipItemSlot GetAvailableSlot(EquipItem item)
@@ -252,22 +318,6 @@ namespace CharacterEditor
 
         }
 
-        public bool UnEquipItem(EquipItem equipItem)
-        {
-            var slotType = EquipItemSlot.Undefined;
-            foreach (var itemPair in EquipItems)
-            {
-                if (itemPair.Value.Guid != equipItem.Guid) continue;
-
-                slotType = itemPair.Key;
-                break;
-            }
-
-            if (slotType == EquipItemSlot.Undefined) return false;
-
-            return UnEquipItem(slotType, false);
-        }
-
         private bool UnEquipItem(EquipItemSlot slotType, bool addToInventory = true)
         {
             if (!EquipItems.ContainsKey(slotType)) return false;
@@ -287,45 +337,12 @@ namespace CharacterEditor
             return true;
         }
 
-        public void AddFaceMesh(FaceMesh item)
-        {
-            //Equip new item
-            FaceMeshItems[item.MeshType] = item;
-            item.Equip(GameObjectData.meshBones, GameObjectData.previewMeshBones);
-        }
-
         private void RemoveFromInventory(Item item)
         {
             OnRemoveFromInventory?.Invoke(Guid, item);
         }
 
-        public bool SwapItems(EquipItemSlot slot1, EquipItemSlot slot2)
-        {
-            EquipItems.TryGetValue(slot1, out var item1);
-            EquipItems.TryGetValue(slot2, out var item2);
-
-            if (item1 == null && item2 == null) return false;
-
-            if (item2 != null) EquipItems[slot1] = item2;
-            else EquipItems.Remove(slot1);
-
-            if (item1 != null) EquipItems[slot2] = item1;
-            else EquipItems.Remove(slot2);
-            return true;
-        }
-
-        public EquipItem GetWeapon()
-        {
-            if (EquipItems.TryGetValue(EquipItemSlot.HandRight, out var item) &&
-                item.ItemType == EquipItemType.Weapon) return item;
-
-            if (EquipItems.TryGetValue(EquipItemSlot.HandLeft, out item) &&
-                item.ItemType == EquipItemType.Weapon) return item;
-
-            return null;
-        }
-
-#endregion
+        #endregion
 
 
     }

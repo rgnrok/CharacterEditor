@@ -22,6 +22,6 @@ public class EnemyDeadState : IState
     {
         if (_enemy == null) return;
 
-        _enemy.GameObjectData.Animator.SetTrigger(Constants.CHARACTER_DIE_TRIGGER);
+        _enemy.GameObjectData.Animator.Die();
     }
 }

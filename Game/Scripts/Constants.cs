@@ -30,18 +30,5 @@ public sealed class Constants
     public const int LAYER_ENEMY = 13;
     public const int LAYER_CONTAINER = 14;
     public const int LAYER_PICKUP = 15;
-
-
-    #region Animations
-
-    public const string CHARACTER_DIE_TRIGGER = "Die";
-    public const string CHARACTER_START_BATTLE_TRIGGER = "StartBattle";
-    public const string CHARACTER_END_BATTLE_TRIGGER = "EndBattle";
-
-    public const string CHARACTER_MELEE_ATTACK_1_TRIGGER = "Attack1";
-    public const string CHARACTER_MELEE_ATTACK_2_TRIGGER = "Attack2";
-
-
-    #endregion
 }
 

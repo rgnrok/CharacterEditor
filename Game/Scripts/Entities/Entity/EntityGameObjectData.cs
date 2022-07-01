@@ -8,13 +8,13 @@ public class EntityGameObjectData<TConfig> where TConfig: EntityConfig
     public Renderer[] SkinMeshes { get; }
     public GameObject Entity { get; }
 
-    public Animator Animator { get; }
+    public ICharacterAnimator Animator { get; }
 
     public EntityGameObjectData(TConfig config, GameObject entityObject)
     {
         Config = config;
         Entity = entityObject;
-        Animator = Entity.GetComponentInChildren<Animator>();
+        Animator = Entity.GetComponentInChildren<ICharacterAnimator>();
 
         SkinMeshes = ParseSkinMeshes(Entity.transform, Config.skinnedMeshes);
     }

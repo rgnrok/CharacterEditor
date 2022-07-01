@@ -35,7 +35,7 @@ public class CharacterBattleState : IState, IUpdatableState
         _battleFSM.Start();
 
         _battleManageService.OnBattleEnd += OnBattleEndHandler;
-        _character.GameObjectData.Animator.SetTrigger(Constants.CHARACTER_START_BATTLE_TRIGGER);
+        _character.GameObjectData.Animator.StartBattle();
         _character.ActionPoints.SetValueCurrentToMax();
     }
 
@@ -46,7 +46,7 @@ public class CharacterBattleState : IState, IUpdatableState
         _battleFSM.Clean();
 
         _battleManageService.OnBattleEnd -= OnBattleEndHandler;
-        if (_character.IsAlive()) _character.GameObjectData.Animator.SetTrigger(Constants.CHARACTER_END_BATTLE_TRIGGER);
+        if (_character.IsAlive()) _character.GameObjectData.Animator.EndBattle();
     }
 
     public void Update()
